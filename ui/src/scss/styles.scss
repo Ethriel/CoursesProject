@@ -1,0 +1,144 @@
+@mixin width100 {
+    width: 100%;
+}
+
+@mixin width84 {
+    width: 84%;
+}
+
+@mixin width75 {
+    width: 75%;
+}
+
+@mixin width50 {
+    width: 50%;
+}
+
+@mixin width30 {
+    width: 30%;
+}
+
+@mixin width20 {
+    width: 20%;
+}
+
+@mixin height-100 {
+    height: 100%;
+}
+
+@mixin displayFlex {
+    display: flex;
+}
+
+@mixin colFlex {
+    flex-direction: column;
+}
+
+@mixin rowFlex {
+    flex-direction: row;
+}
+
+@mixin centerFlex {
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin spaceAroundFlex {
+    justify-content: space-around;
+}
+
+@mixin spaceBetweenFlex {
+    justify-content: space-between;
+}
+
+.width-100 {
+    @include width100();
+}
+
+.width-84 {
+    width: 84%;
+}
+
+.width-75 {
+    @include width75()
+}
+
+.width-50 {
+    @include width50()
+}
+
+.width-30 {
+    @include width30();
+}
+
+.width-20 {
+    @include width20();
+}
+
+.height-100 {
+    @include height-100();
+}
+
+.display-flex {
+    @include displayFlex();
+}
+
+.col-flex {
+    @include colFlex();
+}
+
+.row-flex {
+    @include rowFlex();
+}
+
+.center-flex {
+    @include centerFlex();
+}
+
+.space-around-flex {
+    @include spaceAroundFlex();
+}
+
+.space-between-flex {
+    @include spaceBetweenFlex();
+}
+
+.my-container-default {
+    height: 100%;
+}
+
+.ant-form-item-label {
+    text-align: left;
+}
+
+.header-flex {
+    align-items: initial;
+
+    * {
+        margin: 0.5%;
+    }
+}
+
+.ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.img-card-my {
+    width: 250px;
+    height: 250px;
+}
+
+.ant-layout-header{
+    height: 55px;
+    line-height: 55px;
+}
+
+.ant-layout-footer {
+    padding: 1%;
+}
+
+.ant-pagination {
+    margin-top: 0.5%;
+}
