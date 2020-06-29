@@ -4,13 +4,12 @@ import '../../index.css';
 import { Table } from 'antd';
 
 
-const TableComponent = props => {
-    console.log(props.expandable);
-    const ext = props.expandable;
+function TableComponent(props) {
+    const exp = props.expandable;
     return (
         <Table
             className={props.className}
-            expandable={{ext}}
+            expandable={{ext: exp}}
             columns={props.columns}
             dataSource={props.data}
             pagination={
