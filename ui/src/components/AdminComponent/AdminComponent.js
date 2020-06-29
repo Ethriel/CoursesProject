@@ -3,6 +3,7 @@ import 'antd/dist/antd.css';
 import '../../index.css';
 import TableComponent from '../common/TableComponent';
 import GetTableData from '../../helpers/GetTableData';
+import GetNestedTable from '../../helpers/GetNestedTable';
 
 class AdminComponent extends Component {
 
@@ -11,9 +12,16 @@ class AdminComponent extends Component {
         const info = GetTableData(10);
         const columns = info.columns;
         const data = info.data;
+        const nestedTable = GetNestedTable(5);
 
         return (
-            <TableComponent columns={columns} data={data} pageSize={5} total={info.length} />
+            <TableComponent
+            className="components-table-demo-nested"
+            columns={columns} 
+            data={data}
+            expandable={nestedTable}
+            pageSize={5} 
+            total={info.length} />
         )
     }
 }

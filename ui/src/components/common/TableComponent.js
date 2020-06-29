@@ -5,9 +5,12 @@ import { Table } from 'antd';
 
 
 const TableComponent = props => {
-
+    console.log(props.expandable);
+    const ext = props.expandable;
     return (
         <Table
+            className={props.className}
+            expandable={{ext}}
             columns={props.columns}
             dataSource={props.data}
             pagination={

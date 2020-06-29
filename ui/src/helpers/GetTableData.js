@@ -6,15 +6,15 @@ function GetTableData(records) {
     let i = columnsNames.length;
     for (let colName of columnsNames) {
         let indexAndKey = colName.replace(/\s/g, '').toLowerCase();
-        console.log("INDEX and KEY = ", indexAndKey);
         let col = {
             title: colName,
             dataIndex: indexAndKey,
             key: indexAndKey,
             sorter: {
-                compare: (a, b) => a.indexAndKey - b.indexAndKey,
-                multiple: i,
-            }
+                compare: (a, b) => a.id - b.id,
+                multiple: i
+            },
+            align: 'center'
         };
         columns.push(col);
         i--;
@@ -34,7 +34,7 @@ function GetTableData(records) {
         data.push(obj);
     };
 
-    return(
+    return (
         {
             columns: columns,
             data: data
