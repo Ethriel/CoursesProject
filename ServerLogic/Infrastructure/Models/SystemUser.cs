@@ -12,15 +12,15 @@ namespace Infrastructure.Models
         public int Age { get; set; }
         public DateTime RegisteredDate { get; set; }
         public DateTime StudyDate { get; set; }
+        public string AvatarPath { get; set; }
         public virtual SystemRole SystemRole { get; set; }
-        public virtual ICollection<TrainingCourse> TrainingCourses { get; set; }
+        public virtual ICollection<SystemUsersTrainingCourses> SystemUsersTrainingCourses { get; set; }
         public SystemUser()
         {
-            CalculateAge();
-            TrainingCourses = new HashSet<TrainingCourse>();
+            SystemUsersTrainingCourses = new HashSet<SystemUsersTrainingCourses>();
         }
 
-        private void CalculateAge()
+        public void CalculateAge()
         {
             var today = DateTime.Today;
             var age = today.Year - BirthDate.Year;

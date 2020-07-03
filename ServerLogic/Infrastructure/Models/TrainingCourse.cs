@@ -11,11 +11,11 @@ namespace Infrastructure.Models
         public string Description { get; set; }
         public string Cover { get; set; }
         public DateTime StartDate { get; set; }
-        public virtual ICollection<SystemUser> SystemUsers { get; set; }
+        public virtual ICollection<SystemUsersTrainingCourses> SystemUsersTrainingCourses { get; set; }
 
         public TrainingCourse()
         {
-            SystemUsers = new HashSet<SystemUser>();
+            SystemUsersTrainingCourses = new HashSet<SystemUsersTrainingCourses>();
         }
     }
 }

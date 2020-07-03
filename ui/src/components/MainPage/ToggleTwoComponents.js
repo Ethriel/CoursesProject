@@ -5,6 +5,7 @@ import SwitchAntD from './SwitchAntD';
 import H from '../common/HAntD';
 import ButtonComponent from '../common/ButtonComponent';
 
+
 class ToggleTwoComponents extends Component {
     constructor(props) {
         super(props);
@@ -48,13 +49,13 @@ class ToggleTwoComponents extends Component {
                     myStyle={styles}
                     myTitle={tip} />
                 {toSwitch === true ? firstComponent : secondComponent}
-                {
+                {/* {
                     toSwitch && <ButtonComponent
                         mySize={btnSize}
                         myBgColor={btnBgColor}
                         myText={btnText}
                         myHandler={this.handleFaceBookClick} />
-                }
+                } */}
             </ContainerComponent>
         );
     };
