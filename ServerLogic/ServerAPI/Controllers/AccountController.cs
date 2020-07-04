@@ -1,21 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Infrastructure.DbContext;
-using Microsoft.AspNetCore.Identity;
+using Infrastructure.DTO;
 using Infrastructure.Models;
-using Infrastructure.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using ServerAPI.Helpers;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using ServerAPI.Helpers;
+using System;
+using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
 {
@@ -24,23 +19,26 @@ namespace ServerAPI.Controllers
 
     public class AccountController : Controller
     {
-        public CoursesSystemDbContext context { get; }
-        public UserManager<SystemUser> userManager { get; }
-        public SignInManager<SystemUser> signInManager { get; }
-        public IConfiguration configuration { get; }
-        public SecurityTokenHandler tokenValidator { get; }
+        private readonly CoursesSystemDbContext context;
+        private readonly UserManager<SystemUser> userManager;
+        private readonly SignInManager<SystemUser> signInManager;
+        private readonly IConfiguration configuration;
+        private readonly SecurityTokenHandler tokenValidator;
+        private readonly IMapper mapper;
 
-        public AccountController(CoursesSystemDbContext context, 
-            UserManager<SystemUser> userManager, 
-            SignInManager<SystemUser> signInManager, 
+        public AccountController(CoursesSystemDbContext context,
+            UserManager<SystemUser> userManager,
+            SignInManager<SystemUser> signInManager,
             IConfiguration configuration,
-            SecurityTokenHandler tokenValidator)
+            SecurityTokenHandler tokenValidator,
+            IMapper mapper)
         {
             this.context = context;
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
             this.tokenValidator = tokenValidator;
+            this.mapper = mapper;
         }
 
         [Authorize]
@@ -78,10 +76,10 @@ namespace ServerAPI.Controllers
             return Ok("secure_text");
         }
 
-        //[Authorize]
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
+
             var user = await context.SystemUsers.Include(x => x.SystemRole).FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
             var res = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
             if (res.Succeeded)
@@ -94,7 +92,7 @@ namespace ServerAPI.Controllers
             else
             {
                 var errors = GetErrorsFromModelState.GetErrors(ModelState);
-                return BadRequest(new { message = "INVALID LOGIN ATTEMPT", errors = errors});
+                return BadRequest(new { message = "INVALID LOGIN ATTEMPT", errors = errors });
             }
         }
     }
