@@ -15,12 +15,14 @@ namespace ServerAPI.Helpers
         {
             var claims = new List<Claim>
             {
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
+                new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtKey"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["JwtExpireDays"]));
 
@@ -32,8 +34,8 @@ namespace ServerAPI.Helpers
                 signingCredentials: creds
             );
 
-
-            return tokenHandler.WriteToken(token);
+            var code = tokenHandler.WriteToken(token);
+            return code;
         }
     }
 }

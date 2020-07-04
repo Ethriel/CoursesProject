@@ -80,7 +80,7 @@ namespace ServerAPI.Controllers
 
         //[Authorize]
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn(SystemUserViewModel userData)
+        public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
             var user = await context.SystemUsers.Include(x => x.SystemRole).FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
             var res = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
