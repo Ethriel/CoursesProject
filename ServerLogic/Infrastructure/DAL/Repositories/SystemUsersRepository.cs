@@ -18,14 +18,9 @@ namespace Infrastructure.DAL.Repositories
             this.context = context;
         }
 
-        public async Task Add(SystemUser entity)
+        public async Task AddAsync(SystemUser entity)
         {
             await context.SystemUsers.AddAsync(entity);
-        }
-
-        public async Task Commit()
-        {
-            await context.SaveChangesAsync();
         }
 
         public void Delete(SystemUser entity)
@@ -33,12 +28,7 @@ namespace Infrastructure.DAL.Repositories
             context.SystemUsers.Remove(entity);
         }
 
-        public void Dispose()
-        {
-            context.Dispose();
-        }
-
-        public async Task<SystemUser> Find(Expression<Func<SystemUser, bool>> predicate)
+        public async Task<SystemUser> FindAsync(Expression<Func<SystemUser, bool>> predicate)
         {
             return await context.SystemUsers.FirstOrDefaultAsync(predicate);
         }
@@ -48,7 +38,7 @@ namespace Infrastructure.DAL.Repositories
             return context.SystemUsers.Where(predicate);
         }
 
-        public async Task<SystemUser> Get(int id)
+        public async Task<SystemUser> GetAsync(int id)
         {
             return await context.SystemUsers.FindAsync(id);
         }
@@ -56,6 +46,11 @@ namespace Infrastructure.DAL.Repositories
         public IQueryable<SystemUser> GetAll()
         {
             return context.SystemUsers.AsQueryable();
+        }
+
+        public async Task<SystemUser> GetFullAsync(int id)
+        {
+            return await context.SystemUsers.Include(x => x.SystemRole).Include(x => x.SystemUsersTrainingCourses).FirstOrDefaultAsync(x => x.Id.Equals(id));
         }
 
         public void Update(SystemUser oldEntity, SystemUser newEntity)

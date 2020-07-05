@@ -11,7 +11,7 @@ namespace ServerAPI.Helpers
 {
     public static class JWTHelper
     {
-        public static string GenerateJwtToken(SystemUser user, IConfiguration configuration, SecurityTokenHandler tokenHandler)
+        public static string GenerateJwtToken(SystemUser user, IConfiguration configuration, SecurityTokenHandler tokenHandler, byte[] code)
         {
             var claims = new List<Claim>
             {
@@ -22,7 +22,8 @@ namespace ServerAPI.Helpers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]));
+            //var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]));
+            var key = new SymmetricSecurityKey(code);
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["JwtExpireDays"]));
 
@@ -34,8 +35,8 @@ namespace ServerAPI.Helpers
                 signingCredentials: creds
             );
 
-            var code = tokenHandler.WriteToken(token);
-            return code;
+            var tokenCode = tokenHandler.WriteToken(token);
+            return tokenCode;
         }
     }
 }

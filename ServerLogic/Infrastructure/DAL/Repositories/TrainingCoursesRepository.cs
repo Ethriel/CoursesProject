@@ -17,14 +17,9 @@ namespace Infrastructure.DAL.Repositories
         {
             this.context = context;
         }
-        public async Task Add(TrainingCourse entity)
+        public async Task AddAsync(TrainingCourse entity)
         {
             await context.TrainingCourses.AddAsync(entity);
-        }
-
-        public async Task Commit()
-        {
-            await context.SaveChangesAsync();
         }
 
         public void Delete(TrainingCourse entity)
@@ -32,12 +27,7 @@ namespace Infrastructure.DAL.Repositories
             context.TrainingCourses.Remove(entity);
         }
 
-        public void Dispose()
-        {
-            context.Dispose();
-        }
-
-        public async Task<TrainingCourse> Find(Expression<Func<TrainingCourse, bool>> predicate)
+        public async Task<TrainingCourse> FindAsync(Expression<Func<TrainingCourse, bool>> predicate)
         {
             return await context.TrainingCourses.FirstOrDefaultAsync(predicate);
         }
@@ -47,7 +37,7 @@ namespace Infrastructure.DAL.Repositories
             return context.TrainingCourses.Where(predicate);
         }
 
-        public async Task<TrainingCourse> Get(int id)
+        public async Task<TrainingCourse> GetAsync(int id)
         {
             return await context.TrainingCourses.FindAsync(id);
         }
@@ -55,6 +45,11 @@ namespace Infrastructure.DAL.Repositories
         public IQueryable<TrainingCourse> GetAll()
         {
             return context.TrainingCourses.AsQueryable();
+        }
+
+        public async Task<TrainingCourse> GetFullAsync(int id)
+        {
+            return await context.TrainingCourses.Include(x => x.SystemUsersTrainingCourses).FirstOrDefaultAsync(x => x.Id.Equals(id));
         }
 
         public void Update(TrainingCourse oldEntity, TrainingCourse newEntity)

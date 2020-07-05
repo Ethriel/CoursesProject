@@ -1,15 +1,12 @@
 ﻿using AutoMapper;
-using Infrastructure.DbContext;
 using Infrastructure.DTO;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ServerAPI.Helpers;
-using System;
+using ServerAPI.UnitsOfWork;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
@@ -19,31 +16,25 @@ namespace ServerAPI.Controllers
 
     public class AccountController : Controller
     {
-        private readonly CoursesSystemDbContext context;
-        private readonly UserManager<SystemUser> userManager;
-        private readonly SignInManager<SystemUser> signInManager;
         private readonly IConfiguration configuration;
+        private readonly IUnitOfWork usersUnitOfWork;
         private readonly SecurityTokenHandler tokenValidator;
         private readonly IMapper mapper;
 
-        public AccountController(CoursesSystemDbContext context,
-            UserManager<SystemUser> userManager,
-            SignInManager<SystemUser> signInManager,
+        public AccountController(IUnitOfWork usersUnitOfWork,
             IConfiguration configuration,
             SecurityTokenHandler tokenValidator,
             IMapper mapper)
         {
-            this.context = context;
-            this.userManager = userManager;
-            this.signInManager = signInManager;
             this.configuration = configuration;
+            this.usersUnitOfWork = usersUnitOfWork;
             this.tokenValidator = tokenValidator;
             this.mapper = mapper;
         }
 
         [Authorize]
-        [HttpPost("protected")]
-        public async Task<IActionResult> Register(/*SystemUserViewModel userData*/)
+        [HttpPost("signup")]
+        public async Task<IActionResult> Register(SystemUserDTO userData)
         {
             #region TEST
             //var role = Context.SystemRoles.FirstOrDefault(x => x.NormalizedName.Equals("User"));
@@ -70,23 +61,31 @@ namespace ServerAPI.Controllers
             //}
             //return BadRequest();
             #endregion
-
-
-
-            return Ok("secure_text");
+            var uow = usersUnitOfWork as SystemUserUnitOfWork;
+            var user = MapperHelper<SystemUser, SystemUserDTO>.MapEntityFromDTO(mapper, userData);
+            var res = await uow.UserManager.CreateAsync(user, userData.Password);
+            if (res.Succeeded)
+            {
+                var data = await UserResponseHelper.GetResponseData(uow, configuration, tokenValidator, mapper, user);
+                return Ok(data);
+            }
+            else
+            {
+                var errors = GetErrorsFromModelState.GetErrors(ModelState);
+                return BadRequest(new { message = "INVALID REGISTRATION ATTEMPT", errors = errors });
+            }
         }
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-
-            var user = await context.SystemUsers.Include(x => x.SystemRole).FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
-            var res = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
+            var uow = usersUnitOfWork as SystemUserUnitOfWork;
+            var user = await uow.Users.FindAsync(user => user.Email.Equals(userData.Email));
+            user = await uow.Users.GetFullAsync(user.Id);
+            var res = await uow.SignInManager.PasswordSignInAsync(user, userData.Password, true, false);
             if (res.Succeeded)
             {
-                var token = JWTHelper.GenerateJwtToken(user, configuration, tokenValidator);
-                var data = new { email = user.Email, userRole = user.SystemRole.Name, access_token = token, expires = Convert.ToDouble(configuration["JwtExpireDays"]) };
-                //var data = (email: user.Email, userRole: user.SystemRole.Name, access_token: token, expires: Convert.ToDouble(configuration["JwtExpireDays"]));
+                var data = await UserResponseHelper.GetResponseData(uow, configuration, tokenValidator, mapper, user);
                 return Ok(data);
             }
             else

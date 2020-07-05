@@ -27,9 +27,9 @@ class LoginComponent extends Component {
 
             if (response.status === 200) {
                 console.log(response.data);
-                const token = response.data.access_token;
-                const role = response.data.userRole;
-                Cookies.set("access_token", response.data.access_token, { expires: response.data.expires });
+                const token = response.data.token.key;
+                const role = response.data.user.roleName;
+                Cookies.set("access_token", response.data.access_token, { expires: response.data.token.expires });
                 localStorage.setItem("bearer_header", `Bearer ${token}`);
                 localStorage.setItem("access_token", token);
                 localStorage.setItem("current_user_role", role);

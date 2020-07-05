@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using ServerAPI.Extensions;
 using ServerAPI.Helpers;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -29,18 +30,13 @@ namespace ServerAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers()
-                .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            services.AddServices();
 
             services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<SystemUser, SystemRole>()
                 .AddEntityFrameworkStores<CoursesSystemDbContext>()
                 .AddDefaultTokenProviders();
-
-            services.AddAutoMapper(GetAllMapperProfiles.MapperProfiles);
-
-            services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services
                 .AddAuthentication(authOptions =>
@@ -78,6 +74,9 @@ namespace ServerAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseStaticFiles();
+
             app.UseCors("AllowAll");
 
             app.UseRouting();
