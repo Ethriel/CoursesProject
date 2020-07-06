@@ -1,25 +1,31 @@
 import React from 'react';
-import GetInfoArr from './GetInfoArr';
 import { Card } from 'antd';
 const { Meta } = Card;
 
-function MapCards(quantity){
-    const info = GetInfoArr(quantity);
-        const cards = info.map((item) => {
-            return <Card
-                key={item.key}
-                title={item.title}
-                cover={
-                    <img className="img-card-my"
-                        alt="Example"
-                        src={require("../img/logo.png")} />
-                }>
-                <Meta
-                    description={item.description} />
-            </Card>
-        });
+function MapCards(elements){
+    const cards = elements.map((elem) => {
+        return <Card
+        hoverable
+        key={elem.id}
+        title={elem.title}
+        type={"inner"}
+        size={"small"}
+        style={{width: 300}}
+        cover={
+           <img className="img-card-my"
+           style={{margin: "0 auto"}}
+           alt="No"
+           src={`https://localhost:44382/${elem.cover}`}/> 
+        }>
+            <Meta description={cutDescr(elem.description)}/>
+        </Card>        
+    });
+    return cards;
+}
 
-        return cards;
+function cutDescr(descr){
+    let index = descr.indexOf(".", 0);
+    return descr.substr(0, index);
 }
 
 export default MapCards;

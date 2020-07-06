@@ -3,25 +3,41 @@ import GridComponent from '../common/GridComponent';
 import '../../css/styles.css';
 import MapCards from '../../helpers/MapCards';
 import PaginationComponent from '../common/PaginationComponent';
+import MakeRequest from '../../helpers/MakeRequest';
 
 class CoursesComponent extends Component {
 
     constructor(props) {
         super(props);
-        const cards = MapCards(8);
         this.state = {
-            items: cards.slice(0, 2),
-            length: cards.length,
-            quantity: 8
+            items: [],
+            amount: 0,
+            skip: 0,
+            page: 1,
+            pageSize: 2
         };
     }
 
-    handleChange = (page, pageSize) => {
-        let start = (page * pageSize) - pageSize;
-        let end = page * pageSize;
-        let cards = MapCards(this.state.quantity);
+    async componentDidMount(){
+        const amount = await MakeRequest("https://localhost:44382/courses/get/amount", { msg: "hello" }, "get");
+        const skip = this.state.skip;
+        const take = this.state.pageSize;
+        const info = await MakeRequest(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
+        console.log(info);
+            this.setState({
+                amount: amount.amount,
+                items: MapCards(info)
+            });
+    }
+
+    handleChange = async (page, pageSize) => {
+        const skip = (page * pageSize) - pageSize;
+        const take = pageSize === 1 ? pageSize : page * pageSize;
+        const info = await MakeRequest(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
         this.setState({
-            items: cards.slice(start, end)
+            skip: skip,
+            page: page,
+            items: MapCards(info)
         });
     };
 
@@ -29,7 +45,7 @@ class CoursesComponent extends Component {
         return (
             <>
                 <GridComponent colNum={12} elementsToDisplay={this.state.items} />
-                <PaginationComponent defaultCurrent={1} pageSize={2} total={this.state.length} onChange={this.handleChange} />
+                <PaginationComponent defaultCurrent={1} pageSize={this.state.pageSize} total={this.state.amount} onChange={this.handleChange} />
             </>
         );
     };

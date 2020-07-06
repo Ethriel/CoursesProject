@@ -1,21 +1,9 @@
-using AutoMapper;
-using Infrastructure.DbContext;
-using Infrastructure.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using ServerAPI.Extensions;
-using ServerAPI.Helpers;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 
 namespace ServerAPI
 {
@@ -30,42 +18,7 @@ namespace ServerAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddServices();
-
-            services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddIdentity<SystemUser, SystemRole>()
-                .AddEntityFrameworkStores<CoursesSystemDbContext>()
-                .AddDefaultTokenProviders();
-
-            services
-                .AddAuthentication(authOptions =>
-                {
-                    authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    authOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(configBearer =>
-                {
-                    configBearer.RequireHttpsMetadata = false;
-                    configBearer.SaveToken = true;
-
-                    configBearer.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ClockSkew = TimeSpan.Zero
-                    };
-                });
-
-            services.AddCors(corsOptions =>
-                corsOptions.AddPolicy("AllowAll",
-                policyBuilder =>
-                policyBuilder.AllowAnyHeader().
-                AllowAnyMethod().
-                WithOrigins(Configuration["client"], Configuration["api"]).
-                AllowCredentials()));
+            services.AddServices(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -75,22 +28,7 @@ namespace ServerAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseStaticFiles();
-
-            app.UseCors("AllowAll");
-
-            app.UseRouting();
-
-            app.UseAuthentication();
-
-            app.UseAuthorization();
-
-            app.UseHttpsRedirection();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.AddAppUses(Configuration);
         }
     }
 }

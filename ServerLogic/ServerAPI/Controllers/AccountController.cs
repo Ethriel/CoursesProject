@@ -1,11 +1,11 @@
-﻿using AutoMapper;
-using Infrastructure.DTO;
+﻿using Infrastructure.DTO;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ServerAPI.Helpers;
+using ServerAPI.MapperWrappers;
 using ServerAPI.UnitsOfWork;
 using System.Threading.Tasks;
 
@@ -17,56 +17,30 @@ namespace ServerAPI.Controllers
     public class AccountController : Controller
     {
         private readonly IConfiguration configuration;
-        private readonly IUnitOfWork usersUnitOfWork;
+        private readonly IUnitOfWork unitOfWork;
         private readonly SecurityTokenHandler tokenValidator;
-        private readonly IMapper mapper;
+        private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
 
-        public AccountController(IUnitOfWork usersUnitOfWork,
+        public AccountController(IUnitOfWork unitOfWork,
             IConfiguration configuration,
             SecurityTokenHandler tokenValidator,
-            IMapper mapper)
+            IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper)
         {
             this.configuration = configuration;
-            this.usersUnitOfWork = usersUnitOfWork;
+            this.unitOfWork = unitOfWork;
             this.tokenValidator = tokenValidator;
-            this.mapper = mapper;
+            this.mapperWrapper = mapperWrapper;
         }
 
         [Authorize]
         [HttpPost("signup")]
         public async Task<IActionResult> Register(SystemUserDTO userData)
         {
-            #region TEST
-            //var role = Context.SystemRoles.FirstOrDefault(x => x.NormalizedName.Equals("User"));
-            //var user = new SystemUser
-            //{
-            //    Email = "testuser@gmail.com",
-            //    EmailConfirmed = true,
-            //    UserName = "TESTUSER",
-            //    NormalizedUserName = "testuser",
-            //    FirstName = "Test",
-            //    LastName = "User",
-            //    RegisteredDate = DateTime.Now,
-            //    BirthDate = new DateTime(1992, 5, 16),
-            //    StudyDate = DateTime.Now.AddDays(30),
-            //    AvatarPath = "wwwroot/shared/img/testuserpic.png",
-            //    SystemRole = role
-            //};
-            //user.CalculateAge();
-            //var result = await UserManager.CreateAsync(user, "Zx%c6v");
-
-            //if (result.Succeeded)
-            //{
-            //    return Ok();
-            //}
-            //return BadRequest();
-            #endregion
-            var uow = usersUnitOfWork as SystemUserUnitOfWork;
-            var user = MapperHelper<SystemUser, SystemUserDTO>.MapEntityFromDTO(mapper, userData);
-            var res = await uow.UserManager.CreateAsync(user, userData.Password);
+            var user = mapperWrapper.MapFromDTO(userData);
+            var res = await unitOfWork.UserManager.CreateAsync(user, userData.Password);
             if (res.Succeeded)
             {
-                var data = await UserResponseHelper.GetResponseData(uow, configuration, tokenValidator, mapper, user);
+                var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);
                 return Ok(data);
             }
             else
@@ -79,13 +53,12 @@ namespace ServerAPI.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            var uow = usersUnitOfWork as SystemUserUnitOfWork;
-            var user = await uow.Users.FindAsync(user => user.Email.Equals(userData.Email));
-            user = await uow.Users.GetFullAsync(user.Id);
-            var res = await uow.SignInManager.PasswordSignInAsync(user, userData.Password, true, false);
+            var user = await unitOfWork.Users.FindAsync(user => user.Email.Equals(userData.Email));
+            user = await unitOfWork.Users.GetFullAsync(user.Id);
+            var res = await unitOfWork.SignInManager.PasswordSignInAsync(user, userData.Password, true, false);
             if (res.Succeeded)
             {
-                var data = await UserResponseHelper.GetResponseData(uow, configuration, tokenValidator, mapper, user);
+                var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);
                 return Ok(data);
             }
             else
