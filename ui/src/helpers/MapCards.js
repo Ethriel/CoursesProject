@@ -7,6 +7,7 @@ function MapCards(elements){
         return <Card
         hoverable
         key={elem.id}
+        originalDescription={elem.description}
         title={elem.title}
         type={"inner"}
         size={"small"}
