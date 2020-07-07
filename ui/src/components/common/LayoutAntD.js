@@ -13,12 +13,12 @@ const LayoutAntD = props => {
     const color = "transparent";
 
     return (
-        <Layout style={{height: '100%'}}>
+        <Layout >
             <Header style={{ backgroundColor: color }}>{header}</Header>
-                <Layout>
-                    <Content>{content}</Content>
-                </Layout>
-                <Footer >{footer}</Footer>
+            <Layout>
+                <Content style={{ overflow: "initial" }}>{content}</Content>
+            </Layout>
+            <Footer >{footer}</Footer>
         </Layout>
     );
 };

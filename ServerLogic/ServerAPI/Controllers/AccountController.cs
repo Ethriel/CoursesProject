@@ -1,12 +1,14 @@
-﻿using Infrastructure.DTO;
+﻿using Infrastructure.DbContext;
+using Infrastructure.DTO;
 using Infrastructure.Models;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ServerAPI.Helpers;
 using ServerAPI.MapperWrappers;
-using ServerAPI.UnitsOfWork;
+using System;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
@@ -16,28 +18,40 @@ namespace ServerAPI.Controllers
 
     public class AccountController : Controller
     {
+        private readonly CoursesSystemDbContext context;
+        private readonly SignInManager<SystemUser> signInManager;
+        private readonly RoleManager<SystemRole> roleManager;
+        private readonly UserManager<SystemUser> userManager;
         private readonly IConfiguration configuration;
-        private readonly IUnitOfWork unitOfWork;
         private readonly SecurityTokenHandler tokenValidator;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
 
-        public AccountController(IUnitOfWork unitOfWork,
+        public AccountController(CoursesSystemDbContext context, SignInManager<SystemUser> signInManager,
+            RoleManager<SystemRole> roleManager,
+            UserManager<SystemUser> userManager,
             IConfiguration configuration,
             SecurityTokenHandler tokenValidator,
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper)
         {
+            this.context = context;
+            this.signInManager = signInManager;
+            this.roleManager = roleManager;
+            this.userManager = userManager;
             this.configuration = configuration;
-            this.unitOfWork = unitOfWork;
             this.tokenValidator = tokenValidator;
             this.mapperWrapper = mapperWrapper;
         }
 
-        [Authorize]
         [HttpPost("signup")]
         public async Task<IActionResult> Register(SystemUserDTO userData)
         {
             var user = mapperWrapper.MapFromDTO(userData);
-            var res = await unitOfWork.UserManager.CreateAsync(user, userData.Password);
+            user.UserName = userData.Email;
+            user.RegisteredDate = DateTime.Now;
+            var role = await roleManager.FindByNameAsync("USER");
+            user.SystemRole = role;
+            user.CalculateAge();
+            var res = await userManager.CreateAsync(user, userData.Password);
             if (res.Succeeded)
             {
                 var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);
@@ -53,9 +67,8 @@ namespace ServerAPI.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            var user = await unitOfWork.Users.FindAsync(user => user.Email.Equals(userData.Email));
-            user = await unitOfWork.Users.GetFullAsync(user.Id);
-            var res = await unitOfWork.SignInManager.PasswordSignInAsync(user, userData.Password, true, false);
+            var user = await context.Users.Include(x => x.SystemRole).AsNoTracking().FirstOrDefaultAsync(user => user.Email.Equals(userData.Email));
+            var res = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
             if (res.Succeeded)
             {
                 var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);

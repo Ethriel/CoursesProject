@@ -1,4 +1,5 @@
-﻿using Infrastructure.DTO;
+﻿using Infrastructure.DbContext;
+using Infrastructure.DTO;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +18,12 @@ namespace ServerAPI.Controllers
     [Route("[controller]")]
     public class CoursesController : Controller
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper;
 
-        public CoursesController(IUnitOfWork unitOfWork, IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper)
+        public CoursesController(CoursesSystemDbContext context, IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper)
         {
-            this.unitOfWork = unitOfWork;
+            this.context = context;
             this.mapperWrapper = mapperWrapper;
         }
 
@@ -31,7 +32,7 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var courses = await unitOfWork.Courses.GetAll().ToArrayAsync();
+                var courses = await context.TrainingCourses.ToArrayAsync();
                 var data = courses.Length;
                 return Ok(new { amount = data });
             }
@@ -47,7 +48,7 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var courses = await unitOfWork.Courses.GetAll().ToArrayAsync();
+                var courses = await context.TrainingCourses.ToArrayAsync();
                 var data = mapperWrapper.MapCollectionFromEntities(courses);
                 return Ok(data);
             }
@@ -63,7 +64,7 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var courses = await unitOfWork.Courses.GetAll().Skip(skip).Take(take).ToArrayAsync();
+                var courses = await context.TrainingCourses.Skip(skip).Take(take).ToArrayAsync();
                 var data = mapperWrapper.MapCollectionFromEntities(courses);
                 return Ok(data);
             }
@@ -78,7 +79,7 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var course = await unitOfWork.Courses.GetAsync(id);
+                var course = await context.TrainingCourses.FirstOrDefaultAsync(x=>x.Id.Equals(id));
                 var data = mapperWrapper.MapFromEntity(course);
                 return Ok(data);
             }

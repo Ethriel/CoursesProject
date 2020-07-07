@@ -7,7 +7,10 @@ import {
   Input,
   Checkbox,
   Button,
+  DatePicker
 } from 'antd';
+import ButtonFaceBook from './ButtonFacebook';
+
 
 
 const formItemLayout = {
@@ -41,25 +44,52 @@ const tailFormItemLayout = {
   },
 };
 
-const RegistrationForm = () => {
+const RegistrationForm = (props) => {
   const [form] = Form.useForm();
 
-  const onFinish = values => {
-    console.log('Received values of form: ', values);
-  };
   return (
     <Form
       {...formItemLayout}
       form={form}
-      style={{ width: '50%', maxWidth: 500 }}
+      style={{ width: '50%', maxWidth: 600 }}
       name="register"
-      onFinish={onFinish}
+      onFinish={props.onFinish}
+      size="small"
       initialValues={{
         residence: ['zhejiang', 'hangzhou', 'xihu'],
         prefix: '86',
       }}
       scrollToFirstError
     >
+      <Form.Item
+        name={['user', 'name']}
+        label="First name"
+        rules={
+          [
+            {
+              required: true,
+              message: "First name is required"
+            }
+          ]
+        }>
+        <Input />
+      </Form.Item>
+      <Form.Item
+        name={['user', 'name']}
+        label="Last name"
+        rules={
+          [
+            {
+              required: true,
+              message: "Last name is required"
+            }
+          ]
+        }>
+        <Input />
+      </Form.Item>
+      <Form.Item label="Birth date">
+        <DatePicker />
+      </Form.Item>
       <Form.Item
         name="email"
         label="E-mail"
@@ -121,7 +151,7 @@ const RegistrationForm = () => {
         rules={[
           {
             validator: (_, value) =>
-              value ? Promise.resolve() : Promise.reject('Should accept agreement'),
+              value ? Promise.resolve() : Promise.reject('Accept an agreement, please'),
           },
         ]}
         {...tailFormItemLayout}
@@ -131,9 +161,10 @@ const RegistrationForm = () => {
         </Checkbox>
       </Form.Item>
       <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" size="large">
           Register
         </Button>
+        <ButtonFaceBook clickHandler={props.facebook} />
       </Form.Item>
     </Form>
   );

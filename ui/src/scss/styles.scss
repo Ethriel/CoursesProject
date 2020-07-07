@@ -103,6 +103,10 @@
     @include spaceBetweenFlex();
 }
 
+.center-a-div {
+    margin: 0 auto;
+}
+
 .my-container-default {
     height: 100%;
 }
@@ -130,7 +134,7 @@
     height: 200px;
 }
 
-.ant-layout-header{
+.ant-layout-header {
     height: 55px;
     line-height: 55px;
 }
@@ -141,4 +145,21 @@
 
 .ant-pagination {
     margin-top: 0.5%;
+}
+
+.ant-form-item-control-input-content {
+    display: flex;
+    justify-content: space-around;
+}
+
+@media (min-width: 576px) {
+    .ant-col-sm-offset-8 {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 576px) {
+    .ant-col-sm-16 {
+        max-width: 100%;
+    }
 }

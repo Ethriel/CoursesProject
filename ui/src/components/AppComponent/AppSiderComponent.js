@@ -11,7 +11,7 @@ function AppSiderComponent() {
         { key: 4, text: "Admin", to: "/admin" }
     ];
     return (
-        <SideMenuAntD myMenuItems={subItems} />
+        <SideMenuAntD myMenuItems={subItems}  />
     );
 };
 

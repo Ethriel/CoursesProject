@@ -14,15 +14,17 @@ namespace ServerAPI.UnitsOfWork
         public UserManager<SystemUser> UserManager { get; }
 
         public SignInManager<SystemUser> SignInManager { get; }
+        public RoleManager<SystemRole> RoleManager { get; }
 
         public IRepository<TrainingCourse> Courses { get; }
 
         public UnitOfWork(CoursesSystemDbContext context, UserManager<SystemUser> userManager,
-            SignInManager<SystemUser> signInManager, IRepository<SystemUser> users, IRepository<TrainingCourse> courses)
+            SignInManager<SystemUser> signInManager, RoleManager<SystemRole> roleManager, IRepository<SystemUser> users, IRepository<TrainingCourse> courses)
         {
             this.context = context;
             UserManager = userManager;
             SignInManager = signInManager;
+            RoleManager = roleManager;
             Users = users;
             Courses = courses;
         }

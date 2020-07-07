@@ -7,6 +7,8 @@ import MakeRequest from '../../helpers/MakeRequest';
 import H from '../common/HAntD';
 import ContainerComponent from '../common/ContainerComponent';
 import LayoutAntD from '../common/LayoutAntD';
+import { Redirect } from 'react-router-dom';
+import CourseDetailsComponent from './CourseDetailsComponent';
 
 class CoursesComponent extends Component {
 
@@ -17,7 +19,9 @@ class CoursesComponent extends Component {
             amount: 0,
             skip: 0,
             page: 1,
-            pageSize: 3
+            pageSize: 3,
+            redirect: false,
+            course: 0
         };
     }
 
@@ -26,10 +30,9 @@ class CoursesComponent extends Component {
         const skip = this.state.skip;
         const take = this.state.pageSize;
         const info = await MakeRequest(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
-        console.log(info);
         this.setState({
             amount: amount.amount,
-            items: MapCards(info)
+            items: MapCards(info, this.handleCourseClick)
         });
     }
 
@@ -40,9 +43,24 @@ class CoursesComponent extends Component {
         this.setState({
             skip: skip,
             page: page,
-            items: MapCards(info)
+            items: MapCards(info, this.handleCourseClick)
         });
     };
+
+    handleCourseClick = event => {
+        const id = +event.currentTarget.getAttribute("cardid");
+        this.setState({
+            redirect: true,
+            course: id
+        });
+    };
+
+    handleRedirect = () => {
+        if (this.state.redirect) {
+            const id = this.state.course;
+            return <Redirect to={`/coursedetails/${id}`} push={true} />
+        }
+    }
 
     render() {
         const classes = ["display-flex", "col-flex", "center-flex", "width-100", "height-100"];
@@ -52,7 +70,10 @@ class CoursesComponent extends Component {
         const content = <ContainerComponent classes={classes}>{grid}{pagination}</ContainerComponent>
         const footer = <H myText="Footer" level={3} />;
         return (
-            <LayoutAntD myHeader={header} myContent={content} myFooter={footer} />
+            <>
+                {this.state.redirect && this.handleRedirect()}
+                {this.state.redirect === false && <LayoutAntD myHeader={header} myContent={content} myFooter={footer} />}
+            </>
         );
     };
 }

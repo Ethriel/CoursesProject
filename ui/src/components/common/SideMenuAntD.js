@@ -11,7 +11,7 @@ class SideMenuAntD extends React.Component {
         const items = this.props.myMenuItems;
 
         return (
-            <Menu
+            <Menu style={{width: "150px", maxWidth: "100px"}}
                 mode="inline">
                 {
                     items.map((item) => {

@@ -9,7 +9,7 @@ namespace Infrastructure.DTO
         public string Title { get; set; }
         public string Description { get; set; }
         public string Cover { get; set; }
-        public DateTime StartDate { get; set; }
+        public string StartDate { get; set; }
         public ICollection<SystemUsersTrainingCoursesDTO> SystemUsersTrainingCourses { get; set; }
     }
 }

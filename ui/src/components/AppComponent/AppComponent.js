@@ -11,7 +11,7 @@ function AppComponent() {
     const color = "rgb(240, 242, 245)";
     return (
         <Layout>
-            <Sider style={{ backgroundColor: color }}>
+            <Sider style={{ backgroundColor: color, maxWidth: "150px" }}>
                 <AppSiderComponent />
             </Sider>
             <Content>

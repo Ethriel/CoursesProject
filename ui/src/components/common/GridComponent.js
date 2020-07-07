@@ -6,7 +6,6 @@ import GetRowsAndCols from '../../helpers/GetRowsWithCols';
 const GridComponent = props => {
     const elements = props.elementsToDisplay;
     const rows = GetRowsAndCols(elements);
-    console.log("ROWS", rows);
     return (
         <>
             {rows}

@@ -36,11 +36,11 @@ namespace ServerAPI.Extensions
 
             services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
-            services.AddScoped<IRepository<SystemUser>, SystemUsersRepository>();
+            //services.AddScoped<IRepository<SystemUser>, SystemUsersRepository>();
 
-            services.AddScoped<IRepository<TrainingCourse>, TrainingCoursesRepository>();
+            //services.AddScoped<IRepository<TrainingCourse>, TrainingCoursesRepository>();
 
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
