@@ -63,7 +63,7 @@ class AdminNestedTable extends Component {
                 className="components-table-demo-nested"
                 columns={columns}
                 expandable={{ rowRender }}
-                //expandedRowRender={{ rowRender }}
+                expandedRowRender={{ rowRender }}
                 dataSource={data}
             />
         )
