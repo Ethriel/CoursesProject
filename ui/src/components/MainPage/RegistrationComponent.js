@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
 import RegistrationForm from './RegistrationFormAntD';
-import MakeRequest from '../../helpers/MakeRequest';
+import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import { Redirect } from 'react-router-dom';
 
 class RegistrationComponent extends Component {
@@ -19,7 +19,7 @@ class RegistrationComponent extends Component {
         };
         console.log(values);
         try {
-            //const data = await MakeRequest("https://localhost:44382/account/signup", userData, "post");
+            //const data = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post");
             //console.log(data);
             //this.setState({ redirect: true });
         } catch (error) {

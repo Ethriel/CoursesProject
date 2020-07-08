@@ -4,6 +4,8 @@ import '../../index.css';
 import TableComponent from '../common/TableComponent';
 import GetTableData from '../../helpers/GetTableData';
 import GetNestedTable from '../../helpers/GetNestedTable';
+import AdminNestedTable from './AdminNestedTable';
+import NestedTableUseState from "./NestedTableUseState";
 
 class AdminComponent extends Component {
 
@@ -15,13 +17,14 @@ class AdminComponent extends Component {
         const nestedTable = GetNestedTable(5);
 
         return (
-            <TableComponent
-            className="components-table-demo-nested"
-            columns={columns} 
-            data={data}
-            expandable={nestedTable}
-            pageSize={5} 
-            total={info.length} />
+            // <TableComponent
+            // className="components-table-demo-nested"
+            // columns={columns} 
+            // data={data}
+            // expandable={{nestedTable}}
+            // pageSize={5} 
+            // total={info.length} />
+            <NestedTableUseState />
         )
     }
 }

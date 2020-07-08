@@ -3,7 +3,7 @@ import { Table } from 'antd';
 
 function GetNestedTable(records) {
     const columnsNames = ["Id", "Name", "Data"];
-    let columns = [];
+    let cols = [];
 
     for (let colName of columnsNames) {
         let indexAndKey = colName.replace(/\s/g, '').toLowerCase();
@@ -13,7 +13,7 @@ function GetNestedTable(records) {
             key: indexAndKey,
             align: 'center'
         };
-        columns.push(col);
+        cols.push(col);
     };
     let data = [];
     for (let i = 0; i < records; i++) {
@@ -24,9 +24,11 @@ function GetNestedTable(records) {
         };
         data.push(obj);
     };
-
+    const expandedRowRender = () => {
+        return <Table columns={cols} dataSource={data} pagination={false} />
+    }
     return (
-        <Table columns={columns} dataSource={data} pagination={false} />
+        expandedRowRender()
     );
 };
 

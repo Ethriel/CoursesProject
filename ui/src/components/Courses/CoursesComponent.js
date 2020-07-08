@@ -3,7 +3,7 @@ import GridComponent from '../common/GridComponent';
 import '../../css/styles.css';
 import MapCards from '../../helpers/MapCards';
 import PaginationComponent from '../common/PaginationComponent';
-import MakeRequest from '../../helpers/MakeRequest';
+import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import H from '../common/HAntD';
 import ContainerComponent from '../common/ContainerComponent';
 import LayoutAntD from '../common/LayoutAntD';
@@ -26,10 +26,10 @@ class CoursesComponent extends Component {
     }
 
     async componentDidMount() {
-        const amount = await MakeRequest("https://localhost:44382/courses/get/amount", { msg: "hello" }, "get");
+        const amount = await MakeRequestAsync("https://localhost:44382/courses/get/amount", { msg: "hello" }, "get");
         const skip = this.state.skip;
         const take = this.state.pageSize;
-        const info = await MakeRequest(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
+        const info = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
         this.setState({
             amount: amount.amount,
             items: MapCards(info, this.handleCourseClick)
@@ -39,7 +39,7 @@ class CoursesComponent extends Component {
     handleChange = async (page, pageSize) => {
         const skip = (page * pageSize) - pageSize;
         const take = pageSize === 1 ? pageSize : page * pageSize;
-        const info = await MakeRequest(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
+        const info = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
         this.setState({
             skip: skip,
             page: page,

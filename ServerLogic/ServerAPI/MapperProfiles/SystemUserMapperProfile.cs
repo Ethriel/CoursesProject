@@ -12,14 +12,12 @@ namespace ServerAPI.MapperProfiles
             CreateMap<SystemUser, SystemUserDTO>()
                 .ForMember(u => u.RoleName, o => o.MapFrom(su => su.SystemRole.Name))
                 .ForMember(u => u.BirthDate, o => o.MapFrom(su => su.BirthDate.ToShortDateString()))
-                .ForMember(u => u.RegisteredDate, o => o.MapFrom(su => su.RegisteredDate.ToShortDateString()))
-                .ForMember(u => u.StudyDate, o => o.MapFrom(su => su.StudyDate.ToShortDateString()));
+                .ForMember(u => u.RegisteredDate, o => o.MapFrom(su => su.RegisteredDate.ToShortDateString()));
 
 
             CreateMap<SystemUserDTO, SystemUser>()
                 .ForMember(su => su.BirthDate, o => o.MapFrom(u => DateTime.Parse(u.BirthDate)))
-                .ForMember(su => su.RegisteredDate, o => o.MapFrom(u => DateTime.Parse(u.BirthDate)))
-                .ForMember(su => su.StudyDate, o => o.MapFrom(u => DateTime.Parse(u.BirthDate)));
+                .ForMember(su => su.RegisteredDate, o => o.MapFrom(u => DateTime.Parse(u.BirthDate)));
         }
     }
 }

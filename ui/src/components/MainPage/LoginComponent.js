@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
 import NormalLoginFormAntD from './NormalLoginFormAntD';
-import MakeRequest from '../../helpers/MakeRequest';
+import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import GetUserData from '../../helpers/GetUserData';
 import { Redirect } from 'react-router-dom';
 
@@ -19,14 +19,14 @@ class LoginComponent extends Component {
             password: values.password
         };
         try {
-            const data = await MakeRequest("https://localhost:44382/account/signin", userData, "post");
+            const data = await MakeRequestAsync("https://localhost:44382/account/signin", userData, "post");
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
             localStorage.setItem("bearer_header", `Bearer ${token}`);
             localStorage.setItem("access_token", token);
             localStorage.setItem("current_user_role", role);
-            localStorage.setItem("current_user", user);
+            localStorage.setItem("current_user_id", user.id);
             console.log("All good");
             this.setState({ redirect: true });
 
@@ -43,7 +43,7 @@ class LoginComponent extends Component {
     }
 
     facebookHandler = async () => {
-        const data = await MakeRequest("https://localhost:44382/courses/get/all", { msg: "hello" }, "get");
+        const data = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get");
         console.log("DATA", data);
     }
     render() {

@@ -11,7 +11,7 @@ namespace Infrastructure.Models
         public DateTime BirthDate { get; set; }
         public int Age { get; set; }
         public DateTime RegisteredDate { get; set; }
-        public DateTime StudyDate { get; set; }
+        
         public string AvatarPath { get; set; }
         public virtual SystemRole SystemRole { get; set; }
         public virtual ICollection<SystemUsersTrainingCourses> SystemUsersTrainingCourses { get; set; }

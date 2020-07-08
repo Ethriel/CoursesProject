@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-function MakeRequest(url, info, method, params = null) {
+async function MakeRequestAsync(url, info, method, params = null) {
     axios.defaults.withCredentials = true;
     let config = {};
     if (info === null) {
@@ -28,19 +28,12 @@ function MakeRequest(url, info, method, params = null) {
         };
     }
     try {
-        axios(config)
-            .then((response) => {
-                console.log("RESPONSE", response);
-                const data = response.data;
-                console.log("DATA", data);
-                return data;
-            })
-            .catch((reason) => {
-                return reason;
-            })
+        const response = await axios(config);
+        const data = response.data;
+        return data;
     } catch (error) {
         return error;
     }
 };
 
-export default MakeRequest;
+export default MakeRequestAsync;

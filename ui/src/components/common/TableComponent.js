@@ -9,7 +9,7 @@ function TableComponent(props) {
     return (
         <Table
             className={props.className}
-            expandable={{ext: exp}}
+            expandable={exp}
             columns={props.columns}
             dataSource={props.data}
             pagination={

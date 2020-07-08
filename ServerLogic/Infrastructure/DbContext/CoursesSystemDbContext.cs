@@ -29,6 +29,7 @@ namespace Infrastructure.DbContext
             {
                 optionsBuilder.UseSqlServer(ConnectionStringHelper.Connection);
             }
+            optionsBuilder.UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

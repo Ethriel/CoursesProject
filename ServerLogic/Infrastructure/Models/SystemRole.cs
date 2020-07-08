@@ -5,7 +5,7 @@ namespace Infrastructure.Models
 {
     public class SystemRole : IdentityRole<int>
     {
-        public ICollection<SystemUser> SystemUsers { get; set; }
+        public virtual ICollection<SystemUser> SystemUsers { get; set; }
 
         public SystemRole()
         {
