@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import { Typography, DatePicker } from 'antd';
 import MakeRequest from '../../helpers/MakeRequest';
 import Container from '../common/ContainerComponent';
 import H from '../common/HAntD';
-import { Typography } from 'antd';
+import ButtonComponent from '../common/ButtonComponent';
+import moment from 'moment';
 
 const { Paragraph } = Typography;
 
@@ -13,7 +15,8 @@ class CourseDetailsComponent extends Component {
             id: props.match.params.id,
             course: null,
             isLoading: true,
-            plug: { a: "", b: "", c: "" }
+            plug: { a: "", b: "", c: "" },
+            selectedDate: ""
         }
     }
 
@@ -25,14 +28,22 @@ class CourseDetailsComponent extends Component {
         });
     }
 
+    handleConfirm(){
+
+    }
+    handleDateChange(value, dateString){
+        console.log("DATE STRING = ", dateString);
+    }
+
     render() {
-        const classes = ["display-flex", "col-flex", "center-flex", "width-75", "height-100", "center-a-div"];
+        const classNameContainer = ["display-flex", "col-flex", "center-flex", "width-75", "height-100", "center-a-div"];
         const { title, cover, description } = this.state.isLoading ? this.state.plug : this.state.course;
+        const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
         return (
             <>
                 {
                     !this.state.isLoading &&
-                    <Container classes={classes}>
+                    <Container classes={classNameContainer}>
                         <H myText={title} level={2} />
                         <img 
                             style={{ margin: "0 auto" }}
@@ -41,6 +52,10 @@ class CourseDetailsComponent extends Component {
                         <Paragraph>
                             {description}
                         </Paragraph>
+                        <Container classes={classNameConfirm}>
+                            <DatePicker format='DD.MM.YYYY' onChange={this.handleDateChange}/>
+                            <ButtonComponent size="medium" onClick={this.handleConfirm} myText="Select course"/>
+                        </Container>
                     </Container>
                 }
             </>

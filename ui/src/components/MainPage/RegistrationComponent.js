@@ -17,10 +17,11 @@ class RegistrationComponent extends Component {
             email: values.email,
             password: values.password
         };
+        console.log(values);
         try {
-            const data = await MakeRequest("https://localhost:44382/account/signup", userData, "post");
-            console.log(data);
-            this.setState({ redirect: true });
+            //const data = await MakeRequest("https://localhost:44382/account/signup", userData, "post");
+            //console.log(data);
+            //this.setState({ redirect: true });
         } catch (error) {
             console.log(error);
         }

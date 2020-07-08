@@ -13,6 +13,7 @@ import ButtonFaceBook from './ButtonFacebook';
 
 
 
+
 const formItemLayout = {
   labelCol: {
     xs: {
@@ -75,7 +76,7 @@ const RegistrationForm = (props) => {
         <Input />
       </Form.Item>
       <Form.Item
-        name={['user', 'name']}
+        name={['user', 'lastname']}
         label="Last name"
         rules={
           [
@@ -88,7 +89,7 @@ const RegistrationForm = (props) => {
         <Input />
       </Form.Item>
       <Form.Item label="Birth date">
-        <DatePicker />
+        <DatePicker format='DD/MM/YYYY'/>
       </Form.Item>
       <Form.Item
         name="email"
