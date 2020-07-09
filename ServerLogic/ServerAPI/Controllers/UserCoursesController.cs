@@ -17,11 +17,15 @@ namespace ServerAPI.Controllers
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper;
+        private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapperCourses;
 
-        public UserCoursesController(CoursesSystemDbContext context, IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper)
+        public UserCoursesController(CoursesSystemDbContext context,
+            IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper,
+            IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapperCourses)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
+            this.mapperWrapperCourses = mapperWrapperCourses;
         }
 
         [HttpPost("add")]
@@ -58,6 +62,16 @@ namespace ServerAPI.Controllers
         {
             var usersWithCourses = await context.SystemUsersTrainingCourses.Skip(skip).Take(take).ToArrayAsync();
             var data = mapperWrapper.MapCollectionFromEntities(usersWithCourses);
+            return Ok(new { data = data });
+        }
+
+        [HttpGet("get/{userId}")]
+        public async Task<IActionResult> GetCoursesByUserId(int userId)
+        {
+            var coursesUser = await context.SystemUsersTrainingCourses
+                .Include(x => x.TrainingCourse)
+                .Where(x => x.SystemUserId.Equals(userId)).ToArrayAsync();
+            var data = mapperWrapper.MapCollectionFromEntities(coursesUser);
             return Ok(new { data = data });
         }
     }

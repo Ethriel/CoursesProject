@@ -9,7 +9,7 @@ import getTableCols from './getTableCols';
 import getNestedCols from './getNestedCols';
 import getNestedData from './getNestedData';
 import getTableData from './getTableData';
-import getNestedTable from './getNestedTable';
+import GetNestedTable from './GetNestedTable';
 import axios from 'axios';
 
 function NestedTableUseState() {
@@ -38,7 +38,6 @@ function NestedTableUseState() {
             if (respAmount.status === 200) {
                 const total = respAmount.data.amount;
                 setState(oldState => ({ ...oldState, ...{ total: total } }))
-                console.log("RESP AMOUNT = ", total);
                 const cfgUsers = {
                     method: "get",
                     data: { msg: "Hello" },
@@ -52,7 +51,6 @@ function NestedTableUseState() {
                 const respUsersCourses = (await axios(cfgUsers));
                 if (respUsersCourses.status === 200) {
                     const respData = respUsersCourses.data.data;
-                    console.log(respData);
                     setState(oldState => ({ ...oldState, users: respData, columns: getTableCols(), data: getTableData(respData) }));
                 }
             }
@@ -64,21 +62,12 @@ function NestedTableUseState() {
 
 
     const expandedRowRender = (record, index, indent, expanded) => {
-        console.log(`record, index, indent, expanded`, record, index, indent, expanded);
-        const columns = getNestedCols();
-        const users = state.users;
-        console.log(users);
-        const data = [];
-        let courses = [];
-        let obj = {};
-        for (let user of users) {
-            courses = user.systemUsersTrainingCourses;
-            for (let c of courses) {
-                obj = getNestedData(c);
-                data.push(obj);
-            }
+        if(expanded === true){
+            return <GetNestedTable userId={record.id} />;
         }
-        return <Table columns={columns} dataSource={data} pagination={false} />;
+        else{
+            return <Table />
+        }
     }
     return (
         <Table
