@@ -8,7 +8,7 @@ import H from '../common/HAntD';
 import ContainerComponent from '../common/ContainerComponent';
 import LayoutAntD from '../common/LayoutAntD';
 import { Redirect } from 'react-router-dom';
-import CourseDetailsComponent from './CourseDetailsComponent';
+import axios from 'axios';
 
 class CoursesComponent extends Component {
 
@@ -21,15 +21,19 @@ class CoursesComponent extends Component {
             page: 1,
             pageSize: 3,
             redirect: false,
-            course: 0
+            course: 0,
+            signal: axios.CancelToken.source()
         };
     }
 
     async componentDidMount() {
-        const amount = await MakeRequestAsync("https://localhost:44382/courses/get/amount", { msg: "hello" }, "get");
+        const cancelToken = this.state.signal.token;
+        const responseA = await MakeRequestAsync("https://localhost:44382/courses/get/amount", { msg: "hello" }, "get", cancelToken);
+        const amount = responseA.data;
         const skip = this.state.skip;
         const take = this.state.pageSize;
-        const info = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
+        const responseTake = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
+        const info = responseTake.data;
         this.setState({
             amount: amount.amount,
             items: MapCards(info, this.handleCourseClick)
@@ -37,9 +41,11 @@ class CoursesComponent extends Component {
     }
 
     handleChange = async (page, pageSize) => {
+        const cancelToken = this.state.signal.token;
         const skip = (page * pageSize) - pageSize;
         const take = pageSize === 1 ? pageSize : page * pageSize;
-        const info = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get");
+        const response = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
+        const info = response.data;
         this.setState({
             skip: skip,
             page: page,

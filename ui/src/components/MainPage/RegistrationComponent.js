@@ -4,12 +4,14 @@ import '../../index.css';
 import RegistrationForm from './RegistrationFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import { Redirect } from 'react-router-dom';
+import axios from 'axios';
 
 class RegistrationComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false
+            redirect: false,
+            signal: axios.CancelToken.source()
         };
     }
     confirmHandler = async values => {
@@ -19,7 +21,8 @@ class RegistrationComponent extends Component {
         };
         console.log(values);
         try {
-            //const data = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post");
+            const cancelToken = this.state.signal.token;
+            //const data = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post", cancelToken);
             //console.log(data);
             //this.setState({ redirect: true });
         } catch (error) {

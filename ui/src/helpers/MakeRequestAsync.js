@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-async function MakeRequestAsync(url, info, method, params = null) {
+async function MakeRequestAsync(url, info, method, cancelToken, params = null) {
     axios.defaults.withCredentials = true;
     let config = {};
-    if (info === null) {
+    if (info === null && params !== null) {
         config = {
             method: method,
             params: params,
+            cancelToken: cancelToken,
             url: url,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
@@ -19,6 +20,7 @@ async function MakeRequestAsync(url, info, method, params = null) {
         config = {
             method: method,
             data: info,
+            cancelToken: cancelToken,
             url: url,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
@@ -29,10 +31,9 @@ async function MakeRequestAsync(url, info, method, params = null) {
     }
     try {
         const response = await axios(config);
-        const data = response.data;
-        return data;
+        return response;
     } catch (error) {
-        return error;
+        throw error;
     }
 };
 

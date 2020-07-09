@@ -5,12 +5,14 @@ import NormalLoginFormAntD from './NormalLoginFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import GetUserData from '../../helpers/GetUserData';
 import { Redirect } from 'react-router-dom';
+import axios from 'axios';
 
 class LoginComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false
+            redirect: false,
+            signal: axios.CancelToken.source()
         };
     }
     confirmHandler = async values => {
@@ -19,7 +21,9 @@ class LoginComponent extends Component {
             password: values.password
         };
         try {
-            const data = await MakeRequestAsync("https://localhost:44382/account/signin", userData, "post");
+            const cancelToken = this.state.signal.token;
+            const response = await MakeRequestAsync("https://localhost:44382/account/signin", userData, "post", cancelToken);
+            const data = response.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
@@ -43,7 +47,9 @@ class LoginComponent extends Component {
     }
 
     facebookHandler = async () => {
-        const data = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get");
+        const cancelToken = this.state.signal.token;
+        const response = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get", cancelToken);
+        const data = response.data;
         console.log("DATA", data);
     }
     render() {

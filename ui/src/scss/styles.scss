@@ -129,9 +129,13 @@
     justify-content: center;
 }
 
+.img-container-my {
+    width: 100%;
+}
+
 .img-card-my {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    height: auto;
 }
 
 .ant-layout-header {

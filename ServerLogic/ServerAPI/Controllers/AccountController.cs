@@ -67,7 +67,7 @@ namespace ServerAPI.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            var user = await context.Users.Include(x => x.SystemRole).AsNoTracking().FirstOrDefaultAsync(user => user.Email.Equals(userData.Email));
+            var user = await context.Users.Include(x => x.SystemRole).FirstOrDefaultAsync(user => user.Email.Equals(userData.Email));
             var res = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
             if (res.Succeeded)
             {
