@@ -60,27 +60,28 @@ namespace ServerAPI.Controllers
             var skip = (page * pageSize) - pageSize;
             var take = pageSize == 1 ? pageSize : page * pageSize;
             var allStudents = context.Users.Where(x => x.SystemRole.Name.Equals("USER"));
+            var descend = "descend";
 
             switch (sorting.SortField)
             {
                 case "id":
                     {
-                        allStudents = sorting.SortOrder.Equals("descend") ? allStudents.OrderByDescending(x => x.Id) : allStudents.OrderBy(x => x.Id);
+                        allStudents = sorting.SortOrder.Equals(descend) ? allStudents.OrderByDescending(x => x.Id) : allStudents.OrderBy(x => x.Id);
                         break;
                     }
                 case "firstname":
                     {
-                        allStudents = sorting.SortOrder.Equals("descend") ? allStudents.OrderByDescending(x => x.FirstName) : allStudents.OrderBy(x => x.FirstName);
+                        allStudents = sorting.SortOrder.Equals(descend) ? allStudents.OrderByDescending(x => x.FirstName) : allStudents.OrderBy(x => x.FirstName);
                         break;
                     }
                 case "lastname":
                     {
-                        allStudents = sorting.SortOrder.Equals("descend") ? allStudents.OrderByDescending(x => x.LastName) : allStudents.OrderBy(x => x.LastName);
+                        allStudents = sorting.SortOrder.Equals(descend) ? allStudents.OrderByDescending(x => x.LastName) : allStudents.OrderBy(x => x.LastName);
                         break;
                     }
                 case "age":
                     {
-                        allStudents = sorting.SortOrder.Equals("descend") ? allStudents.OrderByDescending(x => x.Age) : allStudents.OrderBy(x => x.Age);
+                        allStudents = sorting.SortOrder.Equals(descend) ? allStudents.OrderByDescending(x => x.Age) : allStudents.OrderBy(x => x.Age);
                         break;
                     }
                 default:
