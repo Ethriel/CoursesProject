@@ -14,7 +14,7 @@ function AdminTable() {
     const [paginationState, setPaginationState] = useState({
         position: ['none', 'bottomCenter'],
         current: 1,
-        pageSize: 1,
+        pageSize: 3,
         total: 5
     });
     
@@ -73,9 +73,7 @@ function AdminTable() {
         const url = `https://localhost:44382/Students/post/sort`;
         const current = pagination.current;
         const pag = pagination;
-        console.log("HERE", pag);
         setPaginationState(oldPagination => ({ ...oldPagination, ...{ current: current } }));
-        console.log("PAGINATION IS HANDLE", paginationState);
 
         const sorting = {
             sortField: sorter.field,

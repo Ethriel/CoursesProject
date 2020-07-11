@@ -72,6 +72,11 @@ namespace ServerAPI.Extensions
                         ValidateAudience = false,
                         ClockSkew = TimeSpan.Zero
                     };
+                })
+                .AddFacebook(facebookOptions =>
+                {
+                    facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
+                    facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
                 });
 
             services.AddCors(corsOptions =>
