@@ -1,18 +1,26 @@
 import React from 'react';
-import ButtonComponent from '../common/ButtonComponent';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import '../../css/styles.css';
 
 const ButtonFaceBook = props => {
-    const btnSize = "large";
-    const btnText = "Facebook";
-    const btnBgColor = "#3c5a99";
-    const handler = props.clickHandler;
+    const responseHandler = props.facebookResponse;
+    const onClick = props.facebookClick;
 
     return(
-        <ButtonComponent
-                        mySize={btnSize}
-                        myBgColor={btnBgColor}
-                        myText={btnText}
-                        myHandler={handler} />
+        <FacebookLogin
+                    appId="327773058385961"
+                    fields="name,email,picture"
+                    callback={responseHandler}
+                    render={
+                        renderProps => (
+                            <button
+                                onClick={onClick}
+                                className="my-facebook">
+                                Continue with facebook
+                            </button>
+                        )
+                    }
+                    size="small"/>
     );
 };
 

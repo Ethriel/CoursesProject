@@ -10,7 +10,7 @@ import {
   DatePicker
 } from 'antd';
 import ButtonFaceBook from './ButtonFacebook';
-
+import '../../css/styles.css';
 
 
 
@@ -165,7 +165,7 @@ const RegistrationForm = (props) => {
         <Button type="primary" htmlType="submit" size="large">
           Register
         </Button>
-        <ButtonFaceBook clickHandler={props.facebook} />
+        <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse}/>
       </Form.Item>
     </Form>
   );

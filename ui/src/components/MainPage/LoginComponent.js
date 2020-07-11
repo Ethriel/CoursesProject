@@ -46,17 +46,22 @@ class LoginComponent extends Component {
         }
     }
 
-    facebookHandler = async () => {
-        const cancelToken = this.state.signal.token;
-        const response = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get", cancelToken);
-        const data = response.data;
-        console.log("DATA", data);
+    facebookClick = () => {
+        //const cancelToken = this.state.signal.token;
+        // const response = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get", cancelToken);
+        // const data = response.data;
+        // console.log("DATA", data);
     }
+    facebookResponseHandler = (response) => {
+        console.log(response);
+    }
+
     render() {
         return (
             <>
                 {this.state.redirect && this.renderRedirect()}
-                {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler} facebookHandler={this.facebookHandler} />}
+                {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler}
+                    facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
             </>
         )
     }

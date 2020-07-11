@@ -36,12 +36,19 @@ class RegistrationComponent extends Component {
         }
     }
 
-    facebookHandler = () => {
-
+    facebookClick = () => {
+        //const cancelToken = this.state.signal.token;
+        // const response = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get", cancelToken);
+        // const data = response.data;
+        // console.log("DATA", data);
+    }
+    facebookResponseHandler = (response) => {
+        console.log(response);
     }
     render() {
         return (
-            <RegistrationForm onFinish={this.confirmHandler} facebook={this.facebookHandler} />
+            <RegistrationForm onFinish={this.confirmHandler} 
+            facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />
         )
     }
 }

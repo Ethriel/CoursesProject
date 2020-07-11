@@ -151,6 +151,20 @@
     margin-top: 0.5%;
 }
 
+.my-facebook {
+    height: 40px;
+    font-size: 16px;
+    background-color: #3c5a99;
+    color: white;
+    border: none;
+    margin-left: 5px;
+}
+
+.my-facebook:hover {
+    cursor: pointer;
+    background-color: #577ac5;
+}
+
 .ant-form-item-control-input-content {
     display: flex;
     justify-content: space-around;

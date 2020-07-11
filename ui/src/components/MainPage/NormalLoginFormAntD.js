@@ -4,6 +4,7 @@ import '../../index.css';
 import ButtonFaceBook from '../MainPage/ButtonFacebook';
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import '../../css/styles.css';
 
 const NormalLoginForm = (props) => {
     const confirHandler = props.myConfirHandler;
@@ -43,7 +44,7 @@ const NormalLoginForm = (props) => {
                     placeholder="Password"
                 />
             </Form.Item>
-            
+
             <Form.Item>
                 <Form.Item name="remember" valuePropName="checked" noStyle>
                     <Checkbox>Remember me</Checkbox>
@@ -58,7 +59,7 @@ const NormalLoginForm = (props) => {
                 <Button type="primary" htmlType="submit" size="large">
                     Log in
           </Button>
-          <ButtonFaceBook clickHandler={props.facebookHandler} />
+                <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse}/>
             </Form.Item>
         </Form>
     );
