@@ -1,10 +1,10 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
-import ButtonFaceBook from '../MainPage/ButtonFacebook';
+
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import '../../css/styles.css';
+
 
 const NormalLoginForm = (props) => {
     const confirHandler = props.myConfirHandler;
@@ -58,8 +58,9 @@ const NormalLoginForm = (props) => {
             <Form.Item>
                 <Button type="primary" htmlType="submit" size="large">
                     Log in
-          </Button>
-                <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse}/>
+                </Button>
+                
+                
             </Form.Item>
         </Form>
     );

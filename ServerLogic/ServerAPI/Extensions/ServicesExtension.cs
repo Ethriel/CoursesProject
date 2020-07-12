@@ -41,6 +41,7 @@ namespace ServerAPI.Extensions
             //services.AddScoped<IRepository<TrainingCourse>, TrainingCoursesRepository>();
 
             //services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddHttpClient();
 
             services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
@@ -82,10 +83,11 @@ namespace ServerAPI.Extensions
             services.AddCors(corsOptions =>
                 corsOptions.AddPolicy(configuration["CORS"],
                 policyBuilder =>
-                policyBuilder.AllowAnyHeader().
-                AllowAnyMethod().
-                WithOrigins(configuration["client"], configuration["api"]).
-                AllowCredentials()));
+                policyBuilder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithOrigins(configuration["client"], configuration["api"])
+                .AllowCredentials()));
         }
     }
 }

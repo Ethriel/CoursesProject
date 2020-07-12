@@ -6,6 +6,9 @@ import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import GetUserData from '../../helpers/GetUserData';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import ButtonFaceBook from '../MainPage/ButtonFacebook';
+import '../../css/styles.css';
 
 class LoginComponent extends Component {
     constructor(props) {
@@ -47,13 +50,29 @@ class LoginComponent extends Component {
     }
 
     facebookClick = () => {
-        //const cancelToken = this.state.signal.token;
-        // const response = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get", cancelToken);
-        // const data = response.data;
-        // console.log("DATA", data);
+        console.log("FB clicked");
     }
-    facebookResponseHandler = (response) => {
+    facebookResponseHandler = async (response) => {
         console.log(response);
+        const cancelToken = this.state.signal.token;
+        const userData = {
+            firstName: response.first_name,
+            lastName: response.last_name,
+            email: response.email,
+            accessToken: response.accessToken,
+            pictureUrl: response.picture.data.url,
+            userId: response.userID
+        };
+        const reqResponse = await MakeRequestAsync("https://localhost:44382/account/signin-facebook", userData, "post", cancelToken);
+        console.log(reqResponse);
+        const data = reqResponse.data;
+        const token = data.token.key;
+        const role = data.user.roleName;
+        const user = GetUserData(data.user);
+        localStorage.setItem("bearer_header", `Bearer ${token}`);
+        localStorage.setItem("access_token", token);
+        localStorage.setItem("current_user_role", role);
+        localStorage.setItem("current_user_id", user.id);
     }
 
     render() {
@@ -62,6 +81,8 @@ class LoginComponent extends Component {
                 {this.state.redirect && this.renderRedirect()}
                 {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler}
                     facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+                {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+
             </>
         )
     }
