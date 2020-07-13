@@ -2,7 +2,7 @@
 
 namespace ServerAPI.Facebook
 {
-    public class FacebookTokenValidator
+    public class FacebookTokenData
     {
         [JsonProperty("data")]
         public FacebookValidationData Data { get; set; }

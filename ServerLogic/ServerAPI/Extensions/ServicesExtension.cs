@@ -17,6 +17,9 @@ using ServerAPI.UnitsOfWork;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using ServerAPI.Services.Abstractions;
+using ServerAPI.Services.Implementations;
+
 
 namespace ServerAPI.Extensions
 {
@@ -47,6 +50,8 @@ namespace ServerAPI.Extensions
 
             services.AddScoped<IMapperWrapper<TrainingCourse, TrainingCourseDTO>, TrainingCoursesMapperWrapper>();
             services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
+            services.AddScoped<ISendEmailService, SendEmailService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 

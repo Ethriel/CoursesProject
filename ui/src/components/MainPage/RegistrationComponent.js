@@ -5,6 +5,7 @@ import RegistrationForm from './RegistrationFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
+import GetUserData from '../../helpers/GetUserData';
 
 class RegistrationComponent extends Component {
     constructor(props) {
@@ -15,16 +16,27 @@ class RegistrationComponent extends Component {
         };
     }
     confirmHandler = async values => {
+        console.log("VALUES", values);
         const userData = {
+            firstName: values.user.name,
+            lastName: values.user.lastname,
+            birthDate: values.birthdate._i,
             email: values.email,
             password: values.password
         };
-        console.log(values);
+        console.log("USER DATA", userData);
         try {
             const cancelToken = this.state.signal.token;
-            //const data = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post", cancelToken);
-            //console.log(data);
-            //this.setState({ redirect: true });
+            const response = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post", cancelToken);
+            const data = response.data;
+            const token = data.token.key;
+            const role = data.user.roleName;
+            const user = GetUserData(data.user);
+            localStorage.setItem("bearer_header", `Bearer ${token}`);
+            localStorage.setItem("access_token", token);
+            localStorage.setItem("current_user_role", role);
+            localStorage.setItem("current_user_id", user.id);
+            this.setState({ redirect: true });
         } catch (error) {
             console.log(error);
         }
@@ -47,8 +59,8 @@ class RegistrationComponent extends Component {
     }
     render() {
         return (
-            <RegistrationForm onFinish={this.confirmHandler} 
-            facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />
+            <RegistrationForm onFinish={this.confirmHandler}
+                facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />
         )
     }
 }

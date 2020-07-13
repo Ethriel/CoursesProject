@@ -13,6 +13,7 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net.Http;
+using ServerAPI.Services.Abstractions;
 
 namespace ServerAPI.Controllers
 {
@@ -21,14 +22,15 @@ namespace ServerAPI.Controllers
 
     public class AccountController : Controller
     {
-        private readonly CoursesSystemDbContext context;
-        private readonly SignInManager<SystemUser> signInManager;
-        private readonly RoleManager<SystemRole> roleManager;
-        private readonly UserManager<SystemUser> userManager;
-        private readonly IConfiguration configuration;
-        private readonly SecurityTokenHandler tokenValidator;
-        private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly CoursesSystemDbContext _context;
+        private readonly SignInManager<SystemUser> _signInManager;
+        private readonly RoleManager<SystemRole> _roleManager;
+        private readonly UserManager<SystemUser> _userManager;
+        private readonly IConfiguration _configuration;
+        private readonly SecurityTokenHandler _tokenValidator;
+        private readonly IMapperWrapper<SystemUser, SystemUserDTO> _mapperWrapper;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IEmailService _emailService;
 
         public AccountController(CoursesSystemDbContext context, SignInManager<SystemUser> signInManager,
             RoleManager<SystemRole> roleManager,
@@ -36,31 +38,43 @@ namespace ServerAPI.Controllers
             IConfiguration configuration,
             SecurityTokenHandler tokenValidator,
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IEmailService emailService)
         {
-            this.context = context;
-            this.signInManager = signInManager;
-            this.roleManager = roleManager;
-            this.userManager = userManager;
-            this.configuration = configuration;
-            this.tokenValidator = tokenValidator;
-            this.mapperWrapper = mapperWrapper;
-            this.httpClientFactory = httpClientFactory;
+            _context = context;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
+            _userManager = userManager;
+            _configuration = configuration;
+            _tokenValidator = tokenValidator;
+            _mapperWrapper = mapperWrapper;
+            _httpClientFactory = httpClientFactory;
+            _emailService = emailService;
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> Register(SystemUserDTO userData)
+        public async Task<IActionResult> Register([FromBody] SystemUserDTO userData)
         {
-            var user = mapperWrapper.MapFromDTO(userData);
+            var user = _mapperWrapper.MapFromDTO(userData);
             user.UserName = userData.Email;
             user.RegisteredDate = DateTime.Now;
-            var role = await roleManager.FindByNameAsync("USER");
+            var role = await _roleManager.FindByNameAsync("USER");
             user.SystemRole = role;
             user.CalculateAge();
-            var res = await userManager.CreateAsync(user, userData.Password);
+            var res = await _userManager.CreateAsync(user, userData.Password);
             if (res.Succeeded)
             {
-                var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);
+                user = await _context.SystemUsers.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                try
+                {
+                    await _emailService.SendConfirmMessageAsync(user.Id, token, user.Email);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+                var data = UserResponseHelper.GetResponseData(_configuration, _tokenValidator, _mapperWrapper, user);
                 return Ok(data);
             }
             else
@@ -73,11 +87,11 @@ namespace ServerAPI.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            var user = await context.Users.Include(x => x.SystemRole).FirstOrDefaultAsync(user => user.Email.Equals(userData.Email));
-            var res = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
+            var user = await _context.Users.Include(x => x.SystemRole).FirstOrDefaultAsync(user => user.Email.Equals(userData.Email));
+            var res = await _signInManager.PasswordSignInAsync(user, userData.Password, true, false);
             if (res.Succeeded)
             {
-                var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);
+                var data = UserResponseHelper.GetResponseData(_configuration, _tokenValidator, _mapperWrapper, user);
                 return Ok(data);
             }
             else
@@ -90,15 +104,15 @@ namespace ServerAPI.Controllers
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUserObject facebookUser)
         {
             const string VALIDATION_URL = "https://graph.facebook.com/debug_token?input_token={0}&access_token={1}|{2}";
-            var addId = configuration["Authentication:Facebook:AppId"].Replace("<", "").Replace(">", "");
-            var secret = configuration["Authentication:Facebook:AppSecret"].Replace("<", "").Replace(">", "");
+            var addId = _configuration["Authentication:Facebook:AppId"];
+            var secret = _configuration["Authentication:Facebook:AppSecret"];
             var formattedUrl = string.Format(VALIDATION_URL, facebookUser.AccessToken, addId, secret);
-            var validatinResult = await httpClientFactory.CreateClient().GetAsync(formattedUrl);
-            validatinResult.EnsureSuccessStatusCode();
-            var responseAsString = await validatinResult.Content.ReadAsStringAsync();
+            var validationResult = await _httpClientFactory.CreateClient().GetAsync(formattedUrl);
+            validationResult.EnsureSuccessStatusCode();
+            var responseAsString = await validationResult.Content.ReadAsStringAsync();
 
-            var faceBookValidation = JsonConvert.DeserializeObject<FacebookTokenValidator>(responseAsString);
-            var isTokenValid = faceBookValidation.Data.IsValid;
+            var facebookTokenData = JsonConvert.DeserializeObject<FacebookTokenData>(responseAsString);
+            var isTokenValid = facebookTokenData.Data.IsValid;
             if (!isTokenValid)
             {
                 var errors = GetErrorsFromModelState.GetErrors(ModelState);
@@ -106,10 +120,10 @@ namespace ServerAPI.Controllers
             }
             else
             {
-                var user = await userManager.FindByEmailAsync(facebookUser.Email);
+                var user = await _userManager.FindByEmailAsync(facebookUser.Email);
                 if (user == null)
                 {
-                    var role = await roleManager.FindByNameAsync("USER");
+                    var role = await _roleManager.FindByNameAsync("USER");
                     var systemUser = new SystemUser
                     {
                         FirstName = facebookUser.FirstName,
@@ -120,11 +134,11 @@ namespace ServerAPI.Controllers
                         SystemRole = role,
                         AvatarPath = facebookUser.PictureUrl
                     };
-                    var createResult = await userManager.CreateAsync(systemUser);
+                    var createResult = await _userManager.CreateAsync(systemUser);
                     if (createResult.Succeeded)
                     {
-                        systemUser = await context.SystemUsers.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
-                        var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, systemUser);
+                        systemUser = await _context.SystemUsers.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
+                        var data = UserResponseHelper.GetResponseData(_configuration, _tokenValidator, _mapperWrapper, systemUser);
                         return Ok(data);
                     }
                     else
@@ -136,11 +150,26 @@ namespace ServerAPI.Controllers
                 }
                 else
                 {
-                    var data = UserResponseHelper.GetResponseData(configuration, tokenValidator, mapperWrapper, user);
+                    var data = UserResponseHelper.GetResponseData(_configuration, _tokenValidator, _mapperWrapper, user);
                     return Ok(data);
                 }
             }
-            
+
+        }
+        
+        [HttpPost("confirm/{userId}/{token}")]
+        public async Task<IActionResult> ConfirmEmail(int userId, string token)
+        {
+            var user = await _context.SystemUsers.FindAsync(userId);
+            var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
+            if (confirmResult.Succeeded)
+            {
+                return Ok("Email confirmed");
+            }
+            else
+            {
+                return BadRequest(new { message = "Confirmation failed", confirmResult.Errors });
+            }
         }
     }
 }

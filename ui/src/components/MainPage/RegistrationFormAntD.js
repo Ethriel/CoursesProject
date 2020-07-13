@@ -88,8 +88,19 @@ const RegistrationForm = (props) => {
         }>
         <Input />
       </Form.Item>
-      <Form.Item label="Birth date">
-        <DatePicker format='DD/MM/YYYY'/>
+      <Form.Item
+        name="birthdate"
+        label="Birth date"
+        rules={
+          [
+            {
+              type: 'object',
+              required: true,
+              message: "Select date of birth, please"
+            }
+          ]
+        }>
+        <DatePicker format='DD/MM/YYYY' />
       </Form.Item>
       <Form.Item
         name="email"
@@ -165,7 +176,7 @@ const RegistrationForm = (props) => {
         <Button type="primary" htmlType="submit" size="large">
           Register
         </Button>
-        <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse}/>
+        <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse} />
       </Form.Item>
     </Form>
   );
