@@ -1,26 +1,29 @@
-﻿using ServerAPI.Services.Abstractions;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
+using ServerAPI.Services.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Services.Implementations
 {
     public class EmailService : IEmailService
     {
-        private const string CONFIRM_URL = "https://localhost:44382/account/confirm/{0}/{1}";
         private readonly ISendEmailService _sendEmail;
+        private readonly IUrlHelper _urlHelper;
 
-        public EmailService(ISendEmailService sendEmail)
+        public EmailService(ISendEmailService sendEmail, IUrlHelperFactory urlHelperFactory,
+                   IActionContextAccessor actionContextAccessor)
         {
             _sendEmail = sendEmail;
+            _urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext);
         }
-        public async Task SendConfirmMessageAsync(int userId, string token, string email)
+        public async Task SendConfirmMessageAsync(int userId, string token, string email, string protocol)
         {
-            var url = string.Format(CONFIRM_URL, userId, token);
+            var callbackUrl = _urlHelper.Action("ConfirmEmail", "Account", new { userId = userId, token = token }, protocol: protocol);
             var subject = "Confirm your email";
-            var message = "Confirm your email, please, by clicking on the link:\n" +
-                $"<a href='{url}'>Confirm</a>";
+            var message = "Confirm your email, please, by clicking on the link: " +
+                $"<a href='{callbackUrl}'>Confirm</a>";
             await _sendEmail.SendEmailAsync(email, subject, message);
         }
 

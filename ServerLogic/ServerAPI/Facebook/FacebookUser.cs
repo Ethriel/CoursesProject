@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ServerAPI.Facebook
 {
-    public class FacebookUserObject
+    public class FacebookUser
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

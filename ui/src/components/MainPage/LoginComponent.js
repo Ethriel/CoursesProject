@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
-import 'antd/dist/antd.css';
-import '../../index.css';
+import { Redirect } from 'react-router-dom';
 import NormalLoginFormAntD from './NormalLoginFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import GetUserData from '../../helpers/GetUserData';
-import { Redirect } from 'react-router-dom';
-import axios from 'axios';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 import ButtonFaceBook from '../MainPage/ButtonFacebook';
+import axios from 'axios';
+import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
+import 'antd/dist/antd.css';
+import '../../index.css';
 import '../../css/styles.css';
 
 class LoginComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false,
-            signal: axios.CancelToken.source()
+            redirect: false
         };
     }
     confirmHandler = async values => {
@@ -24,16 +23,17 @@ class LoginComponent extends Component {
             password: values.password
         };
         try {
-            const cancelToken = this.state.signal.token;
+            const cancelToken = axios.CancelToken.source().token;
             const response = await MakeRequestAsync("https://localhost:44382/account/signin", userData, "post", cancelToken);
             const data = response.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
-            localStorage.setItem("bearer_header", `Bearer ${token}`);
-            localStorage.setItem("access_token", token);
-            localStorage.setItem("current_user_role", role);
-            localStorage.setItem("current_user_id", user.id);
+            setDataToLocalStorage(user.id, token, role);
+            // localStorage.setItem("bearer_header", `Bearer ${token}`);
+            // localStorage.setItem("access_token", token);
+            // localStorage.setItem("current_user_role", role);
+            // localStorage.setItem("current_user_id", user.id);
             console.log("All good");
             this.setState({ redirect: true });
 
@@ -49,12 +49,10 @@ class LoginComponent extends Component {
         }
     }
 
-    facebookClick = () => {
-        console.log("FB clicked");
-    }
+    facebookClick = () => {}
     facebookResponseHandler = async (response) => {
         console.log(response);
-        const cancelToken = this.state.signal.token;
+        const cancelToken = axios.CancelToken.source().token;
         const userData = {
             firstName: response.first_name,
             lastName: response.last_name,
@@ -69,20 +67,20 @@ class LoginComponent extends Component {
         const token = data.token.key;
         const role = data.user.roleName;
         const user = GetUserData(data.user);
-        localStorage.setItem("bearer_header", `Bearer ${token}`);
-        localStorage.setItem("access_token", token);
-        localStorage.setItem("current_user_role", role);
-        localStorage.setItem("current_user_id", user.id);
+        setDataToLocalStorage(user.id, token, role);
+        // localStorage.setItem("bearer_header", `Bearer ${token}`);
+        // localStorage.setItem("access_token", token);
+        // localStorage.setItem("current_user_role", role);
+        // localStorage.setItem("current_user_id", user.id);
+        this.setState({ redirect: true });
     }
 
     render() {
         return (
             <>
                 {this.state.redirect && this.renderRedirect()}
-                {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler}
-                    facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+                {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler} />}
                 {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
-
             </>
         )
     }

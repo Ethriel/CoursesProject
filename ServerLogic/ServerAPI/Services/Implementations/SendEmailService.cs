@@ -19,7 +19,7 @@ namespace ServerAPI.Services.Implementations
             var format = subject.Contains("Confirm") ? MimeKit.Text.TextFormat.Html : MimeKit.Text.TextFormat.Plain;
             var sender = _configuration["Email:User"];
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("Administration", sender));
+            emailMessage.From.Add(new MailboxAddress("Courses administration", sender));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = subject;
             emailMessage.Body = new TextPart(format)

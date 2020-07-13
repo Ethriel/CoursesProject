@@ -1,22 +1,23 @@
 import React, { Component } from 'react';
-import 'antd/dist/antd.css';
-import '../../index.css';
+import { Redirect } from 'react-router-dom';
 import RegistrationForm from './RegistrationFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import { Redirect } from 'react-router-dom';
-import axios from 'axios';
 import GetUserData from '../../helpers/GetUserData';
+import ButtonFaceBook from '../MainPage/ButtonFacebook';
+import axios from 'axios';
+import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
+import 'antd/dist/antd.css';
+import '../../index.css';
+import '../../css/styles.css';
 
 class RegistrationComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false,
-            signal: axios.CancelToken.source()
+            redirect: false
         };
     }
     confirmHandler = async values => {
-        console.log("VALUES", values);
         const userData = {
             firstName: values.user.name,
             lastName: values.user.lastname,
@@ -24,18 +25,19 @@ class RegistrationComponent extends Component {
             email: values.email,
             password: values.password
         };
-        console.log("USER DATA", userData);
         try {
-            const cancelToken = this.state.signal.token;
+            const cancelToken = axios.CancelToken.source().token;
             const response = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post", cancelToken);
             const data = response.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
-            localStorage.setItem("bearer_header", `Bearer ${token}`);
-            localStorage.setItem("access_token", token);
-            localStorage.setItem("current_user_role", role);
-            localStorage.setItem("current_user_id", user.id);
+            setDataToLocalStorage(user.id, token, role);
+            // localStorage.setItem("bearer_header", `Bearer ${token}`);
+            // localStorage.setItem("access_token", token);
+            // localStorage.setItem("current_user_role", role);
+            // localStorage.setItem("current_user_id", user.id);
+            console.log("All good");
             this.setState({ redirect: true });
         } catch (error) {
             console.log(error);
@@ -48,19 +50,39 @@ class RegistrationComponent extends Component {
         }
     }
 
-    facebookClick = () => {
-        //const cancelToken = this.state.signal.token;
-        // const response = await MakeRequestAsync("https://localhost:44382/courses/get/all", { msg: "hello" }, "get", cancelToken);
-        // const data = response.data;
-        // console.log("DATA", data);
-    }
-    facebookResponseHandler = (response) => {
+    facebookClick = () => {}
+    facebookResponseHandler = async (response) => {
         console.log(response);
+        const cancelToken = axios.CancelToken.source().token;
+        const userData = {
+            firstName: response.first_name,
+            lastName: response.last_name,
+            email: response.email,
+            accessToken: response.accessToken,
+            pictureUrl: response.picture.data.url,
+            userId: response.userID
+        };
+        const reqResponse = await MakeRequestAsync("https://localhost:44382/account/signin-facebook", userData, "post", cancelToken);
+        console.log(reqResponse);
+        const data = reqResponse.data;
+        const token = data.token.key;
+        const role = data.user.roleName;
+        const user = GetUserData(data.user);
+        setDataToLocalStorage(user.id, token, role);
+        // localStorage.setItem("bearer_header", `Bearer ${token}`);
+        // localStorage.setItem("access_token", token);
+        // localStorage.setItem("current_user_role", role);
+        // localStorage.setItem("current_user_id", user.id);
+        this.setState({ redirect: true });
     }
     render() {
         return (
-            <RegistrationForm onFinish={this.confirmHandler}
-                facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />
+            <>
+                {this.state.redirect && this.renderRedirect()}
+                {this.state.redirect === false && <RegistrationForm onFinish={this.confirmHandler} />}
+                {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+            </>
+
         )
     }
 }

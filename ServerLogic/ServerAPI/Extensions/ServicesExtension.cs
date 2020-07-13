@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using Infrastructure.DAL.Interfaces;
-using Infrastructure.DAL.Repositories;
 using Infrastructure.DbContext;
 using Infrastructure.DTO;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,13 +12,11 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ServerAPI.Helpers;
 using ServerAPI.MapperWrappers;
-using ServerAPI.UnitsOfWork;
+using ServerAPI.Services.Abstractions;
+using ServerAPI.Services.Implementations;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using ServerAPI.Services.Abstractions;
-using ServerAPI.Services.Implementations;
-
 
 namespace ServerAPI.Extensions
 {
@@ -39,19 +36,21 @@ namespace ServerAPI.Extensions
 
             services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
-            //services.AddScoped<IRepository<SystemUser>, SystemUsersRepository>();
-
-            //services.AddScoped<IRepository<TrainingCourse>, TrainingCoursesRepository>();
-
-            //services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddHttpClient();
 
             services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
             services.AddScoped<IMapperWrapper<TrainingCourse, TrainingCourseDTO>, TrainingCoursesMapperWrapper>();
+
             services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
+
             services.AddScoped<ISendEmailService, SendEmailService>();
+
             services.AddScoped<IEmailService, EmailService>();
+
+            services.AddScoped<IAccountService, AccountService>();
+
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
