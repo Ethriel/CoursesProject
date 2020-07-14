@@ -16,7 +16,7 @@ const LayoutAntD = props => {
         <Layout >
             <Header style={{ backgroundColor: color }}>{header}</Header>
             <Layout>
-                <Content style={{ overflow: "initial" }}>{content}</Content>
+                <Content >{content}</Content>
             </Layout>
             <Footer >{footer}</Footer>
         </Layout>
