@@ -1,5 +1,6 @@
 ﻿using Infrastructure.DTO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ServerAPI.Extensions;
 using ServerAPI.Facebook;
 using ServerAPI.Responses;
@@ -14,11 +15,13 @@ namespace ServerAPI.Controllers
 
     public class AccountController : Controller
     {
-        private readonly IAccountService _accountService;
+        private readonly IAccountService accountService;
+        private readonly ILogger<AccountController> logger;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, ILogger<AccountController> logger)
         {
-            _accountService = accountService;
+            this.accountService = accountService;
+            this.logger = logger;
         }
 
         [HttpPost("signup")]
@@ -26,7 +29,9 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var data = await _accountService.SignUpAsync(userData, HttpContext);
+                var data = await accountService.SignUpAsync(userData, HttpContext);
+                var accresp = data as AccountResponse;
+                logger.LogInformation($"User {accresp.User.Email} signed up");
                 return this.GetCorrespondingResponse(data);
             }
             catch (Exception ex)
@@ -42,7 +47,9 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var data = await _accountService.SignInAsync(userData);
+                var data = await accountService.SignInAsync(userData);
+                var accresp = data as AccountResponse;
+                logger.LogInformation($"User {accresp.User.Email} signed in");
                 return this.GetCorrespondingResponse(data);
             }
             catch (Exception ex)
@@ -57,7 +64,7 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var data = await _accountService.UseFacebookAsync(facebookUser);
+                var data = await accountService.UseFacebookAsync(facebookUser);
                 return this.GetCorrespondingResponse(data);
             }
             catch (Exception ex)
@@ -73,7 +80,7 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var data = await _accountService.ConfirmEmailAsync(userId, token);
+                var data = await accountService.ConfirmEmailAsync(userId, token);
                 return this.GetCorrespondingResponse(data);
             }
             catch (Exception ex)

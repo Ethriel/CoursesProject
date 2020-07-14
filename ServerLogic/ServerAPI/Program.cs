@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace ServerAPI
 {
@@ -13,7 +14,22 @@ namespace ServerAPI
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            try
+            {
+                logger.Debug("init main");
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "An exception in main");
+                throw;
+            }
+            finally
+            {
+                NLog.LogManager.Shutdown();
+            }
+            
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -22,6 +38,12 @@ namespace ServerAPI
                 {
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseUrls("https://localhost:44382/");
-                });
+                })
+                .ConfigureLogging(logging =>
+                {
+                logging.ClearProviders();
+                logging.SetMinimumLevel(LogLevel.Trace);
+                })
+                .UseNLog();
     }
 }

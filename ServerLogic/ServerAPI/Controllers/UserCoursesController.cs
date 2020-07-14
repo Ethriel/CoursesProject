@@ -4,6 +4,7 @@ using Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ServerAPI.BackgroundJobs;
 using ServerAPI.MapperWrappers;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,19 +18,19 @@ namespace ServerAPI.Controllers
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper;
-        private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapperCourses;
+        private readonly IEmailNotifyJob emailNotify;
 
         public UserCoursesController(CoursesSystemDbContext context,
             IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper,
-            IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapperCourses)
+            IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapperCourses, IEmailNotifyJob emailNotify)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
-            this.mapperWrapperCourses = mapperWrapperCourses;
+            this.emailNotify = emailNotify;
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddCourseToUser([FromBody]SystemUsersTrainingCoursesDTO userCourseDTO)
+        public async Task<IActionResult> AddCourseToUser([FromBody] SystemUsersTrainingCoursesDTO userCourseDTO)
         {
             var userCourse = mapperWrapper.MapFromDTO(userCourseDTO);
             var course = await context.TrainingCourses.FirstOrDefaultAsync(x => x.Id.Equals(userCourseDTO.TrainingCourseId));
@@ -38,6 +39,8 @@ namespace ServerAPI.Controllers
             userCourse.TrainingCourse = course;
             context.SystemUsersTrainingCourses.Add(userCourse);
             var saved = await context.SaveChangesAsync();
+            emailNotify.CreateJobs(user, course, userCourse.StudyDate);
+
             return Ok(new { data = "All ok" });
         }
 

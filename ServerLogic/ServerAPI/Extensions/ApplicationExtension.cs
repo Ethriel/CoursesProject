@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 
 namespace ServerAPI.Extensions
@@ -10,7 +11,9 @@ namespace ServerAPI.Extensions
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configuration"></param>
-        public static void AddAppUses(this IApplicationBuilder app, IConfiguration configuration)
+        public static void AddAppUses(this IApplicationBuilder app,
+                                           IConfiguration configuration,
+                                           IBackgroundJobClient backgroundJobClient)
         {
             app.UseStaticFiles();
 
@@ -28,6 +31,8 @@ namespace ServerAPI.Extensions
             {
                 endpoints.MapControllers();
             });
+
+            app.UseHangfireDashboard();
         }
     }
 }

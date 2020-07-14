@@ -9,27 +9,28 @@ namespace ServerAPI.Services.Implementations
 {
     public class EmailService : IEmailService
     {
-        private readonly ISendEmailService _sendEmail;
-        private readonly IUrlHelper _urlHelper;
+        private readonly ISendEmailService sendEmail;
+        private readonly IUrlHelper urlHelper;
 
-        public EmailService(ISendEmailService sendEmail, IUrlHelperFactory urlHelperFactory,
-                   IActionContextAccessor actionContextAccessor)
+        public EmailService(ISendEmailService sendEmail, IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor)
         {
-            _sendEmail = sendEmail;
-            _urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext);
+            this.sendEmail = sendEmail;
+            urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext);
         }
         public async Task SendConfirmMessageAsync(int userId, string token, string email, string protocol)
         {
-            var callbackUrl = _urlHelper.Action("ConfirmEmail", "Account", new { userId = userId, token = token }, protocol: protocol);
+            var callbackUrl = urlHelper.Action("ConfirmEmail", "Account", new { userId = userId, token = token }, protocol: protocol);
             var subject = "Confirm your email";
             var message = "Confirm your email, please, by clicking on the link: " +
                 $"<a href='{callbackUrl}'>Confirm</a>";
-            await _sendEmail.SendEmailAsync(email, subject, message);
+            await sendEmail.SendEmailAsync(email, subject, message);
         }
 
-        public async Task SendNotifyMessageAsync()
+        public void SendNotifyMessage(string email, string courseDetails)
         {
-            throw new NotImplementedException();
+            var subject = "Course start notification";
+            var message = courseDetails;
+            sendEmail.SendEmail(email, subject, message);
         }
     }
 }

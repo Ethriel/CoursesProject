@@ -17,6 +17,11 @@ using ServerAPI.Services.Implementations;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Hangfire;
+using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using ServerAPI.BackgroundJobs;
 
 namespace ServerAPI.Extensions
 {
@@ -32,11 +37,46 @@ namespace ServerAPI.Extensions
             services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
+            services.AddHangfireService(configuration);
+
+            services.AddCustomServices();
+
             services.AddAutoMapper(GetAllMapperProfiles.MapperProfiles);
 
-            services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
-
             services.AddHttpClient();
+
+            services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddIdentity<SystemUser, SystemRole>()
+                    .AddEntityFrameworkStores<CoursesSystemDbContext>()
+                    .AddDefaultTokenProviders();
+
+            services.AddAuthenticationServices(configuration);
+
+            services.AddCorsServices(configuration);
+        }
+        
+        public static void AddHangfireService(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddHangfire(config => config
+                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                     .UseSimpleAssemblyNameTypeSerializer()
+                     .UseRecommendedSerializerSettings()
+                     .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection"),
+                     new SqlServerStorageOptions
+                     {
+                         CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                         SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                         QueuePollInterval = TimeSpan.Zero,
+                         UseRecommendedIsolationLevel = true,
+                         DisableGlobalLocks = true
+                     }));
+
+            services.AddHangfireServer();
+        }
+        public static void AddCustomServices(this IServiceCollection services)
+        {
+            services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
@@ -52,12 +92,18 @@ namespace ServerAPI.Extensions
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
-            services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            //services.AddScoped<IUrlHelper>(x => {
+            //    var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+            //    var factory = x.GetRequiredService<IUrlHelperFactory>();
+            //    return factory.GetUrlHelper(actionContext);
+            //});
 
-            services.AddIdentity<SystemUser, SystemRole>()
-                .AddEntityFrameworkStores<CoursesSystemDbContext>()
-                .AddDefaultTokenProviders();
+            services.AddScoped<IEmailNotifyJob, EmailNotify>();
 
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        }
+        public static void AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
+        {
             services
                 .AddAuthentication(authOptions =>
                 {
@@ -83,7 +129,9 @@ namespace ServerAPI.Extensions
                     facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
                     facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
                 });
-
+        }
+        public static void AddCorsServices(this IServiceCollection services, IConfiguration configuration)
+        {
             services.AddCors(corsOptions =>
                 corsOptions.AddPolicy(configuration["CORS"],
                 policyBuilder =>

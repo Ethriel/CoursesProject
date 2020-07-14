@@ -15,14 +15,15 @@ class CourseDetailsComponent extends Component {
             id: props.match.params.id,
             course: null,
             isLoading: true,
-            plug: { a: "", b: "", c: "" },
+            plug: { title: "", cover: "", description: "" },
             selectedDate: ""
         }
         this.handleConfirm = this.handleConfirm.bind(this);
     }
 
     async componentDidMount() {
-        const gottedCourse = await MakeRequestAsync(`https://localhost:44382/courses/get/${this.state.id}`, { msg: "hello" }, "get");
+        const response = await MakeRequestAsync(`https://localhost:44382/courses/get/${this.state.id}`, { msg: "hello" }, "get");
+        const gottedCourse = response.data;
         this.setState({
             course: gottedCourse,
             isLoading: false
@@ -61,7 +62,7 @@ class CourseDetailsComponent extends Component {
                 {
                     !this.state.isLoading &&
                     <Container classes={classNameContainer}>
-                        <H myText={title} level={2} />
+                        <H myText={title} level={3} />
                         <img
                             style={{ margin: "0 auto" }}
                             alt="No"
@@ -70,7 +71,7 @@ class CourseDetailsComponent extends Component {
                             {description}
                         </Paragraph>
                         <Container classes={classNameConfirm}>
-                            <DatePicker format='DD.MM.YYYY' onChange={this.handleDateChange} />
+                            <DatePicker format='DD/MM/YYYY' onChange={this.handleDateChange} />
                             {
                                 isDateSelected &&
                                 <ButtonComponent size="medium" myHandler={this.handleConfirm} myText="Select course" />
