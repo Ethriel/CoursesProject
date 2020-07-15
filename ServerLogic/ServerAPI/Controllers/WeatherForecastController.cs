@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServicesAPI.Services.Abstractions;
 
 namespace ServerAPI.Controllers
 {
@@ -17,10 +18,12 @@ namespace ServerAPI.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IEmailService emailService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService)
         {
             _logger = logger;
+            this.emailService = emailService;
         }
 
         [HttpGet]

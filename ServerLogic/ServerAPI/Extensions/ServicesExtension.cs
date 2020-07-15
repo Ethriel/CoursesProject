@@ -2,7 +2,7 @@
 using Hangfire;
 using Hangfire.SqlServer;
 using Infrastructure.DbContext;
-using Infrastructure.DTO;
+using ServicesAPI.DTO;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -13,10 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ServerAPI.BackgroundJobs;
-using ServerAPI.Helpers;
-using ServerAPI.MapperWrappers;
-using ServerAPI.Services.Abstractions;
-using ServerAPI.Services.Implementations;
+using ServicesAPI.Helpers;
+using ServicesAPI.MapperWrappers;
+using ServicesAPI.Services.Abstractions;
+using ServicesAPI.Services.Implementations;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -33,11 +33,11 @@ namespace ServerAPI.Extensions
         public static void AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers()
-                .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+                    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
-            services.AddHangfireService(configuration);
+            AddHangfireService(services, configuration);
 
-            services.AddCustomServices();
+            AddCustomServices(services);
 
             services.AddAutoMapper(GetAllMapperProfiles.MapperProfiles);
 
@@ -49,12 +49,12 @@ namespace ServerAPI.Extensions
                     .AddEntityFrameworkStores<CoursesSystemDbContext>()
                     .AddDefaultTokenProviders();
 
-            services.AddAuthenticationServices(configuration);
+            AddAuthenticationServices(services, configuration);
 
-            services.AddCorsServices(configuration);
+            AddCorsServices(services, configuration);
         }
 
-        public static void AddHangfireService(this IServiceCollection services, IConfiguration configuration)
+        private static void AddHangfireService(IServiceCollection services, IConfiguration configuration)
         {
             services.AddHangfire(config => config
                      .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -72,23 +72,31 @@ namespace ServerAPI.Extensions
 
             services.AddHangfireServer();
         }
-        public static void AddCustomServices(this IServiceCollection services)
+        private static void AddCustomServices(IServiceCollection services)
         {
             services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
-            services.AddMapperWrapperServices();
+            AddMapperWrapperServices(services);
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
+            AddServicesForControllers(services);
+        }
+        private static void AddServicesForControllers(IServiceCollection services)
+        {
             services.AddScoped<ISendEmailService, SendEmailService>();
 
             services.AddScoped<IEmailService, EmailService>();
 
             services.AddScoped<IAccountService, AccountService>();
-            
+
+            services.AddScoped<ICoursesService, CoursesService>();
+
+            services.AddScoped<IStudentsService, StudentsService>();
+
             services.AddScoped<IEmailNotifyJob, EmailNotifyJob>();
         }
-        public static void AddMapperWrapperServices(this IServiceCollection services)
+        private static void AddMapperWrapperServices(IServiceCollection services)
         {
             services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
@@ -96,7 +104,7 @@ namespace ServerAPI.Extensions
 
             services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
         }
-        public static void AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
+        private static void AddAuthenticationServices(IServiceCollection services, IConfiguration configuration)
         {
             services
                 .AddAuthentication(authOptions =>
@@ -124,7 +132,7 @@ namespace ServerAPI.Extensions
                     facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
                 });
         }
-        public static void AddCorsServices(this IServiceCollection services, IConfiguration configuration)
+        private static void AddCorsServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddCors(corsOptions =>
                 corsOptions.AddPolicy(configuration["CORS"],

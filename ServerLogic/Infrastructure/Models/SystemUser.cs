@@ -28,5 +28,9 @@ namespace Infrastructure.Models
                 age--;
             Age = age;
         }
+        public bool IsUser()
+        {
+            return this.SystemRole.IsUser();
+        }
     }
 }

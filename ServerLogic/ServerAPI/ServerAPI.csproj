@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\ServicesAPI\ServicesAPI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\share\img\" />

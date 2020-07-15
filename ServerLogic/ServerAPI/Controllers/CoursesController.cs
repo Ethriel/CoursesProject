@@ -1,14 +1,8 @@
-﻿using Infrastructure.DbContext;
-using Infrastructure.DTO;
-using Infrastructure.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ServerAPI.Helpers;
-using ServerAPI.MapperWrappers;
-using ServerAPI.UnitsOfWork;
+using Microsoft.Extensions.Logging;
+using ServicesAPI.Services.Abstractions;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
@@ -18,13 +12,13 @@ namespace ServerAPI.Controllers
     [Route("[controller]")]
     public class CoursesController : Controller
     {
-        private readonly CoursesSystemDbContext context;
-        private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper;
+        private readonly ICoursesService coursesService;
+        private readonly ILogger<CoursesController> logger;
 
-        public CoursesController(CoursesSystemDbContext context, IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper)
+        public CoursesController(ICoursesService coursesService, ILogger<CoursesController> logger)
         {
-            this.context = context;
-            this.mapperWrapper = mapperWrapper;
+            this.coursesService = coursesService;
+            this.logger = logger;
         }
 
         [HttpGet("get/amount")]
@@ -32,15 +26,15 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var courses = await context.TrainingCourses.ToArrayAsync();
-                var data = courses.Length;
-                return Ok(new { amount = data });
+                var amount = await coursesService.GetAmountAsync();
+                return Ok(new { amount });
             }
             catch (Exception ex)
             {
-                var errors = GetErrorsFromModelState.GetErrors(ModelState);
-                return BadRequest(new { message = $"Exception occured: {ex.Message}", errors = errors });
+
+                throw;
             }
+
         }
 
         [HttpGet("get/all")]
@@ -48,30 +42,27 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var courses = await context.TrainingCourses.ToArrayAsync();
-                var data = mapperWrapper.MapCollectionFromEntities(courses);
-                return Ok(data);
+                var courses = await coursesService.GetAllCoursesAsync();
+                return Ok(new { courses });
             }
             catch (Exception ex)
             {
-                var errors = GetErrorsFromModelState.GetErrors(ModelState);
-                return BadRequest(new { message = $"Exception occured: {ex.Message}", errors = errors });
-            }
 
+                throw;
+            }
         }
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
             try
             {
-                var courses = await context.TrainingCourses.Skip(skip).Take(take).ToArrayAsync();
-                var data = mapperWrapper.MapCollectionFromEntities(courses);
-                return Ok(data);
+                var courses = await coursesService.GetForPage(skip, take);
+                return Ok(new { courses });
             }
             catch (Exception ex)
             {
-                var errors = GetErrorsFromModelState.GetErrors(ModelState);
-                return BadRequest(new { message = $"Exception occured: {ex.Message}", errors = errors });
+
+                throw;
             }
         }
         [HttpGet("get/{id}")]
@@ -79,14 +70,13 @@ namespace ServerAPI.Controllers
         {
             try
             {
-                var course = await context.TrainingCourses.FirstOrDefaultAsync(x=>x.Id.Equals(id));
-                var data = mapperWrapper.MapFromEntity(course);
-                return Ok(data);
+                var course = await coursesService.GetById(id);
+                return Ok(new { course });
             }
             catch (Exception ex)
             {
-                var errors = GetErrorsFromModelState.GetErrors(ModelState);
-                return BadRequest(new { message = $"Exception occured: {ex.Message}", errors = errors });
+
+                throw;
             }
         }
     }

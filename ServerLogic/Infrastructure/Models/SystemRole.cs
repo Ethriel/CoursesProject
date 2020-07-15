@@ -11,5 +11,9 @@ namespace Infrastructure.Models
         {
             SystemUsers = new HashSet<SystemUser>();
         }
+        public bool IsUser()
+        {
+            return this.Name.Equals("USER");
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Hangfire;
 using Infrastructure.Models;
 using ServerAPI.Extensions;
-using ServerAPI.Services.Abstractions;
+using ServicesAPI.Services.Abstractions;
 using System;
 
 namespace ServerAPI.BackgroundJobs

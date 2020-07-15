@@ -1,10 +1,10 @@
-﻿using Infrastructure.DTO;
+﻿using ServicesAPI.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServerAPI.Extensions;
-using ServerAPI.Facebook;
-using ServerAPI.Responses;
-using ServerAPI.Services.Abstractions;
+using ServicesAPI.Facebook;
+using ServicesAPI.Responses;
+using ServicesAPI.Services.Abstractions;
 using System;
 using System.Threading.Tasks;
 
