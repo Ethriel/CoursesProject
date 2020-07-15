@@ -107,7 +107,6 @@ function AdminTable() {
             loading={loading}
             pagination={paginationState}
             onChange={handleChange}
-            align
         />
     )
 };

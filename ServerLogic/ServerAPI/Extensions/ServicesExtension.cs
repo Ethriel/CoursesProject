@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Hangfire;
+using Hangfire.SqlServer;
 using Infrastructure.DbContext;
 using Infrastructure.DTO;
 using Infrastructure.Models;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using ServerAPI.BackgroundJobs;
 using ServerAPI.Helpers;
 using ServerAPI.MapperWrappers;
 using ServerAPI.Services.Abstractions;
@@ -17,11 +20,6 @@ using ServerAPI.Services.Implementations;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using Hangfire;
-using Hangfire.SqlServer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using ServerAPI.BackgroundJobs;
 
 namespace ServerAPI.Extensions
 {
@@ -55,7 +53,7 @@ namespace ServerAPI.Extensions
 
             services.AddCorsServices(configuration);
         }
-        
+
         public static void AddHangfireService(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHangfire(config => config
@@ -78,29 +76,25 @@ namespace ServerAPI.Extensions
         {
             services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
-            services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
+            services.AddMapperWrapperServices();
 
-            services.AddScoped<IMapperWrapper<TrainingCourse, TrainingCourseDTO>, TrainingCoursesMapperWrapper>();
-
-            services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddScoped<ISendEmailService, SendEmailService>();
 
             services.AddScoped<IEmailService, EmailService>();
 
             services.AddScoped<IAccountService, AccountService>();
+            
+            services.AddScoped<IEmailNotifyJob, EmailNotifyJob>();
+        }
+        public static void AddMapperWrapperServices(this IServiceCollection services)
+        {
+            services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IMapperWrapper<TrainingCourse, TrainingCourseDTO>, TrainingCoursesMapperWrapper>();
 
-            //services.AddScoped<IUrlHelper>(x => {
-            //    var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
-            //    var factory = x.GetRequiredService<IUrlHelperFactory>();
-            //    return factory.GetUrlHelper(actionContext);
-            //});
-
-            services.AddScoped<IEmailNotifyJob, EmailNotify>();
-
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
         }
         public static void AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
         {

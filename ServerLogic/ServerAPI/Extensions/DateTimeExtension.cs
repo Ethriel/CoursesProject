@@ -17,10 +17,10 @@ namespace ServerAPI.Extensions
             var calendar = System.Globalization.DateTimeFormatInfo.CurrentInfo.Calendar;
 
             // check if first day of now and passed date are the same
-            var dayOne = now.AddDays(-(int)calendar.GetDayOfWeek(now));
-            var dayTwo = date.AddDays(-(int)calendar.GetDayOfWeek(date));
+            var firstDayOfNow = now.AddDays(-(int)calendar.GetDayOfWeek(now));
+            var firstDayOfDate = date.AddDays(-(int)calendar.GetDayOfWeek(date));
 
-            return dayOne == dayTwo;
+            return firstDayOfNow == firstDayOfDate;
         }
     }
 }

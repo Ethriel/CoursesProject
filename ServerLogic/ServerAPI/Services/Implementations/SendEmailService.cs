@@ -8,16 +8,16 @@ namespace ServerAPI.Services.Implementations
 {
     public class SendEmailService : ISendEmailService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
 
         public SendEmailService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
         }
         public async Task SendEmailAsync(string email, string subject, string message)
         {
             var format = subject.Contains("Confirm") ? MimeKit.Text.TextFormat.Html : MimeKit.Text.TextFormat.Plain;
-            var sender = _configuration["Email:User"];
+            var sender = configuration["Email:User"];
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("Courses administration", sender));
             emailMessage.To.Add(new MailboxAddress("", email));
@@ -30,7 +30,7 @@ namespace ServerAPI.Services.Implementations
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync("smtp.gmail.com", 587);
-                await client.AuthenticateAsync(sender, _configuration["Email:Password"]);
+                await client.AuthenticateAsync(sender, configuration["Email:Password"]);
                 await client.SendAsync(emailMessage);
                 await client.DisconnectAsync(true);
             }
@@ -38,7 +38,7 @@ namespace ServerAPI.Services.Implementations
         public void SendEmail(string email, string subject, string message)
         {
             var format = subject.Contains("Confirm") ? MimeKit.Text.TextFormat.Html : MimeKit.Text.TextFormat.Plain;
-            var sender = _configuration["Email:User"];
+            var sender = configuration["Email:User"];
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("Courses administration", sender));
             emailMessage.To.Add(new MailboxAddress("", email));
@@ -51,7 +51,7 @@ namespace ServerAPI.Services.Implementations
             using (var client = new SmtpClient())
             {
                 client.Connect("smtp.gmail.com", 587);
-                client.Authenticate(sender, _configuration["Email:Password"]);
+                client.Authenticate(sender, configuration["Email:Password"]);
                 client.Send(emailMessage);
                 client.Disconnect(true);
             }

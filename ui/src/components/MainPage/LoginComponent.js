@@ -44,8 +44,10 @@ class LoginComponent extends Component {
     }
 
     renderRedirect = () => {
+        const role = localStorage.getItem("current_user_role");
         if (this.state.redirect) {
-            return <Redirect to="/courses" push={true} />
+            const redirectDirection = role === "ADMIN" ? "/admin" : "/courses";
+            return <Redirect to={redirectDirection} push={true} />
         }
     }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Infrastructure.Models
 {
@@ -9,7 +8,6 @@ namespace Infrastructure.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string Cover { get; set; }
-        public DateTime StartDate { get; set; }
         public virtual ICollection<SystemUsersTrainingCourses> SystemUsersTrainingCourses { get; set; }
 
         public TrainingCourse()

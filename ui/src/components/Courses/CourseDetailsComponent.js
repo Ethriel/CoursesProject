@@ -23,9 +23,9 @@ class CourseDetailsComponent extends Component {
 
     async componentDidMount() {
         const response = await MakeRequestAsync(`https://localhost:44382/courses/get/${this.state.id}`, { msg: "hello" }, "get");
-        const gottedCourse = response.data;
+        const course = response.data;
         this.setState({
-            course: gottedCourse,
+            course: course,
             isLoading: false
         });
     }
@@ -53,15 +53,8 @@ class CourseDetailsComponent extends Component {
     }
 
     disabledDate = current => {
-        if (this.state.course !== null) {
-            const date = this.state.course.startDate;
-            const start = moment();
-            const end = moment(date, "DD/MM/YYYY").subtract(8, "day");
-            return current < start || current > end;
-        }
-        else {
-            return false;
-        }
+        const start = moment();
+        return current < start;
     }
 
     render() {
@@ -69,8 +62,6 @@ class CourseDetailsComponent extends Component {
         const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
         const { title, cover, description } = this.state.isLoading ? this.state.plug : this.state.course;
         const isDateSelected = this.state.selectedDate !== "" && this.state.selectedDate !== null;
-        const startDate = this.state.course === null ? moment().format("DD/MM/YYYY") : this.state.course.startDate;
-        const startText = `The course starts at ${startDate}`;
         return (
             <>
                 {
@@ -81,13 +72,11 @@ class CourseDetailsComponent extends Component {
                             style={{ margin: "0 auto" }}
                             alt="No"
                             src={`https://localhost:44382/${cover}`} />
-                            <H myText={startText} level={4}/>
                         <Paragraph>
                             {description}
                         </Paragraph>
                         <Container classes={classNameConfirm}>
                             <DatePicker
-                                defaultValue={moment()}
                                 format='DD/MM/YYYY'
                                 onChange={this.handleDateChange}
                                 disabledDate={this.disabledDate} />
