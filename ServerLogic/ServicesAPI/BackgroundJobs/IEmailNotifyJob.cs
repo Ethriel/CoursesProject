@@ -1,7 +1,7 @@
 ﻿using Infrastructure.Models;
 using System;
 
-namespace ServerAPI.BackgroundJobs
+namespace ServicesAPI.BackgroundJobs
 {
     public interface IEmailNotifyJob
     {

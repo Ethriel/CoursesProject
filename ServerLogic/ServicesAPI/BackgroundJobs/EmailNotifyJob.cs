@@ -1,10 +1,10 @@
 ﻿using Hangfire;
 using Infrastructure.Models;
-using ServerAPI.Extensions;
+using ServicesAPI.Extensions;
 using ServicesAPI.Services.Abstractions;
 using System;
 
-namespace ServerAPI.BackgroundJobs
+namespace ServicesAPI.BackgroundJobs
 {
     public class EmailNotifyJob : IEmailNotifyJob
     {

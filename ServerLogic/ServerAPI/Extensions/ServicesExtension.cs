@@ -2,7 +2,6 @@
 using Hangfire;
 using Hangfire.SqlServer;
 using Infrastructure.DbContext;
-using ServicesAPI.DTO;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using ServerAPI.BackgroundJobs;
+using ServicesAPI.BackgroundJobs;
+using ServicesAPI.DTO;
 using ServicesAPI.Helpers;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Services.Abstractions;
@@ -86,6 +86,8 @@ namespace ServerAPI.Extensions
         {
             services.AddScoped<ISendEmailService, SendEmailService>();
 
+            services.AddScoped<IEmailNotifyJob, EmailNotifyJob>();
+
             services.AddScoped<IEmailService, EmailService>();
 
             services.AddScoped<IAccountService, AccountService>();
@@ -94,7 +96,8 @@ namespace ServerAPI.Extensions
 
             services.AddScoped<IStudentsService, StudentsService>();
 
-            services.AddScoped<IEmailNotifyJob, EmailNotifyJob>();
+            services.AddScoped<IUserCoursesService, UserCoursesService>();
+
         }
         private static void AddMapperWrapperServices(IServiceCollection services)
         {

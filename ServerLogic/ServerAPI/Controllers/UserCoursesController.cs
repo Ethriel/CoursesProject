@@ -1,14 +1,8 @@
-﻿using Infrastructure.DbContext;
-using ServicesAPI.DTO;
-using Infrastructure.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ServerAPI.BackgroundJobs;
-using ServicesAPI.MapperWrappers;
-using System.Linq;
+using ServicesAPI.DTO;
+using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
-using ServicesAPI.Extensions;
 
 namespace ServerAPI.Controllers
 {
@@ -17,70 +11,81 @@ namespace ServerAPI.Controllers
     [Route("[controller]")]
     public class UserCoursesController : Controller
     {
-        private readonly CoursesSystemDbContext context;
-        private readonly IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper;
-        private readonly IEmailNotifyJob emailNotifyJob;
+        private readonly IUserCoursesService userCoursesService;
 
-        public UserCoursesController(CoursesSystemDbContext context,
-            IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper,
-            IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapperCourses, IEmailNotifyJob emailNotifyJob)
+        public UserCoursesController(IUserCoursesService userCoursesService)
         {
-            this.context = context;
-            this.mapperWrapper = mapperWrapper;
-            this.emailNotifyJob = emailNotifyJob;
+            this.userCoursesService = userCoursesService;
         }
 
         [HttpPost("add")]
         public async Task<IActionResult> AddCourseToUser([FromBody] SystemUsersTrainingCoursesDTO userCourseDTO)
         {
-            var userCourse = mapperWrapper.MapFromDTO(userCourseDTO);
-            var course = await context.TrainingCourses.FindAsync(userCourseDTO.TrainingCourseId);
-            var user = await context.SystemUsers.FindAsync(userCourseDTO.SystemUserId);
-            userCourse.SystemUser = user;
-            userCourse.TrainingCourse = course;
-            context.SystemUsersTrainingCourses.Add(userCourse);
-            var saved = await context.SaveChangesAsync();
-            emailNotifyJob.CreateJobs(user, course, userCourse.StudyDate);
-
-            return Ok(new { data = "All ok" });
+            try
+            {
+                await userCoursesService.AddCourseToUserASync(userCourseDTO);
+                return Ok();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllUsersWithCourses()
         {
-            var usersWithCourses = await context.SystemUsersTrainingCourses.ToArrayAsync();
-
-            var data = mapperWrapper.MapCollectionFromEntities(usersWithCourses);
-            return Ok(new { data = data });
+            try
+            {
+                var data = await userCoursesService.GetAllAsync();
+                return Ok(new { data });
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         [HttpGet("get/ammount")]
         public async Task<IActionResult> GetAmmount()
         {
-            var ammount = await context.SystemUsersTrainingCourses.CountAsync();
-            return Ok(new { data = ammount });
+            try
+            {
+                var amount = await userCoursesService.GetAmountAsync();
+                return Ok(new { amount });
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
-            var usersWithCourses = await context.SystemUsersTrainingCourses
-                                                .GetPortionOfQueryable(skip, take)
-                                                .ToArrayAsync();
-
-            var data = mapperWrapper.MapCollectionFromEntities(usersWithCourses);
-            return Ok(new { data = data });
+            try
+            {
+                var data = await userCoursesService.GetForPageAsync(skip, take);
+                return Ok(new { data });
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         [HttpGet("get/{userId}")]
         public async Task<IActionResult> GetCoursesByUserId(int userId)
         {
-            var coursesUser = await context.SystemUsersTrainingCourses
-                                           .GetCoursesByUserId(userId)
-                                           .ToArrayAsync();
-
-            var data = mapperWrapper.MapCollectionFromEntities(coursesUser);
-            return Ok(new { data = data });
+            try
+            {
+                var data = await userCoursesService.GetByUserIdAsync(userId);
+                return Ok(new { data });
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
