@@ -25,7 +25,7 @@ class LoginComponent extends Component {
         try {
             const cancelToken = axios.CancelToken.source().token;
             const response = await MakeRequestAsync("https://localhost:44382/account/signin", userData, "post", cancelToken);
-            const data = response.data;
+            const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);

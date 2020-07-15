@@ -23,7 +23,7 @@ class CourseDetailsComponent extends Component {
 
     async componentDidMount() {
         const response = await MakeRequestAsync(`https://localhost:44382/courses/get/${this.state.id}`, { msg: "hello" }, "get");
-        const course = response.data;
+        const course = response.data.course;
         this.setState({
             course: course,
             isLoading: false

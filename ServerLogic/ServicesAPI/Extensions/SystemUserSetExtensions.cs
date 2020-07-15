@@ -13,7 +13,7 @@ namespace ServicesAPI.Extensions
         /// <returns></returns>
         public static IQueryable<SystemUser> GetOnlyUsers(this DbSet<SystemUser> set)
         {
-            return set.Where(x => x.IsUser());
+            return set.Where(x => x.SystemRole.Name.Equals("USER"));
         }
 
         /// <summary>
@@ -27,6 +27,8 @@ namespace ServicesAPI.Extensions
         {
             IQueryable<SystemUser> result = null;
             var descend = "descend";
+            sortOrder ??= descend;
+            sortField ??= "id";
             switch (sortField)
             {
                 case "id":

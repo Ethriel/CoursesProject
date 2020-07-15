@@ -33,7 +33,7 @@ namespace ServerAPI.Controllers
                 switch (data.AccountOperationResult)
                 {
                     case AccountOperationResult.Succeeded:
-                        return Ok(new { data.AccountData });
+                        return Ok(new { data = data.AccountData });
                     case AccountOperationResult.Failed:
                     default:
                         return BadRequest(new { message = "Sign up failed" });
@@ -57,7 +57,7 @@ namespace ServerAPI.Controllers
                 switch (data.AccountOperationResult)
                 {
                     case AccountOperationResult.Succeeded:
-                        return Ok(new { data.AccountData });
+                        return Ok(new { data = data.AccountData });
                     case AccountOperationResult.Failed:
                     default:
                         return BadRequest(new { message = "Sign in failed" });
@@ -80,7 +80,7 @@ namespace ServerAPI.Controllers
                 switch (data.AccountOperationResult)
                 {
                     case AccountOperationResult.Succeeded:
-                        return Ok(new { data.AccountData });
+                        return Ok(new { data = data.AccountData });
                     case AccountOperationResult.Failed:
                     default:
                         return BadRequest(new { message = "Sign in with Facebook failed" });
