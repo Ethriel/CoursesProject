@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ServicesAPI.DTO;
 using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
@@ -12,10 +13,12 @@ namespace ServerAPI.Controllers
     public class UserCoursesController : Controller
     {
         private readonly IUserCoursesService userCoursesService;
+        private readonly ILogger<StudentsController> logger;
 
-        public UserCoursesController(IUserCoursesService userCoursesService)
+        public UserCoursesController(IUserCoursesService userCoursesService, ILogger<StudentsController> logger)
         {
             this.userCoursesService = userCoursesService;
+            this.logger = logger;
         }
 
         [HttpPost("add")]

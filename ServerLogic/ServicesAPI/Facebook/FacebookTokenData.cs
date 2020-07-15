@@ -7,7 +7,7 @@ namespace ServicesAPI.Facebook
         [JsonProperty("data")]
         public FacebookValidationData Data { get; set; }
     }
-    public partial class FacebookValidationData
+    public class FacebookValidationData
     {
         [JsonProperty("app_id")]
         public string AppId { get; set; }

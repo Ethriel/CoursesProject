@@ -1,11 +1,9 @@
-﻿using ServicesAPI.DTO;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ServerAPI.Extensions;
+using ServicesAPI.DTO;
 using ServicesAPI.Facebook;
-using ServicesAPI.Responses;
+using ServicesAPI.Responses.AccountResponseData;
 using ServicesAPI.Services.Abstractions;
-using System;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
@@ -30,15 +28,20 @@ namespace ServerAPI.Controllers
             try
             {
                 var data = await accountService.SignUpAsync(userData, HttpContext);
-                var accresp = data as AccountResponse;
-                logger.LogInformation($"User {accresp.User.Email} signed up");
-                return this.GetCorrespondingResponse(data);
+
+                logger.LogInformation($"User {data.AccountData.User.Email} signed up");
+                switch (data.AccountOperationResult)
+                {
+                    case AccountOperationResult.Succeeded:
+                        return Ok(new { data.AccountData });
+                    case AccountOperationResult.Failed:
+                    default:
+                        return BadRequest(new { message = "Sign up failed" });
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                var errors = this.GetErrorsFromModelState();
-                var error = new ErrorObject("Invalid sign up attempt", errors);
-                return BadRequest(error);
+                throw;
             }
         }
 
@@ -48,15 +51,21 @@ namespace ServerAPI.Controllers
             try
             {
                 var data = await accountService.SignInAsync(userData);
-                var accresp = data as AccountResponse;
-                logger.LogInformation($"User {accresp.User.Email} signed in");
-                return this.GetCorrespondingResponse(data);
+
+                logger.LogInformation($"User {data.AccountData.User.Email} signed in");
+
+                switch (data.AccountOperationResult)
+                {
+                    case AccountOperationResult.Succeeded:
+                        return Ok(new { data.AccountData });
+                    case AccountOperationResult.Failed:
+                    default:
+                        return BadRequest(new { message = "Sign in failed" });
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                var errors = this.GetErrorsFromModelState();
-                var error = new ErrorObject("Invalid sign in attempt", errors);
-                return BadRequest(error);
+                throw;
             }
         }
         [HttpPost("signin-facebook")]
@@ -65,13 +74,21 @@ namespace ServerAPI.Controllers
             try
             {
                 var data = await accountService.UseFacebookAsync(facebookUser);
-                return this.GetCorrespondingResponse(data);
+
+                logger.LogInformation($"User {data.AccountData.User.Email} signed in with Facebook");
+
+                switch (data.AccountOperationResult)
+                {
+                    case AccountOperationResult.Succeeded:
+                        return Ok(new { data.AccountData });
+                    case AccountOperationResult.Failed:
+                    default:
+                        return BadRequest(new { message = "Sign in with Facebook failed" });
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                var errors = this.GetErrorsFromModelState();
-                var error = new ErrorObject("Invalid facebook login", errors);
-                return BadRequest(error);
+                throw;
             }
         }
 
@@ -81,13 +98,19 @@ namespace ServerAPI.Controllers
             try
             {
                 var data = await accountService.ConfirmEmailAsync(userId, token);
-                return this.GetCorrespondingResponse(data);
+
+                switch (data.AccountOperationResult)
+                {
+                    case AccountOperationResult.Succeeded:
+                        return Ok(new { message = "Email confirmed" });
+                    case AccountOperationResult.Failed:
+                    default:
+                        return BadRequest(new { message = "Email confirmation failed" });
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                var errors = this.GetErrorsFromModelState();
-                var error = new ErrorObject("An exception occured", errors);
-                return BadRequest(error);
+                throw;
             }
         }
     }
