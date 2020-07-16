@@ -24,59 +24,35 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<IEnumerable<SystemUserDTO>> GetAllStudentsAsync()
         {
-            try
-            {
-                var students = await context.Users.GetOnlyUsers()
-                                                  .ToArrayAsync();
+            var students = await context.Users.GetOnlyUsers()
+                                              .ToArrayAsync();
 
-                var data = mapperWrapper.MapCollectionFromEntities(students);
-                return data;
-            }
-            catch
-            {
-
-                throw;
-            }
+            var data = mapperWrapper.MapCollectionFromEntities(students);
+            return data;
 
         }
 
         public async Task<int> GetAmountOfStudentsAync()
         {
-            try
-            {
-                var amount = await context.Users.GetOnlyUsers()
-                                                .CountAsync();
+            var amount = await context.Users.GetOnlyUsers()
+                                            .CountAsync();
 
-                return amount;
-            }
-            catch
-            {
-
-                throw;
-            }
+            return amount;
         }
 
         public async Task<IEnumerable<SystemUserDTO>> GetSortedStudentsAsync(Sorting sorting)
         {
-            try
-            {
-                var skip = sorting.Pagination.GetSkip();
-                var take = sorting.Pagination.GetTake();
+            var skip = sorting.Pagination.GetSkip();
+            var take = sorting.Pagination.GetTake();
 
-                var students = await context.SystemUsers.GetOnlyUsers()
-                                                        .GetPortionOfQueryable(skip, take)
-                                                        .GetSortedUsers(sorting.SortOrder, sorting.SortField)
-                                                        .ToArrayAsync();
+            var students = await context.SystemUsers.GetOnlyUsers()
+                                                    .GetPortionOfQueryable(skip, take)
+                                                    .GetSortedUsers(sorting.SortOrder, sorting.SortField)
+                                                    .ToArrayAsync();
 
-                var data = mapperWrapper.MapCollectionFromEntities(students);
+            var data = mapperWrapper.MapCollectionFromEntities(students);
 
-                return data;
-            }
-            catch
-            {
-
-                throw;
-            }
+            return data;
         }
     }
 }

@@ -24,7 +24,8 @@ class LoginComponent extends Component {
         };
         try {
             const cancelToken = axios.CancelToken.source().token;
-            const response = await MakeRequestAsync("https://localhost:44382/account/signin", userData, "post", cancelToken);
+            const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
+            console.log(response);
             const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
@@ -38,6 +39,7 @@ class LoginComponent extends Component {
             this.setState({ redirect: true });
 
         } catch (error) {
+            console.log("CATCH in LOGIN")
             console.log(error);
         }
 

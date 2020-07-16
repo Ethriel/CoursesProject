@@ -1,6 +1,10 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace ServerAPI.Extensions
 {
@@ -11,9 +15,8 @@ namespace ServerAPI.Extensions
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configuration"></param>
-        public static void AddAppUses(this IApplicationBuilder app,
-                                           IConfiguration configuration,
-                                           IBackgroundJobClient backgroundJobClient)
+        public static void ConfigureAppUses(this IApplicationBuilder app,
+                                           IConfiguration configuration)
         {
             app.UseStaticFiles();
 

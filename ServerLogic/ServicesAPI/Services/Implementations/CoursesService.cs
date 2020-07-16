@@ -22,65 +22,37 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task<IEnumerable<TrainingCourseDTO>> GetAllCoursesAsync()
         {
-            try
-            {
-                var courses = await context.TrainingCourses
-                                           .ToArrayAsync();
+            var courses = await context.TrainingCourses
+                                       .ToArrayAsync();
 
-                var data = mapperWrapper.MapCollectionFromEntities(courses);
-                return data;
-            }
-            catch
-            {
-                throw;
-            }
+            var data = mapperWrapper.MapCollectionFromEntities(courses);
+            return data;
         }
 
         public async Task<int> GetAmountAsync()
         {
-            try
-            {
-                var amount = await context.TrainingCourses
-                                          .CountAsync();
-                return amount;
-            }
-            catch
-            {
-                throw;
-            }
+            var amount = await context.TrainingCourses
+                                      .CountAsync();
+            return amount;
         }
 
         public async Task<TrainingCourseDTO> GetById(int id)
         {
-            try
-            {
-                var course = await context.TrainingCourses
-                                          .FindAsync(id);
+            var course = await context.TrainingCourses
+                                      .FindAsync(id);
 
-                var data = mapperWrapper.MapFromEntity(course);
-                return data;
-            }
-            catch
-            {
-                throw;
-            }
+            var data = mapperWrapper.MapFromEntity(course);
+            return data;
         }
 
         public async Task<IEnumerable<TrainingCourseDTO>> GetForPage(int skip, int take)
         {
-            try
-            {
-                var courses = await context.TrainingCourses
-                                           .GetPortionOfQueryable(skip, take)
-                                           .ToArrayAsync();
+            var courses = await context.TrainingCourses
+                                       .GetPortionOfQueryable(skip, take)
+                                       .ToArrayAsync();
 
-                var data = mapperWrapper.MapCollectionFromEntities(courses);
-                return data;
-            }
-            catch
-            {
-                throw;
-            }
+            var data = mapperWrapper.MapCollectionFromEntities(courses);
+            return data;
         }
     }
 }

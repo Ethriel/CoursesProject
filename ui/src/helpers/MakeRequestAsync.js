@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-async function MakeRequestAsync(url, info, method, cancelToken, params = null) {
+async function MakeRequestAsync(urlTail, info, method, cancelToken, params = null) {
+    const ulr = "https://localhost:44382/api/".concat(urlTail);
     axios.defaults.withCredentials = true;
     let config = {};
     if (info === null && params !== null) {
@@ -8,7 +9,7 @@ async function MakeRequestAsync(url, info, method, cancelToken, params = null) {
             method: method,
             params: params,
             cancelToken: cancelToken,
-            url: url,
+            url: ulr,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
                 "Content-Type": "application/json",
@@ -21,7 +22,7 @@ async function MakeRequestAsync(url, info, method, cancelToken, params = null) {
             method: method,
             data: info,
             cancelToken: cancelToken,
-            url: url,
+            url: ulr,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
                 "Content-Type": "application/json",
@@ -33,7 +34,9 @@ async function MakeRequestAsync(url, info, method, cancelToken, params = null) {
         const response = await axios(config);
         return response;
     } catch (error) {
-        throw error;
+        console.log("CATCH in MAKE REQUEST");
+        console.log(error.response);
+        return error.response;
     }
 };
 

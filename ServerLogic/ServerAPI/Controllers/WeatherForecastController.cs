@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServicesAPI.Services.Abstractions;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
 {
@@ -27,16 +26,28 @@ namespace ServerAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IActionResult Get()
         {
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
                 Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            }).ToArray();
+            return Ok(result);
+        }
+        [HttpPost("post")]
+        public async Task<IActionResult> Post([FromBody] WeatherForecast forecast)
+        {
+            if (!ModelState.IsValid)
+            {
+                return null;
+            }
+            else
+            {
+                return Ok();
+            }
         }
     }
 }

@@ -20,6 +20,9 @@ using ServicesAPI.Services.Implementations;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Threading.Tasks;
 
 namespace ServerAPI.Extensions
 {
@@ -134,6 +137,31 @@ namespace ServerAPI.Extensions
                     facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
                     facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
                 });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Events = new CookieAuthenticationEvents()
+                {
+                    OnRedirectToLogin = (context) =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api") && context.Response.StatusCode.Equals(200))
+                        {
+                            context.Response.StatusCode = 401;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                    OnRedirectToAccessDenied = (context) =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api") && context.Response.StatusCode == 200)
+                        {
+                            context.Response.StatusCode = 403;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+            });
         }
         private static void AddCorsServices(IServiceCollection services, IConfiguration configuration)
         {

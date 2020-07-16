@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ServerAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
 
     public class AccountController : Controller
     {
@@ -25,92 +25,64 @@ namespace ServerAPI.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SystemUserDTO userData)
         {
-            try
-            {
-                var data = await accountService.SignUpAsync(userData, HttpContext);
+            var data = await accountService.SignUpAsync(userData, HttpContext);
 
-                logger.LogInformation($"User {data.AccountData.User.Email} signed up");
-                switch (data.AccountOperationResult)
-                {
-                    case AccountOperationResult.Succeeded:
-                        return Ok(new { data = data.AccountData });
-                    case AccountOperationResult.Failed:
-                    default:
-                        return BadRequest(new { message = "Sign up failed" });
-                }
-            }
-            catch
+            logger.LogInformation($"User {data.AccountData.User.Email} signed up");
+            switch (data.AccountOperationResult)
             {
-                throw;
+                case AccountOperationResult.Succeeded:
+                    return Ok(new { data = data.AccountData });
+                case AccountOperationResult.Failed:
+                default:
+                    return BadRequest(new { message = "Sign up failed" });
             }
         }
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            try
-            {
-                var data = await accountService.SignInAsync(userData);
+            var data = await accountService.SignInAsync(userData);
 
-                logger.LogInformation($"User {data.AccountData.User.Email} signed in");
+            logger.LogInformation($"User {data.AccountData.User.Email} signed in");
 
-                switch (data.AccountOperationResult)
-                {
-                    case AccountOperationResult.Succeeded:
-                        return Ok(new { data = data.AccountData });
-                    case AccountOperationResult.Failed:
-                    default:
-                        return BadRequest(new { message = "Sign in failed" });
-                }
-            }
-            catch
+            switch (data.AccountOperationResult)
             {
-                throw;
+                case AccountOperationResult.Succeeded:
+                    return Ok(new { data = data.AccountData });
+                case AccountOperationResult.Failed:
+                default:
+                    return BadRequest(new { message = "Sign in failed" });
             }
         }
         [HttpPost("signin-facebook")]
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUser facebookUser)
         {
-            try
-            {
-                var data = await accountService.UseFacebookAsync(facebookUser);
+            var data = await accountService.UseFacebookAsync(facebookUser);
 
-                logger.LogInformation($"User {data.AccountData.User.Email} signed in with Facebook");
+            logger.LogInformation($"User {data.AccountData.User.Email} signed in with Facebook");
 
-                switch (data.AccountOperationResult)
-                {
-                    case AccountOperationResult.Succeeded:
-                        return Ok(new { data = data.AccountData });
-                    case AccountOperationResult.Failed:
-                    default:
-                        return BadRequest(new { message = "Sign in with Facebook failed" });
-                }
-            }
-            catch
+            switch (data.AccountOperationResult)
             {
-                throw;
+                case AccountOperationResult.Succeeded:
+                    return Ok(new { data = data.AccountData });
+                case AccountOperationResult.Failed:
+                default:
+                    return BadRequest(new { message = "Sign in with Facebook failed" });
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(int userId, string token)
         {
-            try
-            {
-                var data = await accountService.ConfirmEmailAsync(userId, token);
+            var data = await accountService.ConfirmEmailAsync(userId, token);
 
-                switch (data.AccountOperationResult)
-                {
-                    case AccountOperationResult.Succeeded:
-                        return Ok(new { message = "Email confirmed" });
-                    case AccountOperationResult.Failed:
-                    default:
-                        return BadRequest(new { message = "Email confirmation failed" });
-                }
-            }
-            catch
+            switch (data.AccountOperationResult)
             {
-                throw;
+                case AccountOperationResult.Succeeded:
+                    return Ok(new { message = "Email confirmed" });
+                case AccountOperationResult.Failed:
+                default:
+                    return BadRequest(new { message = "Email confirmation failed" });
             }
         }
     }

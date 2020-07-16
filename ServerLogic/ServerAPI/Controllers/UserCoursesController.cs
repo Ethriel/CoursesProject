@@ -9,7 +9,7 @@ namespace ServerAPI.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UserCoursesController : Controller
     {
         private readonly IUserCoursesService userCoursesService;
@@ -24,71 +24,36 @@ namespace ServerAPI.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddCourseToUser([FromBody] SystemUsersTrainingCoursesDTO userCourseDTO)
         {
-            try
-            {
-                await userCoursesService.AddCourseToUserASync(userCourseDTO);
-                return Ok();
-            }
-            catch
-            {
-                throw;
-            }
+            await userCoursesService.AddCourseToUserASync(userCourseDTO);
+            return Ok();
         }
 
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllUsersWithCourses()
         {
-            try
-            {
-                var data = await userCoursesService.GetAllAsync();
-                return Ok(new { data });
-            }
-            catch
-            {
-                throw;
-            }
+            var data = await userCoursesService.GetAllAsync();
+            return Ok(new { data });
         }
 
         [HttpGet("get/ammount")]
         public async Task<IActionResult> GetAmmount()
         {
-            try
-            {
-                var amount = await userCoursesService.GetAmountAsync();
-                return Ok(new { amount });
-            }
-            catch
-            {
-                throw;
-            }
+            var amount = await userCoursesService.GetAmountAsync();
+            return Ok(new { amount });
         }
 
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
-            try
-            {
-                var data = await userCoursesService.GetForPageAsync(skip, take);
-                return Ok(new { data });
-            }
-            catch
-            {
-                throw;
-            }
+            var data = await userCoursesService.GetForPageAsync(skip, take);
+            return Ok(new { data });
         }
 
         [HttpGet("get/{userId}")]
         public async Task<IActionResult> GetCoursesByUserId(int userId)
         {
-            try
-            {
-                var data = await userCoursesService.GetByUserIdAsync(userId);
-                return Ok(new { data });
-            }
-            catch
-            {
-                throw;
-            }
+            var data = await userCoursesService.GetByUserIdAsync(userId);
+            return Ok(new { data });
         }
     }
 }

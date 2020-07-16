@@ -9,7 +9,7 @@ namespace ServerAPI.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class StudentsController : Controller
     {
         private readonly IStudentsService studentsService;
@@ -24,46 +24,22 @@ namespace ServerAPI.Controllers
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllStudents()
         {
-            try
-            {
-                var data = await studentsService.GetAllStudentsAsync();
-                return Ok(new { data });
-            }
-            catch
-            {
-
-                throw;
-            }
+            var data = await studentsService.GetAllStudentsAsync();
+            return Ok(new { data });
         }
 
         [HttpGet("get/amount")]
         public async Task<IActionResult> GetAmount()
         {
-            try
-            {
-                var amount = await studentsService.GetAmountOfStudentsAync();
-                return Ok(new { amount });
-            }
-            catch
-            {
-
-                throw;
-            }
+            var amount = await studentsService.GetAmountOfStudentsAync();
+            return Ok(new { amount });
         }
 
         [HttpPost("post/sort")]
         public async Task<IActionResult> GetSortedStudents([FromBody] Sorting sorting)
         {
-            try
-            {
-                var data = await studentsService.GetSortedStudentsAsync(sorting);
-                return Ok(new { data });
-            }
-            catch
-            {
-
-                throw;
-            }
+            var data = await studentsService.GetSortedStudentsAsync(sorting);
+            return Ok(new { data });
         }
     }
 }

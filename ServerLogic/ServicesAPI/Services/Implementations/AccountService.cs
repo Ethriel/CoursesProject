@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ServicesAPI.DTO;
+using ServicesAPI.ErrorHandle.ApiExceptions;
 using ServicesAPI.Facebook;
 using ServicesAPI.Helpers;
 using ServicesAPI.MapperWrappers;
@@ -54,101 +55,80 @@ namespace ServicesAPI.Services.Implementations
         public async Task<AccountResponse> ConfirmEmailAsync(int userId, string token)
         {
             AccountResponse response = null;
-            try
+            var user = await context.SystemUsers.FindAsync(userId);
+
+
+            var confirmResult = await userManager.ConfirmEmailAsync(user, token);
+
+            if (confirmResult.Succeeded)
             {
-                var user = await context.SystemUsers.FindAsync(userId);
-
-
-                var confirmResult = await userManager.ConfirmEmailAsync(user, token);
-
-                if (confirmResult.Succeeded)
-                {
-                    response = new AccountResponse(null, AccountOperationResult.Succeeded);
-                }
-                else
-                {
-                    response = new AccountResponse(null, AccountOperationResult.Failed);
-                }
-                return response;
+                response = new AccountResponse(null, AccountOperationResult.Succeeded);
             }
-            catch
+            else
             {
-                throw;
+                response = new AccountResponse(null, AccountOperationResult.Failed);
             }
+            return response;
 
         }
         public async Task<AccountResponse> SignInAsync(SystemUserDTO userData)
         {
             AccountResponse response = null;
-            try
+            // find user
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
+
+
+            // try to sign in
+            var signInResult = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
+
+            if (signInResult.Succeeded)
             {
-                // find user
-                var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
+                // if OK - set data and succeeded
+                var data = GetAccountData(user);
+                response = new AccountResponse(data, AccountOperationResult.Succeeded);
 
-
-                // try to sign in
-                var signInResult = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
-
-                if (signInResult.Succeeded)
-                {
-                    // if OK - set data and succeeded
-                    var data = GetAccountData(user);
-                    response = new AccountResponse(data, AccountOperationResult.Succeeded);
-
-                }
-                else
-                {
-                    // if not - set failed and no data
-                    response = new AccountResponse(null, AccountOperationResult.Failed);
-                }
-                return response;
             }
-            catch
+            else
             {
-                throw;
+                // if not - set failed and no data
+                response = new AccountResponse(null, AccountOperationResult.Failed);
             }
+            return response;
         }
 
         public async Task<AccountResponse> SignUpAsync(SystemUserDTO userData, HttpContext httpContext)
         {
             AccountResponse response = null;
-            try
+            var user = mapperWrapper.MapFromDTO(userData);
+            user.UserName = userData.Email;
+            user.RegisteredDate = DateTime.Now;
+            var role = await roleManager.FindByNameAsync("USER");
+            user.SystemRole = role;
+            user.CalculateAge();
+
+            // try to create user
+            var creationResult = await userManager.CreateAsync(user, userData.Password);
+
+            if (creationResult.Succeeded)
             {
-                var user = mapperWrapper.MapFromDTO(userData);
-                user.UserName = userData.Email;
-                user.RegisteredDate = DateTime.Now;
-                var role = await roleManager.FindByNameAsync("USER");
-                user.SystemRole = role;
-                user.CalculateAge();
+                // if OK - set data and succeeded
+                user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
 
-                // try to create user
-                var creationResult = await userManager.CreateAsync(user, userData.Password);
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                if (creationResult.Succeeded)
-                {
-                    // if OK - set data and succeeded
-                    user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
+                await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
 
-                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                var data = GetAccountData(user);
 
-                    await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
-
-                    var data = GetAccountData(user);
-
-                    response = new AccountResponse(data, AccountOperationResult.Succeeded);
-                }
-                else
-                {
-                    // if not - set failed and no data
-                    response = new AccountResponse(null, AccountOperationResult.Failed);
-                }
-
-                return response;
+                response = new AccountResponse(data, AccountOperationResult.Succeeded);
             }
-            catch
+            else
             {
-                throw;
+                // if not - set failed and no data
+                response = new AccountResponse(null, AccountOperationResult.Failed);
             }
+
+            return response;
         }
 
         public async Task<AccountResponse> UseFacebookAsync(FacebookUser facebookUser)
@@ -158,80 +138,73 @@ namespace ServicesAPI.Services.Implementations
 
             AccountResponse response = null;
 
-            try
+            var addId = configuration["Authentication:Facebook:AppId"];
+            var secret = configuration["Authentication:Facebook:AppSecret"];
+            var formattedUrl = string.Format(FACEBOOK_VALIDATION_URL, facebookUser.AccessToken, addId, secret);
+
+            // send a request to valiedate facebook token
+            var validationResult = await httpClientFactory.CreateClient().GetAsync(formattedUrl);
+            validationResult.EnsureSuccessStatusCode();
+            var responseAsString = await validationResult.Content.ReadAsStringAsync();
+
+            // deserialize response
+            var facebookTokenData = JsonConvert.DeserializeObject<FacebookTokenData>(responseAsString);
+            var isTokenValid = facebookTokenData.Data.IsValid;
+
+            // if token is not valid - set failed and no data
+            if (!isTokenValid)
             {
-                var addId = configuration["Authentication:Facebook:AppId"];
-                var secret = configuration["Authentication:Facebook:AppSecret"];
-                var formattedUrl = string.Format(FACEBOOK_VALIDATION_URL, facebookUser.AccessToken, addId, secret);
+                response = new AccountResponse(null, AccountOperationResult.Failed);
+            }
+            else
+            {
+                var user = await userManager.FindByEmailAsync(facebookUser.Email);
 
-                // send a request to valiedate facebook token
-                var validationResult = await httpClientFactory.CreateClient().GetAsync(formattedUrl);
-                validationResult.EnsureSuccessStatusCode();
-                var responseAsString = await validationResult.Content.ReadAsStringAsync();
-
-                // deserialize response
-                var facebookTokenData = JsonConvert.DeserializeObject<FacebookTokenData>(responseAsString);
-                var isTokenValid = facebookTokenData.Data.IsValid;
-
-                // if token is not valid - set failed and no data
-                if (!isTokenValid)
+                // check if user already exists in database
+                if (user == null)
                 {
-                    response = new AccountResponse(null, AccountOperationResult.Failed);
-                }
-                else
-                {
-                    var user = await userManager.FindByEmailAsync(facebookUser.Email);
-
-                    // check if user already exists in database
-                    if (user == null)
+                    // if not - create one
+                    var role = await roleManager.FindByNameAsync("USER");
+                    var systemUser = new SystemUser
                     {
-                        // if not - create one
-                        var role = await roleManager.FindByNameAsync("USER");
-                        var systemUser = new SystemUser
-                        {
-                            FirstName = facebookUser.FirstName,
-                            LastName = facebookUser.LastName,
-                            Email = facebookUser.Email,
-                            UserName = facebookUser.Email,
-                            EmailConfirmed = true,
-                            SystemRole = role,
-                            AvatarPath = facebookUser.PictureUrl,
-                            RegisteredDate = DateTime.Now
-                        };
+                        FirstName = facebookUser.FirstName,
+                        LastName = facebookUser.LastName,
+                        Email = facebookUser.Email,
+                        UserName = facebookUser.Email,
+                        EmailConfirmed = true,
+                        SystemRole = role,
+                        AvatarPath = facebookUser.PictureUrl,
+                        RegisteredDate = DateTime.Now
+                    };
 
-                        systemUser.CalculateAge();
+                    systemUser.CalculateAge();
 
-                        var creationResult = await userManager.CreateAsync(systemUser);
-                        if (creationResult.Succeeded)
-                        {
-                            // if creation was successful - set data and succeeded
-                            systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
-
-                            var data = GetAccountData(systemUser);
-
-                            response = new AccountResponse(data, AccountOperationResult.Succeeded);
-                        }
-                        else
-                        {
-                            // if not - get errors and return
-                            response = new AccountResponse(null, AccountOperationResult.Failed);
-                        }
-                    }
-                    else
+                    var creationResult = await userManager.CreateAsync(systemUser);
+                    if (creationResult.Succeeded)
                     {
-                        // if user with such email exists in database - gather account data and set succeeded
-                        var data = GetAccountData(user);
+                        // if creation was successful - set data and succeeded
+                        systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
+
+                        var data = GetAccountData(systemUser);
 
                         response = new AccountResponse(data, AccountOperationResult.Succeeded);
                     }
+                    else
+                    {
+                        // if not - get errors and return
+                        response = new AccountResponse(null, AccountOperationResult.Failed);
+                    }
                 }
+                else
+                {
+                    // if user with such email exists in database - gather account data and set succeeded
+                    var data = GetAccountData(user);
 
-                return response;
+                    response = new AccountResponse(data, AccountOperationResult.Succeeded);
+                }
             }
-            catch
-            {
-                throw;
-            }
+
+            return response;
 
         }
         private AccountData GetAccountData(SystemUser user)

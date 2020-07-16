@@ -23,7 +23,7 @@ function AdminTable() {
         async function fetchData() {
             // getting amount
             try {
-                const urlAmount = "https://localhost:44382/Students/get/amount";
+                const urlAmount = "Students/get/amount";
                 const respAmount = await MakeRequestAsync(urlAmount, { msg: "Hello" }, "get", signal.token);
                 if (respAmount.status === 200) {
                     const total = respAmount.data.amount;
@@ -49,7 +49,7 @@ function AdminTable() {
                     sortOrder: "descend",
                     pagination: paginationState
                 };
-                const urlUsers = `https://localhost:44382/Students/post/sort`;
+                const urlUsers = `Students/post/sort`;
                 const respUsersCourses = await MakeRequestAsync(urlUsers, sorting, "post", signal.token);
                 if (respUsersCourses.status === 200) {
                     const respData = respUsersCourses.data.data;
@@ -70,7 +70,7 @@ function AdminTable() {
 
     const handleChange = async (pagination, filters, sorter) => {
         const signal = axios.CancelToken.source();
-        const url = `https://localhost:44382/Students/post/sort`;
+        const url = `Students/post/sort`;
         const current = pagination.current;
         const pag = pagination;
         setPaginationState(oldPagination => ({ ...oldPagination, ...{ current: current } }));

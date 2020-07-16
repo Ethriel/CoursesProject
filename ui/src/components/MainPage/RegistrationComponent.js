@@ -27,7 +27,7 @@ class RegistrationComponent extends Component {
         };
         try {
             const cancelToken = axios.CancelToken.source().token;
-            const response = await MakeRequestAsync("https://localhost:44382/account/signup", userData, "post", cancelToken);
+            const response = await MakeRequestAsync("account/signup", userData, "post", cancelToken);
             const data = response.data;
             const token = data.token.key;
             const role = data.user.roleName;

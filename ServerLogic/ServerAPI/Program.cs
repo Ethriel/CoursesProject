@@ -14,22 +14,8 @@ namespace ServerAPI
     {
         public static void Main(string[] args)
         {
-            var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-            try
-            {
-                logger.Debug("init main");
-                CreateHostBuilder(args).Build().Run();
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "An exception in main");
-                throw;
-            }
-            finally
-            {
-                NLog.LogManager.Shutdown();
-            }
-            
+            CreateHostBuilder(args).Build().Run();
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -28,11 +28,11 @@ class CoursesComponent extends Component {
 
     async componentDidMount() {
         const cancelToken = this.state.signal.token;
-        const responseA = await MakeRequestAsync("https://localhost:44382/courses/get/amount", { msg: "hello" }, "get", cancelToken);
+        const responseA = await MakeRequestAsync("courses/get/amount", { msg: "hello" }, "get", cancelToken);
         const amount = responseA.data.amount;
         const skip = this.state.skip;
         const take = this.state.pageSize;
-        const responseTake = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
+        const responseTake = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
         const info = responseTake.data.courses;
         this.setState({
             amount: amount.amount,
@@ -44,7 +44,7 @@ class CoursesComponent extends Component {
         const cancelToken = this.state.signal.token;
         const skip = (page * pageSize) - pageSize;
         const take = pageSize === 1 ? pageSize : page * pageSize;
-        const response = await MakeRequestAsync(`https://localhost:44382/courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
+        const response = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
         const info = response.data;
         this.setState({
             skip: skip,

@@ -22,7 +22,7 @@ class CourseDetailsComponent extends Component {
     }
 
     async componentDidMount() {
-        const response = await MakeRequestAsync(`https://localhost:44382/courses/get/${this.state.id}`, { msg: "hello" }, "get");
+        const response = await MakeRequestAsync(`courses/get/${this.state.id}`, { msg: "hello" }, "get");
         const course = response.data.course;
         this.setState({
             course: course,
@@ -40,7 +40,7 @@ class CourseDetailsComponent extends Component {
             studyDate: date
         };
         try {
-            const response = await MakeRequestAsync("https://localhost:44382/UserCourses/add", data, "post");
+            const response = await MakeRequestAsync("UserCourses/add", data, "post");
         } catch (error) {
             console.log(error);
         }

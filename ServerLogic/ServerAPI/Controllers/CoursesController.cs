@@ -9,7 +9,7 @@ namespace ServerAPI.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CoursesController : Controller
     {
         private readonly ICoursesService coursesService;
@@ -24,60 +24,29 @@ namespace ServerAPI.Controllers
         [HttpGet("get/amount")]
         public async Task<IActionResult> GetAmount()
         {
-            try
-            {
-                var amount = await coursesService.GetAmountAsync();
-                return Ok(new { amount });
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            var amount = await coursesService.GetAmountAsync();
+            return Ok(new { amount });
 
         }
 
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var courses = await coursesService.GetAllCoursesAsync();
-                return Ok(new { courses });
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            var courses = await coursesService.GetAllCoursesAsync();
+            return Ok(new { courses });
         }
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
-            try
-            {
-                var courses = await coursesService.GetForPage(skip, take);
-                return Ok(new { courses });
-            }
-            catch (Exception ex)
-            {
+            var courses = await coursesService.GetForPage(skip, take);
+            return Ok(new { courses });
 
-                throw;
-            }
         }
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                var course = await coursesService.GetById(id);
-                return Ok(new { course });
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            var course = await coursesService.GetById(id);
+            return Ok(new { course });
         }
     }
 }
