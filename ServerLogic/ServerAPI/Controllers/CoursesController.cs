@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServerAPI.Extensions;
 using ServicesAPI.Services.Abstractions;
-using System;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
@@ -24,29 +24,40 @@ namespace ServerAPI.Controllers
         [HttpGet("get/amount")]
         public async Task<IActionResult> GetAmount()
         {
-            var amount = await coursesService.GetAmountAsync();
-            return Ok(new { amount });
+            var result = await coursesService.GetAmountAsync();
 
+            var loggerMessage = $"Returning amount of courses: {result.Data}";
+
+            return this.GetActionResult(result, logger, loggerMessage);
         }
 
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAll()
         {
-            var courses = await coursesService.GetAllCoursesAsync();
-            return Ok(new { courses });
+            var result = await coursesService.GetAllCoursesAsync();
+
+            var loggerMessage = "Returning all courses";
+
+            return this.GetActionResult(result, logger, loggerMessage);
         }
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
-            var courses = await coursesService.GetForPage(skip, take);
-            return Ok(new { courses });
+            var result = await coursesService.GetForPage(skip, take);
+
+            var loggerMessage = $"Returning a portion of courses: {take}";
+
+            return this.GetActionResult(result, logger, loggerMessage);
 
         }
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var course = await coursesService.GetById(id);
-            return Ok(new { course });
+            var result = await coursesService.GetById(id);
+
+            var loggerMessage = $"Returning a course. Id = {id}";
+
+            return this.GetActionResult(result, logger, loggerMessage);
         }
     }
 }

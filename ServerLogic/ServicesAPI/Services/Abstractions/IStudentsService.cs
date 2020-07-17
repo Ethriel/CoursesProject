@@ -1,14 +1,13 @@
-﻿using ServicesAPI.DTO;
+﻿using ServicesAPI.Responses;
 using ServicesAPI.Sorts;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
 {
     public interface IStudentsService
     {
-        Task<IEnumerable<SystemUserDTO>> GetAllStudentsAsync();
-        Task<int> GetAmountOfStudentsAync();
-        Task<IEnumerable<SystemUserDTO>> GetSortedStudentsAsync(Sorting sorting);
+        Task<ApiResult> GetAllStudentsAsync();
+        Task<ApiResult> GetAmountOfStudentsAync();
+        Task<ApiResult> GetSortedStudentsAsync(Sorting sorting);
     }
 }

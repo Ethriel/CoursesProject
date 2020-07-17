@@ -23,8 +23,7 @@ function AdminTable() {
         async function fetchData() {
             // getting amount
             try {
-                const urlAmount = "Students/get/amount";
-                const respAmount = await MakeRequestAsync(urlAmount, { msg: "Hello" }, "get", signal.token);
+                const respAmount = await MakeRequestAsync("Students/get/amount", { msg: "Hello" }, "get", signal.token);
                 if (respAmount.status === 200) {
                     const total = respAmount.data.amount;
                     setPaginationState(oldPagination => ({ ...oldPagination, ...{ total: total } }));
@@ -33,11 +32,13 @@ function AdminTable() {
                 console.log(error)
             }
         }
+
         fetchData();
+        
         return function cleanup() {
             signal.cancel("CANCEL IN GET AMOUNT");
         }
-    });
+    }, []);
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
@@ -49,8 +50,8 @@ function AdminTable() {
                     sortOrder: "descend",
                     pagination: paginationState
                 };
-                const urlUsers = `Students/post/sort`;
-                const respUsersCourses = await MakeRequestAsync(urlUsers, sorting, "post", signal.token);
+                const respUsersCourses = await MakeRequestAsync(`Students/post/sort`, sorting, "post", signal.token);
+
                 if (respUsersCourses.status === 200) {
                     const respData = respUsersCourses.data.data;
                     setTable({ columns: getTableCols(), data: getTableData(respData) });
@@ -62,17 +63,20 @@ function AdminTable() {
                 setLoading(false);
             }
         }
+
         fetchData();
+
         return function cleanup() {
             signal.cancel("CANCEL IN GET USERS");
         }
-    },[]);
+    },[paginationState]);
 
     const handleChange = async (pagination, filters, sorter) => {
         const signal = axios.CancelToken.source();
         const url = `Students/post/sort`;
         const current = pagination.current;
         const pag = pagination;
+
         setPaginationState(oldPagination => ({ ...oldPagination, ...{ current: current } }));
 
         const sorting = {
@@ -80,7 +84,9 @@ function AdminTable() {
             sortOrder: sorter.order,
             pagination: pag
         };
+
         const response = await MakeRequestAsync(url, sorting, "post", signal.token);
+        
         if (response.status === 200) {
             const respUsers = response.data.data;
             setTable({ columns: getTableCols(), data: getTableData(respUsers) });

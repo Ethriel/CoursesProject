@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ServicesAPI.DTO;
 using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
+using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
 using ServicesAPI.Sorts;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace ServicesAPI.Services.Implementations
             this.mapperWrapper = mapperWrapper;
         }
 
-        public async Task<IEnumerable<SystemUserDTO>> GetAllStudentsAsync()
+        public async Task<ApiResult> GetAllStudentsAsync()
         {
             var students = await context.Users.GetOnlyUsers()
                                               .ToArrayAsync();
@@ -32,7 +33,7 @@ namespace ServicesAPI.Services.Implementations
 
         }
 
-        public async Task<int> GetAmountOfStudentsAync()
+        public async Task<ApiResult> GetAmountOfStudentsAync()
         {
             var amount = await context.Users.GetOnlyUsers()
                                             .CountAsync();
@@ -40,7 +41,7 @@ namespace ServicesAPI.Services.Implementations
             return amount;
         }
 
-        public async Task<IEnumerable<SystemUserDTO>> GetSortedStudentsAsync(Sorting sorting)
+        public async Task<ApiResult> GetSortedStudentsAsync(Sorting sorting)
         {
             var skip = sorting.Pagination.GetSkip();
             var take = sorting.Pagination.GetTake();

@@ -7,13 +7,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ServicesAPI.DTO;
-using ServicesAPI.ErrorHandle.ApiExceptions;
 using ServicesAPI.Facebook;
 using ServicesAPI.Helpers;
 using ServicesAPI.MapperWrappers;
+using ServicesAPI.Responses;
 using ServicesAPI.Responses.AccountResponseData;
 using ServicesAPI.Services.Abstractions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,91 +54,183 @@ namespace ServicesAPI.Services.Implementations
             this.emailService = emailService;
         }
 
-        public async Task<AccountResponse> ConfirmEmailAsync(int userId, string token)
+        public async Task<ApiResult> ConfirmEmailAsync(int userId, string token)
         {
-            AccountResponse response = null;
+            var result = new ApiResult();
+
             var user = await context.SystemUsers.FindAsync(userId);
 
-
-            var confirmResult = await userManager.ConfirmEmailAsync(user, token);
-
-            if (confirmResult.Succeeded)
+            if (user == null)
             {
-                response = new AccountResponse(null, AccountOperationResult.Succeeded);
+                result.SetApiResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
             }
             else
             {
-                response = new AccountResponse(null, AccountOperationResult.Failed);
-            }
-            return response;
+                var confirmResult = await userManager.ConfirmEmailAsync(user, token);
 
+                if (confirmResult.Succeeded)
+                {
+                    result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} confirmed email", message: "Email confirmed");
+                }
+                else
+                {
+                    var errors = GetIdentityErrors(confirmResult.Errors);
+                    result.SetApiResult(ApiResultStatus.BadRequest,
+                                        $"User {user.Email} failed to confirm email. Errors: {errors}",
+                                        message: "Email confirmation has failed",
+                                        errors: errors);
+                }
+            }
+
+            return result;
         }
-        public async Task<AccountResponse> SignInAsync(SystemUserDTO userData)
+        public async Task<ApiResult> SignInAsync(SystemUserDTO userData)
         {
-            AccountResponse response = null;
+            var result = new ApiResult();
+
             // find user
             var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
 
-
-            // try to sign in
-            var signInResult = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
-
-            if (signInResult.Succeeded)
+            if (user == null)
             {
-                // if OK - set data and succeeded
-                var data = GetAccountData(user);
-                response = new AccountResponse(data, AccountOperationResult.Succeeded);
-
+                var message = $"User with email {user.Email} was not found";
+                result.SetApiResult(ApiResultStatus.NotFound, message, message: message);
             }
             else
             {
-                // if not - set failed and no data
-                response = new AccountResponse(null, AccountOperationResult.Failed);
+                // try to sign in
+                var signInResult = await signInManager.PasswordSignInAsync(user, userData.Password, true, false);
+
+                if (signInResult.Succeeded)
+                {
+                    // if OK - get user data and return OK
+                    var data = GetAccountData(user);
+                    result.SetApiResult(ApiResultStatus.Ok, $"User email {user.Email} has signed in", data);
+
+                }
+                else
+                {
+                    // if not - set message, set errors and return Bad Request
+                    var errors = new string[] { "Password is incorrect" };
+                    result.SetApiResult(ApiResultStatus.BadRequest,
+                                        $"User email {user.Email} has failed to sign in with password",
+                                        "Sign in failed",
+                                        errors: errors);
+                }
             }
-            return response;
+
+            return result;
         }
 
-        public async Task<AccountResponse> SignUpAsync(SystemUserDTO userData, HttpContext httpContext)
+        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext)
         {
-            AccountResponse response = null;
+            var result = new ApiResult();
+
+            var findUser = await userManager.FindByEmailAsync(userData.Email);
+
+            if (findUser != null)
+            {
+                var errors = new string[] { $"User with {userData.Email} already exists in the database" };
+                result.SetApiResult(ApiResultStatus.BadRequest,
+                                    $"New user {userData.Email} has tried to sign up. User with this email already exists in the database",
+                                    message: "Sign up has failed",
+                                    errors: errors);
+            }
+            else
+            {
+                var user = await MapNewUserFromDTO(userData);
+
+                // try to create user
+                result = await TryCreateUser(user, userData.Password, result, httpContext);
+            }
+
+            return result;
+        }
+
+        public async Task<SystemUser> MapNewUserFromDTO(SystemUserDTO userData)
+        {
             var user = mapperWrapper.MapFromDTO(userData);
+
             user.UserName = userData.Email;
             user.RegisteredDate = DateTime.Now;
+
             var role = await roleManager.FindByNameAsync("USER");
             user.SystemRole = role;
             user.CalculateAge();
 
-            // try to create user
-            var creationResult = await userManager.CreateAsync(user, userData.Password);
+            return user;
+        }
+
+        private async Task<ApiResult> TryCreateUser(SystemUser user, string password, ApiResult result, HttpContext httpContext)
+        {
+            var creationResult = await userManager.CreateAsync(user, password);
 
             if (creationResult.Succeeded)
             {
-                // if OK - set data and succeeded
-                user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
+                // client side needs to know about user's Id, so we re-assign user with one from database
+                user = await userManager.FindByEmailAsync(user.Email);
 
+                // send confirm request on user's email
                 var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
 
                 var data = GetAccountData(user);
-
-                response = new AccountResponse(data, AccountOperationResult.Succeeded);
+                result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
             }
             else
             {
-                // if not - set failed and no data
-                response = new AccountResponse(null, AccountOperationResult.Failed);
+                // if not - set message, set errors and return Bad Request
+                var errors = GetIdentityErrors(creationResult.Errors);
+                result.SetApiResult(ApiResultStatus.BadRequest,
+                                    $"New user {user.Email} has failed to sign up. Errors: {errors}",
+                                    message: "Sign up failed",
+                                    errors: errors);
             }
 
-            return response;
+            return result;
         }
 
-        public async Task<AccountResponse> UseFacebookAsync(FacebookUser facebookUser)
+        public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser)
+        {
+            var result = new ApiResult();
+
+            var isTokenValid = await CheckFaceBookAccessToken(facebookUser);
+
+            // if token is not valid - set message
+            if (!isTokenValid)
+            {
+                result.SetApiResult(ApiResultStatus.BadRequest,
+                                    $"Invalid Facebook token for user {facebookUser.Email}",
+                                    message: "Facebook access token is invalid. Please, try again");
+            }
+            else
+            {
+                // if valid - try to register user in the system
+                // check if user already exists in database
+                var user = await userManager.FindByEmailAsync(facebookUser.Email);
+
+                if (user == null)
+                {
+                    // if not - try create one
+                    result = await TryCreateSystemUserFromFacebook(facebookUser, result);
+                }
+                else
+                {
+                    // if user with such email exists in database - gather account data and return OK
+                    var data = GetAccountData(user);
+                    result.SetApiResult(ApiResultStatus.Ok,
+                                        $"User {facebookUser.Email} has successfully signed in with Facebook",
+                                        data);
+                }
+            }
+
+            return result;
+        }
+        private async Task<bool> CheckFaceBookAccessToken(FacebookUser facebookUser)
         {
             // an URL to validate facebook access token
             const string FACEBOOK_VALIDATION_URL = "https://graph.facebook.com/debug_token?input_token={0}&access_token={1}|{2}";
-
-            AccountResponse response = null;
 
             var addId = configuration["Authentication:Facebook:AppId"];
             var secret = configuration["Authentication:Facebook:AppSecret"];
@@ -151,61 +245,53 @@ namespace ServicesAPI.Services.Implementations
             var facebookTokenData = JsonConvert.DeserializeObject<FacebookTokenData>(responseAsString);
             var isTokenValid = facebookTokenData.Data.IsValid;
 
-            // if token is not valid - set failed and no data
-            if (!isTokenValid)
+            return isTokenValid;
+        }
+        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser, ApiResult result)
+        {
+            var systemUser = await GetSystemUserFromFacebook(facebookUser);
+
+            var creationResult = await userManager.CreateAsync(systemUser);
+
+            if (creationResult.Succeeded)
             {
-                response = new AccountResponse(null, AccountOperationResult.Failed);
+                // we need Id of new user to be sent to the client, so we re-assign user
+                systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
+
+                // if creation was successful - set data and OK
+                var data = GetAccountData(systemUser);
+                result.SetApiResult(ApiResultStatus.Ok, $"User {systemUser.Email} has signed up with Facebook", data);
             }
             else
             {
-                var user = await userManager.FindByEmailAsync(facebookUser.Email);
-
-                // check if user already exists in database
-                if (user == null)
-                {
-                    // if not - create one
-                    var role = await roleManager.FindByNameAsync("USER");
-                    var systemUser = new SystemUser
-                    {
-                        FirstName = facebookUser.FirstName,
-                        LastName = facebookUser.LastName,
-                        Email = facebookUser.Email,
-                        UserName = facebookUser.Email,
-                        EmailConfirmed = true,
-                        SystemRole = role,
-                        AvatarPath = facebookUser.PictureUrl,
-                        RegisteredDate = DateTime.Now
-                    };
-
-                    systemUser.CalculateAge();
-
-                    var creationResult = await userManager.CreateAsync(systemUser);
-                    if (creationResult.Succeeded)
-                    {
-                        // if creation was successful - set data and succeeded
-                        systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
-
-                        var data = GetAccountData(systemUser);
-
-                        response = new AccountResponse(data, AccountOperationResult.Succeeded);
-                    }
-                    else
-                    {
-                        // if not - get errors and return
-                        response = new AccountResponse(null, AccountOperationResult.Failed);
-                    }
-                }
-                else
-                {
-                    // if user with such email exists in database - gather account data and set succeeded
-                    var data = GetAccountData(user);
-
-                    response = new AccountResponse(data, AccountOperationResult.Succeeded);
-                }
+                // if not - get errors and return Bad Request
+                var errors = GetIdentityErrors(creationResult.Errors);
+                result.SetApiResult(ApiResultStatus.BadRequest,
+                                    $"Creation of user {systemUser.Email} has failed after using Facebook. Errors: {errors}",
+                                    message: "Sign up with Facebook has failed",
+                                    errors: errors);
             }
 
-            return response;
+            return result;
+        }
+        private async Task<SystemUser> GetSystemUserFromFacebook(FacebookUser facebookUser)
+        {
+            var role = await roleManager.FindByNameAsync("USER");
+            var systemUser = new SystemUser
+            {
+                FirstName = facebookUser.FirstName,
+                LastName = facebookUser.LastName,
+                Email = facebookUser.Email,
+                UserName = facebookUser.Email,
+                EmailConfirmed = true,
+                SystemRole = role,
+                AvatarPath = facebookUser.PictureUrl,
+                RegisteredDate = DateTime.Now
+            };
 
+            systemUser.CalculateAge();
+
+            return systemUser;
         }
         private AccountData GetAccountData(SystemUser user)
         {
@@ -215,6 +301,11 @@ namespace ServicesAPI.Services.Implementations
             var userDTO = mapperWrapper.MapFromEntity(user);
             var data = new AccountData(userDTO, new TokenData(token, expire));
             return data;
+        }
+        private IEnumerable<string> GetIdentityErrors(IEnumerable<IdentityError> errorsCollection)
+        {
+            var errors = errorsCollection.Select(x => x.Description);
+            return errors;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using ServicesAPI.DTO;
 using ServicesAPI.Facebook;
-using ServicesAPI.Responses.AccountResponseData;
+using ServicesAPI.Responses;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
@@ -9,9 +9,9 @@ namespace ServicesAPI.Services.Abstractions
 
     public interface IAccountService
     {
-        public Task<AccountResponse> ConfirmEmailAsync(int userId, string token);
-        public Task<AccountResponse> SignInAsync(SystemUserDTO userData);
-        public Task<AccountResponse> SignUpAsync(SystemUserDTO userData, HttpContext httpContext);
-        public Task<AccountResponse> UseFacebookAsync(FacebookUser facebookUser);
+        public Task<ApiResult> ConfirmEmailAsync(int userId, string token);
+        public Task<ApiResult> SignInAsync(SystemUserDTO userData);
+        public Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext);
+        public Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser);
     }
 }

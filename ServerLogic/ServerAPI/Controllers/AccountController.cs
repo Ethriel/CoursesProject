@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Logging;
 using ServicesAPI.DTO;
 using ServicesAPI.Facebook;
+using ServicesAPI.Responses;
 using ServicesAPI.Responses.AccountResponseData;
 using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
+using ServerAPI.Extensions;
 
 namespace ServerAPI.Controllers
 {
@@ -25,65 +27,42 @@ namespace ServerAPI.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SystemUserDTO userData)
         {
-            var data = await accountService.SignUpAsync(userData, HttpContext);
+            var result = await accountService.SignUpAsync(userData, HttpContext);
 
-            logger.LogInformation($"User {data.AccountData.User.Email} signed up");
-            switch (data.AccountOperationResult)
-            {
-                case AccountOperationResult.Succeeded:
-                    return Ok(new { data = data.AccountData });
-                case AccountOperationResult.Failed:
-                default:
-                    return BadRequest(new { message = "Sign up failed" });
-            }
+            var loggerMessage = $"User {userData.Email} signed up";
+
+            return this.GetActionResult(result, logger, loggerMessage);
         }
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            var data = await accountService.SignInAsync(userData);
+            var result = await accountService.SignInAsync(userData);
 
-            logger.LogInformation($"User {data.AccountData.User.Email} signed in");
+            var loggerMessage = $"User {userData.Email} signed in";
 
-            switch (data.AccountOperationResult)
-            {
-                case AccountOperationResult.Succeeded:
-                    return Ok(new { data = data.AccountData });
-                case AccountOperationResult.Failed:
-                default:
-                    return BadRequest(new { message = "Sign in failed" });
-            }
+            return this.GetActionResult(result, logger, loggerMessage);
         }
         [HttpPost("signin-facebook")]
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUser facebookUser)
         {
-            var data = await accountService.UseFacebookAsync(facebookUser);
+            var result = await accountService.UseFacebookAsync(facebookUser);
 
-            logger.LogInformation($"User {data.AccountData.User.Email} signed in with Facebook");
+            var loggerMessage = $"User {facebookUser.Email} used Facebook";
 
-            switch (data.AccountOperationResult)
-            {
-                case AccountOperationResult.Succeeded:
-                    return Ok(new { data = data.AccountData });
-                case AccountOperationResult.Failed:
-                default:
-                    return BadRequest(new { message = "Sign in with Facebook failed" });
-            }
+            return this.GetActionResult(result, logger, loggerMessage);
         }
 
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(int userId, string token)
         {
-            var data = await accountService.ConfirmEmailAsync(userId, token);
+            var result = await accountService.ConfirmEmailAsync(userId, token);
 
-            switch (data.AccountOperationResult)
-            {
-                case AccountOperationResult.Succeeded:
-                    return Ok(new { message = "Email confirmed" });
-                case AccountOperationResult.Failed:
-                default:
-                    return BadRequest(new { message = "Email confirmation failed" });
-            }
+            var user = result.Data as AccountData;
+
+            var loggerMessage = $"User {user.User.Email} confirmed email";
+
+            return this.GetActionResult(result, logger, loggerMessage);
         }
     }
 }

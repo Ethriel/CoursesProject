@@ -24,22 +24,22 @@ class LoginComponent extends Component {
         };
         try {
             const cancelToken = axios.CancelToken.source().token;
+
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
             console.log(response);
-            const data = response.data.data;
+            const data = response.data;
+            console.log(data);
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
+
             setDataToLocalStorage(user.id, token, role);
-            // localStorage.setItem("bearer_header", `Bearer ${token}`);
-            // localStorage.setItem("access_token", token);
-            // localStorage.setItem("current_user_role", role);
-            // localStorage.setItem("current_user_id", user.id);
+
             console.log("All good");
+
             this.setState({ redirect: true });
 
         } catch (error) {
-            console.log("CATCH in LOGIN")
             console.log(error);
         }
 
@@ -53,9 +53,8 @@ class LoginComponent extends Component {
         }
     }
 
-    facebookClick = () => {}
+    facebookClick = () => { }
     facebookResponseHandler = async (response) => {
-        console.log(response);
         const cancelToken = axios.CancelToken.source().token;
         const userData = {
             firstName: response.first_name,
@@ -65,17 +64,16 @@ class LoginComponent extends Component {
             pictureUrl: response.picture.data.url,
             userId: response.userID
         };
-        const reqResponse = await MakeRequestAsync("https://localhost:44382/account/signin-facebook", userData, "post", cancelToken);
-        console.log(reqResponse);
+
+        const reqResponse = await MakeRequestAsync("account/signin-facebook", userData, "post", cancelToken);
+
         const data = reqResponse.data;
         const token = data.token.key;
         const role = data.user.roleName;
         const user = GetUserData(data.user);
+
         setDataToLocalStorage(user.id, token, role);
-        // localStorage.setItem("bearer_header", `Bearer ${token}`);
-        // localStorage.setItem("access_token", token);
-        // localStorage.setItem("current_user_role", role);
-        // localStorage.setItem("current_user_id", user.id);
+
         this.setState({ redirect: true });
     }
 

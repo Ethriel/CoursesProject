@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ServicesAPI.DTO;
 using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
+using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Implementations
@@ -20,39 +20,61 @@ namespace ServicesAPI.Services.Implementations
             this.context = context;
             this.mapperWrapper = mapperWrapper;
         }
-        public async Task<IEnumerable<TrainingCourseDTO>> GetAllCoursesAsync()
+        public async Task<ApiResult> GetAllCoursesAsync()
         {
             var courses = await context.TrainingCourses
                                        .ToArrayAsync();
 
             var data = mapperWrapper.MapCollectionFromEntities(courses);
-            return data;
+
+            var result = new ApiResult(ApiResultStatus.Ok, data);
+
+            return result;
         }
 
-        public async Task<int> GetAmountAsync()
+        public async Task<ApiResult> GetAmountAsync()
         {
             var amount = await context.TrainingCourses
                                       .CountAsync();
-            return amount;
+
+            var result = new ApiResult(ApiResultStatus.Ok, amount);
+
+            return result;
         }
 
-        public async Task<TrainingCourseDTO> GetById(int id)
+        public async Task<ApiResult> GetById(int id)
         {
+            ApiResult result = null;
+
             var course = await context.TrainingCourses
                                       .FindAsync(id);
 
-            var data = mapperWrapper.MapFromEntity(course);
-            return data;
+            if (course == null)
+            {
+                result = new ApiResult(ApiResultStatus.NotFound, message: $"Course with id = {id} was not found");
+            }
+            else
+            {
+                var data = mapperWrapper.MapFromEntity(course);
+
+                result = new ApiResult(ApiResultStatus.Ok, data);
+
+            }
+
+            return result;
         }
 
-        public async Task<IEnumerable<TrainingCourseDTO>> GetForPage(int skip, int take)
+        public async Task<ApiResult> GetForPage(int skip, int take)
         {
             var courses = await context.TrainingCourses
                                        .GetPortionOfQueryable(skip, take)
                                        .ToArrayAsync();
 
             var data = mapperWrapper.MapCollectionFromEntities(courses);
-            return data;
+
+            var result = new ApiResult(ApiResultStatus.Ok, data);
+
+            return result;
         }
     }
 }

@@ -29,11 +29,12 @@ class CoursesComponent extends Component {
     async componentDidMount() {
         const cancelToken = this.state.signal.token;
         const responseA = await MakeRequestAsync("courses/get/amount", { msg: "hello" }, "get", cancelToken);
-        const amount = responseA.data.amount;
+        console.log(responseA);
+        const amount = responseA.data;
         const skip = this.state.skip;
         const take = this.state.pageSize;
         const responseTake = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
-        const info = responseTake.data.courses;
+        const info = responseTake.data;
         this.setState({
             amount: amount.amount,
             items: MapCards(info, this.handleCourseClick)

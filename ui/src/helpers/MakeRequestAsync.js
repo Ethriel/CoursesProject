@@ -34,8 +34,6 @@ async function MakeRequestAsync(urlTail, info, method, cancelToken, params = nul
         const response = await axios(config);
         return response;
     } catch (error) {
-        console.log("CATCH in MAKE REQUEST");
-        console.log(error.response);
         return error.response;
     }
 };

@@ -1,14 +1,13 @@
-﻿using ServicesAPI.DTO;
-using System.Collections.Generic;
+﻿using ServicesAPI.Responses;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
 {
     public interface ICoursesService
     {
-        Task<int> GetAmountAsync();
-        Task<IEnumerable<TrainingCourseDTO>> GetAllCoursesAsync();
-        Task<IEnumerable<TrainingCourseDTO>> GetForPage(int skip, int take);
-        Task<TrainingCourseDTO> GetById(int id);
+        Task<ApiResult> GetAmountAsync();
+        Task<ApiResult> GetAllCoursesAsync();
+        Task<ApiResult> GetForPage(int skip, int take);
+        Task<ApiResult> GetById(int id);
     }
 }
