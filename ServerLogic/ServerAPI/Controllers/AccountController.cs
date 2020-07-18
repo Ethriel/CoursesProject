@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServerAPI.Extensions;
 using ServicesAPI.DTO;
 using ServicesAPI.Facebook;
-using ServicesAPI.Responses;
-using ServicesAPI.Responses.AccountResponseData;
 using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
-using ServerAPI.Extensions;
 
 namespace ServerAPI.Controllers
 {
@@ -29,9 +27,7 @@ namespace ServerAPI.Controllers
         {
             var result = await accountService.SignUpAsync(userData, HttpContext);
 
-            var loggerMessage = $"User {userData.Email} signed up";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
 
         [HttpPost("signin")]
@@ -39,18 +35,14 @@ namespace ServerAPI.Controllers
         {
             var result = await accountService.SignInAsync(userData);
 
-            var loggerMessage = $"User {userData.Email} signed in";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
         [HttpPost("signin-facebook")]
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUser facebookUser)
         {
             var result = await accountService.UseFacebookAsync(facebookUser);
 
-            var loggerMessage = $"User {facebookUser.Email} used Facebook";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet]
@@ -58,11 +50,7 @@ namespace ServerAPI.Controllers
         {
             var result = await accountService.ConfirmEmailAsync(userId, token);
 
-            var user = result.Data as AccountData;
-
-            var loggerMessage = $"User {user.User.Email} confirmed email";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
     }
 }

@@ -22,12 +22,13 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task<ApiResult> GetAllCoursesAsync()
         {
+            var result = new ApiResult();
             var courses = await context.TrainingCourses
                                        .ToArrayAsync();
 
             var data = mapperWrapper.MapCollectionFromEntities(courses);
 
-            var result = new ApiResult(ApiResultStatus.Ok, data);
+            result.SetApiResult(ApiResultStatus.Ok, $"Returning all coureses to the client. Count = {courses.Length}", data);
 
             return result;
         }
@@ -37,28 +38,27 @@ namespace ServicesAPI.Services.Implementations
             var amount = await context.TrainingCourses
                                       .CountAsync();
 
-            var result = new ApiResult(ApiResultStatus.Ok, amount);
+            var result = new ApiResult(ApiResultStatus.Ok, $"Returning amount of courses: {amount}", amount);
 
             return result;
         }
 
         public async Task<ApiResult> GetById(int id)
         {
-            ApiResult result = null;
+            var result = new ApiResult();
 
             var course = await context.TrainingCourses
                                       .FindAsync(id);
 
             if (course == null)
             {
-                result = new ApiResult(ApiResultStatus.NotFound, message: $"Course with id = {id} was not found");
+                var message = $"Course with id = {id} was not found";
+                result.SetApiResult(ApiResultStatus.NotFound, message, message: message);
             }
             else
             {
                 var data = mapperWrapper.MapFromEntity(course);
-
-                result = new ApiResult(ApiResultStatus.Ok, data);
-
+                result.SetApiResult(ApiResultStatus.Ok, $"Returning a course id = {course.Id}", data);
             }
 
             return result;
@@ -72,7 +72,7 @@ namespace ServicesAPI.Services.Implementations
 
             var data = mapperWrapper.MapCollectionFromEntities(courses);
 
-            var result = new ApiResult(ApiResultStatus.Ok, data);
+            var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of courses. Count = {courses.Length}", data);
 
             return result;
         }

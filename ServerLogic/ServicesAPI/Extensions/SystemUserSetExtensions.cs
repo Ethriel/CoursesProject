@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ServicesAPI.Extensions
@@ -13,11 +14,13 @@ namespace ServicesAPI.Extensions
         /// <returns></returns>
         public static IQueryable<SystemUser> GetOnlyUsers(this DbSet<SystemUser> set)
         {
-            return set.Where(x => x.SystemRole.Name.Equals("USER"));
+            return set.Where(x => x.SystemRole
+                                   .Name
+                                   .Equals("USER"));
         }
 
         /// <summary>
-        /// Sort users from <paramref name="queryable"/> by <paramref name="sortField"/> and order by <paramref name="sortOrder"/>
+        /// Sort users in <paramref name="queryable"/> by <paramref name="sortField"/> and order by <paramref name="sortOrder"/>
         /// </summary>
         /// <param name="queryable"></param>
         /// <param name="sortOrder"></param>
@@ -58,6 +61,55 @@ namespace ServicesAPI.Extensions
                     }
             }
             return result;
+        }
+        
+        /// <summary>
+        /// Search users in <paramref name="queryable"/> by <paramref name="criteria"/>
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="criteria"></param>
+        /// <returns></returns>
+        public static IQueryable<SystemUser> SearchByCriteria(this IQueryable<SystemUser> queryable, string criteria)
+        {
+            var users = queryable.Where(x => x.FirstName.ToLower()
+                                                        .Contains(criteria));
+
+            if (users.Count() == 0)
+            {
+                users = queryable.Where(x => x.LastName.ToLower()
+                                                       .Contains(criteria));
+
+                if (users.Count() == 0)
+                {
+                    users = queryable.Where(x => x.Email.ToLower()
+                                                        .Contains(criteria));
+                }
+            }
+
+            return users;
+        }
+
+        /// <summary>
+        /// Search users in <paramref name="queryable"/> by <paramref name="criterias"/>
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="criterias"></param>
+        /// <returns></returns>
+        public static IQueryable<SystemUser> SearchByCriterias(this IQueryable<SystemUser> queryable, IEnumerable<string> criterias)
+        {
+            IQueryable<SystemUser> users = default;
+
+            foreach (var criteria in criterias)
+            {
+                users = queryable.SearchByCriteria(criteria);
+
+                if (users.Count() != 0)
+                {
+                    break;
+                }
+            }
+
+            return users;
         }
     }
 }

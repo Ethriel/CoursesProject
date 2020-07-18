@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServerAPI.Extensions;
 using ServicesAPI.DTO;
 using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
@@ -24,36 +25,41 @@ namespace ServerAPI.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddCourseToUser([FromBody] SystemUsersTrainingCoursesDTO userCourseDTO)
         {
-            await userCoursesService.AddCourseToUserASync(userCourseDTO);
-            return Ok();
+            var result = await userCoursesService.AddCourseToUserAsync(userCourseDTO);
+
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllUsersWithCourses()
         {
-            var data = await userCoursesService.GetAllAsync();
-            return Ok(new { data });
+            var result = await userCoursesService.GetAllAsync();
+
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet("get/ammount")]
         public async Task<IActionResult> GetAmmount()
         {
-            var amount = await userCoursesService.GetAmountAsync();
-            return Ok(new { amount });
+            var result = await userCoursesService.GetAmountAsync();
+
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
-            var data = await userCoursesService.GetForPageAsync(skip, take);
-            return Ok(new { data });
+            var result = await userCoursesService.GetForPageAsync(skip, take);
+
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet("get/{userId}")]
         public async Task<IActionResult> GetCoursesByUserId(int userId)
         {
-            var data = await userCoursesService.GetByUserIdAsync(userId);
-            return Ok(new { data });
+            var result = await userCoursesService.GetByUserIdAsync(userId);
+
+            return this.GetActionResult(result, logger);
         }
     }
 }

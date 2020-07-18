@@ -26,9 +26,7 @@ namespace ServerAPI.Controllers
         {
             var result = await coursesService.GetAmountAsync();
 
-            var loggerMessage = $"Returning amount of courses: {result.Data}";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet("get/all")]
@@ -36,18 +34,14 @@ namespace ServerAPI.Controllers
         {
             var result = await coursesService.GetAllCoursesAsync();
 
-            var loggerMessage = "Returning all courses";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
         [HttpGet("get/forpage/{skip}/{take}")]
         public async Task<IActionResult> GetForPage(int skip, int take)
         {
             var result = await coursesService.GetForPage(skip, take);
 
-            var loggerMessage = $"Returning a portion of courses: {take}";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
 
         }
         [HttpGet("get/{id}")]
@@ -55,9 +49,7 @@ namespace ServerAPI.Controllers
         {
             var result = await coursesService.GetById(id);
 
-            var loggerMessage = $"Returning a course. Id = {id}";
-
-            return this.GetActionResult(result, logger, loggerMessage);
+            return this.GetActionResult(result, logger);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServerAPI.Extensions;
 using ServicesAPI.Services.Abstractions;
 using ServicesAPI.Sorts;
 using System.Threading.Tasks;
@@ -24,22 +25,33 @@ namespace ServerAPI.Controllers
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllStudents()
         {
-            var data = await studentsService.GetAllStudentsAsync();
-            return Ok(new { data });
+            var result = await studentsService.GetAllStudentsAsync();
+
+            return this.GetActionResult(result, logger);
         }
 
         [HttpGet("get/amount")]
         public async Task<IActionResult> GetAmount()
         {
-            var amount = await studentsService.GetAmountOfStudentsAync();
-            return Ok(new { amount });
+            var result = await studentsService.GetAmountOfStudentsAync();
+
+            return this.GetActionResult(result, logger);
         }
 
         [HttpPost("post/sort")]
         public async Task<IActionResult> GetSortedStudents([FromBody] Sorting sorting)
         {
-            var data = await studentsService.GetSortedStudentsAsync(sorting);
-            return Ok(new { data });
+            var result = await studentsService.GetSortedStudentsAsync(sorting);
+
+            return this.GetActionResult(result, logger);
+        }
+
+        [HttpGet("get/{search}")]
+        public async Task<IActionResult> SearchStudents(string search)
+        {
+            var result = await studentsService.SearchStudentsAsync(search);
+
+            return this.GetActionResult(result, logger);
         }
     }
 }

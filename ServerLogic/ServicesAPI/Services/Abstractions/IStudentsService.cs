@@ -9,5 +9,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> GetAllStudentsAsync();
         Task<ApiResult> GetAmountOfStudentsAync();
         Task<ApiResult> GetSortedStudentsAsync(Sorting sorting);
+        Task<ApiResult> SearchStudentsAsync(string search);
     }
 }

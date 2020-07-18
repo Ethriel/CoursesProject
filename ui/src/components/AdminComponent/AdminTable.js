@@ -23,9 +23,9 @@ function AdminTable() {
         async function fetchData() {
             // getting amount
             try {
-                const respAmount = await MakeRequestAsync("Students/get/amount", { msg: "Hello" }, "get", signal.token);
-                if (respAmount.status === 200) {
-                    const total = respAmount.data.amount;
+                const response = await MakeRequestAsync("Students/get/amount", { msg: "Hello" }, "get", signal.token);
+                if (response.status === 200) {
+                    const total = response.data;
                     setPaginationState(oldPagination => ({ ...oldPagination, ...{ total: total } }));
                 }
             } catch (error) {
@@ -50,10 +50,10 @@ function AdminTable() {
                     sortOrder: "descend",
                     pagination: paginationState
                 };
-                const respUsersCourses = await MakeRequestAsync(`Students/post/sort`, sorting, "post", signal.token);
+                const response = await MakeRequestAsync(`Students/post/sort`, sorting, "post", signal.token);
 
-                if (respUsersCourses.status === 200) {
-                    const respData = respUsersCourses.data.data;
+                if (response.status === 200) {
+                    const respData = response.data;
                     setTable({ columns: getTableCols(), data: getTableData(respData) });
                 }
             } catch (error) {
@@ -88,7 +88,7 @@ function AdminTable() {
         const response = await MakeRequestAsync(url, sorting, "post", signal.token);
         
         if (response.status === 200) {
-            const respUsers = response.data.data;
+            const respUsers = response.data;
             setTable({ columns: getTableCols(), data: getTableData(respUsers) });
         }
     }
