@@ -7,6 +7,7 @@ import ButtonFaceBook from '../MainPage/ButtonFacebook';
 import axios from 'axios';
 import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
 import 'antd/dist/antd.css';
+import { Spin, Space } from 'antd';
 import '../../index.css';
 import '../../css/styles.css';
 
@@ -14,10 +15,13 @@ class RegistrationComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false
+            redirect: false,
+            spin: false
         };
     }
     confirmHandler = async values => {
+        this.setState({ spin: true });
+
         const userData = {
             firstName: values.user.name,
             lastName: values.user.lastname,
@@ -33,11 +37,10 @@ class RegistrationComponent extends Component {
             const role = data.user.roleName;
             const user = GetUserData(data.user);
             setDataToLocalStorage(user.id, token, role);
-            // localStorage.setItem("bearer_header", `Bearer ${token}`);
-            // localStorage.setItem("access_token", token);
-            // localStorage.setItem("current_user_role", role);
-            // localStorage.setItem("current_user_id", user.id);
             console.log("All good");
+
+            this.setState({ spin: false });
+
             this.setState({ redirect: true });
         } catch (error) {
             console.log(error);
@@ -50,8 +53,10 @@ class RegistrationComponent extends Component {
         }
     }
 
-    facebookClick = () => {}
+    facebookClick = () => { }
     facebookResponseHandler = async (response) => {
+        this.setState({ spin: true });
+
         console.log(response);
         const cancelToken = axios.CancelToken.source().token;
         const userData = {
@@ -69,20 +74,25 @@ class RegistrationComponent extends Component {
         const role = data.user.roleName;
         const user = GetUserData(data.user);
         setDataToLocalStorage(user.id, token, role);
-        // localStorage.setItem("bearer_header", `Bearer ${token}`);
-        // localStorage.setItem("access_token", token);
-        // localStorage.setItem("current_user_role", role);
-        // localStorage.setItem("current_user_id", user.id);
+
+        this.setState({ spin: false });
+
         this.setState({ redirect: true });
     }
     render() {
-        return (
+        const { spin } = this.state;
+        const spinner = <Space size="middle"> <Spin tip="Signing you up..." size="large" /></Space>;
+        const signUp =
             <>
                 {this.state.redirect && this.renderRedirect()}
                 {this.state.redirect === false && <RegistrationForm onFinish={this.confirmHandler} />}
                 {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
             </>
-
+        return (
+            <>
+                {spin === true && spinner}
+                {spin === false && signUp}
+            </>
         )
     }
 }

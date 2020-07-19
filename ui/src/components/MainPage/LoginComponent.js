@@ -7,6 +7,7 @@ import ButtonFaceBook from '../MainPage/ButtonFacebook';
 import axios from 'axios';
 import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
 import 'antd/dist/antd.css';
+import { Spin, Space } from 'antd';
 import '../../index.css';
 import '../../css/styles.css';
 
@@ -14,10 +15,13 @@ class LoginComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false
+            redirect: false,
+            spin: false
         };
     }
     confirmHandler = async values => {
+        this.setState({ spin: true });
+
         const userData = {
             email: values.username,
             password: values.password
@@ -26,9 +30,7 @@ class LoginComponent extends Component {
             const cancelToken = axios.CancelToken.source().token;
 
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
-            console.log(response);
             const data = response.data;
-            console.log(data);
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
@@ -38,6 +40,8 @@ class LoginComponent extends Component {
             console.log("All good");
 
             this.setState({ redirect: true });
+
+            this.setState({ spin: false });
 
         } catch (error) {
             console.log(error);
@@ -78,11 +82,19 @@ class LoginComponent extends Component {
     }
 
     render() {
-        return (
+
+        const { spin } = this.state;
+        const spinner = <Space size="middle"> <Spin tip="Signing you in..." size="large" /></Space>;
+        const login =
             <>
                 {this.state.redirect && this.renderRedirect()}
                 {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler} />}
                 {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+            </>
+        return (
+            <>
+                {spin === true && spinner}
+                {spin === false && login}
             </>
         )
     }

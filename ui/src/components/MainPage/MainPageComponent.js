@@ -6,11 +6,12 @@ import LayoutAntD from '../common/LayoutAntD';
 import '../../index.css';
 import AppHeader from './AppHeaderComponent';
 import AppFooter from './AppFooterComponent';
-
+import { Spin, Space } from 'antd';
 
 function MainPageComponent() {
   const toggleClasses = ["display-flex", "col-flex", "center-flex", "width-100", "height-100"];
   const content = <Toggle classes={toggleClasses} firstComponent={<Login />} secondComponent={<Reg />} />;
+  
   return (
     <LayoutAntD
       myHeader={<AppHeader />}

@@ -35,7 +35,6 @@ namespace ServicesAPI.Services.Implementations
             var result = new ApiResult(ApiResultStatus.Ok, $"Returning all students. Count = {students.Length}", data);
 
             return result;
-
         }
 
         public async Task<ApiResult> GetAmountOfStudentsAync()
@@ -70,9 +69,9 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> SearchStudentsAsync(string search)
         {
             IEnumerable<SystemUser> users = default;
+            var result = new ApiResult();
 
             search = search.ToLower();
-
             if (search.Contains(" "))
             {
                 var criterias = search.Split(" ", System.StringSplitOptions.RemoveEmptyEntries);
