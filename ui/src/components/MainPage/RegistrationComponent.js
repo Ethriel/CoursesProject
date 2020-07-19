@@ -58,7 +58,9 @@ class RegistrationComponent extends Component {
         this.setState({ spin: true });
 
         console.log(response);
+
         const cancelToken = axios.CancelToken.source().token;
+
         const userData = {
             firstName: response.first_name,
             lastName: response.last_name,
@@ -67,6 +69,7 @@ class RegistrationComponent extends Component {
             pictureUrl: response.picture.data.url,
             userId: response.userID
         };
+        
         const reqResponse = await MakeRequestAsync("https://localhost:44382/account/signin-facebook", userData, "post", cancelToken);
         console.log(reqResponse);
         const data = reqResponse.data;

@@ -176,7 +176,7 @@ const RegistrationForm = (props) => {
         <Button type="primary" htmlType="submit" size="large">
           Register
         </Button>
-        <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse} />
+        {/* <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse} /> */}
       </Form.Item>
     </Form>
   );

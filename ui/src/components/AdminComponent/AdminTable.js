@@ -22,10 +22,9 @@ function AdminTable() {
         total: 5
     });
 
-    async function getAmount() {
-        const signal = axios.CancelToken.source();
+    async function getAmount(token) {
         try {
-            const response = await MakeRequestAsync("Students/get/amount", { msg: "Hello" }, "get", signal.token);
+            const response = await MakeRequestAsync("Students/get/amount", { msg: "Hello" }, "get", token);
             if (response.status === 200) {
                 const total = response.data;
                 setPaginationState(oldPagination => ({ ...oldPagination, ...{ total: total } }));
@@ -35,15 +34,14 @@ function AdminTable() {
         }
     }
 
-    async function getUsers() {
-        const signal = axios.CancelToken.source();
+    async function getUsers(token) {
         try {
             const sorting = {
                 sortField: "id",
                 sortOrder: "descend",
                 pagination: paginationState
             };
-            const response = await MakeRequestAsync(`Students/post/sort`, sorting, "post", signal.token);
+            const response = await MakeRequestAsync(`Students/post/sort`, sorting, "post", token);
 
             if (response.status === 200) {
                 const respData = response.data;
@@ -58,8 +56,9 @@ function AdminTable() {
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
+
         async function fetchData() {
-            await getAmount();
+            await getAmount(signal.token);
         }
 
         fetchData();
@@ -71,8 +70,9 @@ function AdminTable() {
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
+
         async function fetchData() {
-            await getUsers();
+            await getUsers(signal.token);
         }
 
         fetchData();
@@ -126,10 +126,11 @@ function AdminTable() {
     };
 
     const onSearchHandler = async (value, event) => {
+        const signal = axios.CancelToken.source();
         const isEmpty = value === "";
+
         if (!isEmpty) {
             const search = value;
-            const signal = axios.CancelToken.source();
 
             const response = await MakeRequestAsync(`Students/get/${search}`, { msg: "hello" }, "get", signal.token);
             if (response.status === 200) {
@@ -142,12 +143,12 @@ function AdminTable() {
         else {
             // if search criteria is empty - get all users
             setLoading(true);
-            await getAmount();
-            await getUsers();
+            await getAmount(signal.token);
+            await getUsers(signal.token);
         }
     };
 
-    const outerContainerClasses = ["width-100", "display-flex", "col-flex"];
+    const outerContainerClasses = ["width-90", "display-flex", "col-flex"];
     const innerContainerClasses = ["width-30", "display-flex", "mb-25px"];
 
     return (
