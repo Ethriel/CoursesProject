@@ -35,7 +35,7 @@ class LoginComponent extends Component {
             const role = data.user.roleName;
             const user = GetUserData(data.user);
 
-            setDataToLocalStorage(user.id, token, role);
+            setDataToLocalStorage(user.id, token, role, user.avatarPath);
 
             console.log("All good");
 

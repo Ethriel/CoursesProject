@@ -88,20 +88,7 @@ const RegistrationForm = (props) => {
         }>
         <Input />
       </Form.Item>
-      <Form.Item
-        name="birthdate"
-        label="Birth date"
-        rules={
-          [
-            {
-              type: 'object',
-              required: true,
-              message: "Select date of birth, please"
-            }
-          ]
-        }>
-        <DatePicker format='DD/MM/YYYY' />
-      </Form.Item>
+      
       <Form.Item
         name="email"
         label="E-mail"
@@ -156,7 +143,20 @@ const RegistrationForm = (props) => {
       >
         <Input.Password />
       </Form.Item>
-
+      <Form.Item
+        name="birthdate"
+        label="Birth date"
+        rules={
+          [
+            {
+              type: 'object',
+              required: true,
+              message: "Select date of birth, please"
+            }
+          ]
+        }>
+        <DatePicker format='DD/MM/YYYY' />
+      </Form.Item>
       <Form.Item
         name="agreement"
         valuePropName="checked"

@@ -12,7 +12,7 @@ namespace ServicesAPI.DataPresentation
         {
             Position = new string[] { "none", "bottomCenter" };
             Current = 1;
-            PageSize = 3;
+            PageSize = 5;
             Total = 5;
         }
         public Pagination(IEnumerable<string> position, int current, int pageSize, int total)

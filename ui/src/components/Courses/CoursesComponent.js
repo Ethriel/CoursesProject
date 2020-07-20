@@ -26,13 +26,13 @@ class CoursesComponent extends Component {
     }
 
     async componentDidMount() {
-        const cancelToken = axios.CancelToken.source()
-        const responseA = await MakeRequestAsync("courses/get/amount", { msg: "hello" }, "get", cancelToken);
+        const cancelToken = axios.CancelToken.source();
+        const responseA = await MakeRequestAsync("courses/get/amount", { msg: "hello" }, "get", cancelToken.token);
         console.log(responseA);
         const amount = responseA.data;
         const skip = this.state.skip;
         const take = this.state.pageSize;
-        const responseTake = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
+        const responseTake = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken.token);
         const info = responseTake.data;
         this.setState({
             amount: amount.amount,
@@ -44,7 +44,7 @@ class CoursesComponent extends Component {
         const cancelToken = axios.CancelToken.source()
         const skip = (page * pageSize) - pageSize;
         const take = pageSize === 1 ? pageSize : page * pageSize;
-        const response = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);
+        const response = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken.token);
         const info = response.data;
         this.setState({
             skip: skip,
@@ -74,11 +74,10 @@ class CoursesComponent extends Component {
         const grid = <GridComponent colNum={12} elementsToDisplay={this.state.items} />;
         const pagination = <PaginationComponent defaultCurrent={1} pageSize={this.state.pageSize} total={this.state.amount} onChange={this.handleChange} />
         const content = <ContainerComponent classes={classes}>{grid}{pagination}</ContainerComponent>
-        const footer = <H myText="Footer" level={3} />;
         return (
             <>
                 {this.state.redirect && this.handleRedirect()}
-                {this.state.redirect === false && <LayoutAntD myHeader={header} myContent={content} myFooter={footer} />}
+                {this.state.redirect === false && <LayoutAntD myHeader={header} myContent={content} />}
             </>
         );
     };

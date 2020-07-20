@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-async function MakeRequestAsync(urlTail, info, method, cancelToken, params = null) {
-    const ulr = "https://localhost:44382/api/".concat(urlTail);
+async function MakeRequestAsync(urlTail, info, method, cancelToken, parameters = null) {
+    const requestUrl = "https://localhost:44382/api/".concat(urlTail);
     axios.defaults.withCredentials = true;
-    let config = {};
-    if (info === null && params !== null) {
-        config = {
+    let axiosConfig = {};
+    if (info === null && parameters !== null) {
+        axiosConfig = {
             method: method,
-            params: params,
+            params: parameters,
             cancelToken: cancelToken,
-            url: ulr,
+            url: requestUrl,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
                 "Content-Type": "application/json",
@@ -18,11 +18,11 @@ async function MakeRequestAsync(urlTail, info, method, cancelToken, params = nul
         };
     }
     else {
-        config = {
+        axiosConfig = {
             method: method,
             data: info,
             cancelToken: cancelToken,
-            url: ulr,
+            url: requestUrl,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
                 "Content-Type": "application/json",
@@ -31,7 +31,7 @@ async function MakeRequestAsync(urlTail, info, method, cancelToken, params = nul
         };
     }
     try {
-        const response = await axios(config);
+        const response = await axios(axiosConfig);
         return response;
     } catch (error) {
         return error.response;
