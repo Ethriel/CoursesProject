@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
+using ServicesAPI.DataPresentation;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,12 +27,12 @@ namespace ServicesAPI.Extensions
         /// <param name="sortOrder"></param>
         /// <param name="sortField"></param>
         /// <returns></returns>
-        public static IQueryable<SystemUser> GetSortedUsers(this IQueryable<SystemUser> queryable, string sortOrder, string sortField)
+        public static IQueryable<SystemUser> GetSortedUsers(this IQueryable<SystemUser> queryable, Sort sort)
         {
             IQueryable<SystemUser> result = null;
             var descend = "descend";
-            sortOrder ??= descend;
-            sortField ??= "id";
+            var sortOrder = sort.SortOrder ?? descend;
+            var sortField = sort.SortField ?? "id";
             switch (sortField)
             {
                 case "id":
@@ -62,7 +63,21 @@ namespace ServicesAPI.Extensions
             }
             return result;
         }
-        
+        public static IQueryable<SystemUser> SearchStudents(this IQueryable<SystemUser> queryable, string criteria)
+        {
+            criteria = criteria.ToLower();
+
+            if (criteria.Contains(" "))
+            {
+                var criterias = criteria.Split(" ", System.StringSplitOptions.RemoveEmptyEntries);
+
+                return queryable.SearchByCriterias(criterias);
+            }
+            else
+            {
+                return queryable.SearchByCriteria(criteria);
+            }
+        }
         /// <summary>
         /// Search users in <paramref name="queryable"/> by <paramref name="criteria"/>
         /// </summary>
@@ -74,12 +89,12 @@ namespace ServicesAPI.Extensions
             var users = queryable.Where(x => x.FirstName.ToLower()
                                                         .Contains(criteria));
 
-            if (users.Count() == 0)
+            if (!users.Any())
             {
                 users = queryable.Where(x => x.LastName.ToLower()
                                                        .Contains(criteria));
 
-                if (users.Count() == 0)
+                if (!users.Any())
                 {
                     users = queryable.Where(x => x.Email.ToLower()
                                                         .Contains(criteria));
@@ -103,7 +118,7 @@ namespace ServicesAPI.Extensions
             {
                 users = queryable.SearchByCriteria(criteria);
 
-                if (users.Count() != 0)
+                if (users.Any())
                 {
                     break;
                 }

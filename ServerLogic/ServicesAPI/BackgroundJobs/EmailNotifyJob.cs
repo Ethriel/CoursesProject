@@ -49,15 +49,15 @@ namespace ServicesAPI.BackgroundJobs
         private void StartTaskAtStudyDate(string email, string title, DateTime studyDate)
         {
             var notifyDate = studyDate;
-            var insideMessage = $"today at {studyDate.ToShortDateString()}!";
-            ScheduleTask(notifyDate, studyDate, title, email, insideMessage);
+            var messageBody = $"today at {studyDate.ToShortDateString()}!";
+            ScheduleTask(notifyDate, studyDate, title, email, messageBody);
         }
 
-        private void ScheduleTask(DateTime notifyDate, DateTime studyDate, string title, string email, string insideMessage = null)
+        private void ScheduleTask(DateTime notifyDate, DateTime studyDate, string title, string email, string messageBody = null)
         {
             var days = (studyDate - notifyDate).TotalDays;
-            insideMessage ??= $"in {days} at {studyDate.ToShortDateString()}";
-            var message = string.Format(STANDARD_MESSAGE, title, insideMessage);
+            messageBody ??= $"in {days} at {studyDate.ToShortDateString()}";
+            var message = string.Format(STANDARD_MESSAGE, title, messageBody);
             notifyDate.AddHours(8);
             backgroundJobClient.Schedule<ISendEmailService>((x) => x.SendEmail(email, SUBJECT, message), notifyDate);
         }

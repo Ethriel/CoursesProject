@@ -1,12 +1,12 @@
 ﻿using Infrastructure.DbContext;
 using Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
+using ServicesAPI.DataPresentation;
 using ServicesAPI.DTO;
 using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
-using ServicesAPI.Sorts;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,11 +17,13 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
+        private readonly Pagination pagination;
 
         public StudentsService(CoursesSystemDbContext context, IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
+            pagination = new Pagination();
         }
 
         public async Task<ApiResult> GetAllStudentsAsync()
@@ -37,61 +39,34 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> GetAmountOfStudentsAync()
+        public async Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort)
         {
-            var amount = await context.SystemUsers
-                                      .GetOnlyUsers()
-                                      .CountAsync();
+            IQueryable<SystemUser> systemUsers = default;
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning amount of students. Amount = {amount}", amount);
+            searchAndSort.Pagination ??= pagination;
 
-            return result;
-        }
+            var allUsers = context.SystemUsers.GetOnlyUsers();
+            var skip = searchAndSort.Pagination.GetSkip();
+            var take = searchAndSort.Pagination.GetTake();
 
-        public async Task<ApiResult> GetSortedStudentsAsync(Sorting sorting)
-        {
-            var skip = sorting.Pagination.GetSkip();
-            var take = sorting.Pagination.GetTake();
-
-            var students = await context.SystemUsers
-                                        .GetOnlyUsers()
-                                        .GetPortionOfQueryable(skip, take)
-                                        .GetSortedUsers(sorting.SortOrder, sorting.SortField)
-                                        .ToArrayAsync();
-
-            var data = mapperWrapper.MapCollectionFromEntities(students);
-
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of students. Count = {students.Length}", data);
-
-            return result;
-        }
-
-        public async Task<ApiResult> SearchStudentsAsync(string search)
-        {
-            IEnumerable<SystemUser> users = default;
-
-            search = search.ToLower();
-
-            if (search.Contains(" "))
+            if (searchAndSort.IsSearch)
             {
-                var criterias = search.Split(" ", System.StringSplitOptions.RemoveEmptyEntries);
-
-                users = await context.SystemUsers
-                                    .GetOnlyUsers()
-                                    .SearchByCriterias(criterias)
-                                    .ToArrayAsync();
+                systemUsers = allUsers.SearchStudents(searchAndSort.SearchField)
+                                      .GetSortedUsers(searchAndSort.Sort);
             }
             else
             {
-                users = await context.SystemUsers
-                                    .GetOnlyUsers()
-                                    .SearchByCriteria(search)
-                                    .ToArrayAsync();
+                systemUsers = allUsers.GetSortedUsers(searchAndSort.Sort);
             }
 
-            var data = mapperWrapper.MapCollectionFromEntities(users);
+            var students = await systemUsers.GetPortionOfQueryable(skip, take)
+                                            .ToArrayAsync();
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning users by search criteria: \"{search}\"", data);
+            var users = mapperWrapper.MapCollectionFromEntities(students);
+
+            var data = new { pagination = searchAndSort.Pagination, users = users };
+
+            var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of students.", data);
 
             return result;
         }

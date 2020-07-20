@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServerAPI.Extensions;
 using ServicesAPI.Services.Abstractions;
-using ServicesAPI.Sorts;
+using ServicesAPI.DataPresentation;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
@@ -30,26 +30,18 @@ namespace ServerAPI.Controllers
             return this.GetActionResult(result, logger);
         }
 
-        [HttpGet("get/amount")]
-        public async Task<IActionResult> GetAmount()
+        //[HttpPost("post/sort")]
+        //public async Task<IActionResult> GetSortedStudents([FromBody] Sort sorting)
+        //{
+        //    var result = await studentsService.GetSortedStudentsAsync(sorting);
+
+        //    return this.GetActionResult(result, logger);
+        //}
+
+        [HttpPost("post/searchAndSort")]
+        public async Task<IActionResult> SearchStudents([FromBody] SearchAndSort searchAndSort)
         {
-            var result = await studentsService.GetAmountOfStudentsAync();
-
-            return this.GetActionResult(result, logger);
-        }
-
-        [HttpPost("post/sort")]
-        public async Task<IActionResult> GetSortedStudents([FromBody] Sorting sorting)
-        {
-            var result = await studentsService.GetSortedStudentsAsync(sorting);
-
-            return this.GetActionResult(result, logger);
-        }
-
-        [HttpGet("get/{search}")]
-        public async Task<IActionResult> SearchStudents(string search)
-        {
-            var result = await studentsService.SearchStudentsAsync(search);
+            var result = await studentsService.SearchAndSortStudentsAsync(searchAndSort);
 
             return this.GetActionResult(result, logger);
         }

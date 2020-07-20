@@ -11,62 +11,43 @@ import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
 
 const { Search } = Input;
+const url = "Students/post/searchAndSort";
 
 function AdminTable() {
     const [table, setTable] = useState({});
     const [loading, setLoading] = useState(true);
-    const [paginationState, setPaginationState] = useState({
-        position: ['none', 'bottomCenter'],
-        current: 1,
-        pageSize: 3,
-        total: 5
-    });
-
-    async function getAmount(token) {
-        try {
-            const response = await MakeRequestAsync("Students/get/amount", { msg: "Hello" }, "get", token);
-            if (response.status === 200) {
-                const total = response.data;
-                setPaginationState(oldPagination => ({ ...oldPagination, ...{ total: total } }));
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    const [paginationState, setPaginationState] = useState();
 
     async function getUsers(token) {
         try {
             const sorting = {
                 sortField: "id",
-                sortOrder: "descend",
-                pagination: paginationState
+                sortOrder: "descend"
             };
-            const response = await MakeRequestAsync(`Students/post/sort`, sorting, "post", token);
+
+            const searchAndSort = {
+                searchField: "",
+                sort: sorting,
+                pagination: null,
+                isSearch: false
+            };
+
+            const response = await MakeRequestAsync(url, searchAndSort, "post", token);
 
             if (response.status === 200) {
                 const respData = response.data;
-                setTable({ columns: getTableCols(), data: getTableData(respData) });
+                const pagination = respData.pagination;
+                const users = respData.users;
+                setPaginationState(pagination);
+                setTable({ columns: getTableCols(), data: getTableData(users) });
             }
+
         } catch (error) {
             console.log(error);
         } finally {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        const signal = axios.CancelToken.source();
-
-        async function fetchData() {
-            await getAmount(signal.token);
-        }
-
-        fetchData();
-
-        return function cleanup() {
-            signal.cancel("CANCEL IN GET AMOUNT");
-        }
-    }, []);
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
@@ -85,31 +66,39 @@ function AdminTable() {
     const handleChange = async (pagination, filters, sorter) => {
         setLoading(true);
         const signal = axios.CancelToken.source();
-        const url = `Students/post/sort`;
-        const current = pagination.current;
-        const pag = pagination;
 
-        setPaginationState(oldPagination => ({ ...oldPagination, ...{ current: current } }));
+        const searchValue = localStorage.getItem("search_value");
+        const isSearch = searchValue !== "" || searchValue !== null;
 
         const sorting = {
             sortField: sorter.field,
-            sortOrder: sorter.order,
-            pagination: pag
+            sortOrder: sorter.order
+        };
+
+        const searchAndSort = {
+            searchField: searchValue,
+            sort: sorting,
+            pagination: pagination,
+            isSearch: isSearch
         };
 
         try {
-            const response = await MakeRequestAsync(url, sorting, "post", signal.token);
+            const response = await MakeRequestAsync(url, searchAndSort, "post", signal.token);
 
             if (response.status === 200) {
-                const respUsers = response.data;
-                setTable({ columns: getTableCols(), data: getTableData(respUsers) });
+                const data = response.data;
+                const pagination = data.pagination;
+                const users = data.users;
+
+                setPaginationState(pagination);
+                setTable({ columns: getTableCols(), data: getTableData(users) });
             }
+
         } catch (error) {
             console.log(error);
         } finally {
             setLoading(false);
         }
-
     };
 
     const expandedRowRender = (record, index, indent, expanded) => {
@@ -128,27 +117,40 @@ function AdminTable() {
     const onSearchHandler = async (value, event) => {
         const signal = axios.CancelToken.source();
         const isEmpty = value === "";
+        localStorage.setItem("search_value", value);
 
         if (!isEmpty) {
-            const search = value;
 
-            const response = await MakeRequestAsync(`Students/get/${search}`, { msg: "hello" }, "get", signal.token);
+            const sorting = {
+                sortField: "id",
+                sortOrder: "descend"
+            };
+
+            const searchAndSort = {
+                searchField: value,
+                sort: sorting,
+                isSearch: true,
+                pagination: paginationState
+            };
+
+            const response = await MakeRequestAsync(url, searchAndSort, "post", signal.token);
             if (response.status === 200) {
                 const data = response.data;
-                const total = data.length;
-                setPaginationState(oldPagination => ({ ...oldPagination, ...{ total: total } }));
-                setTable({ columns: getTableCols(), data: getTableData(data) });
+                const users = data.users;
+                const pagination = data.pagination;
+
+                setPaginationState(pagination);
+                setTable({ columns: getTableCols(), data: getTableData(users) });
             }
         }
         else {
             // if search criteria is empty - get all users
             setLoading(true);
-            await getAmount(signal.token);
             await getUsers(signal.token);
         }
     };
 
-    const outerContainerClasses = ["width-90", "display-flex", "col-flex"];
+    const outerContainerClasses = ["display-flex", "col-flex"];
     const innerContainerClasses = ["width-30", "display-flex", "mb-25px"];
 
     return (

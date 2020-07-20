@@ -21,13 +21,12 @@ class CoursesComponent extends Component {
             page: 1,
             pageSize: 3,
             redirect: false,
-            course: 0,
-            signal: axios.CancelToken.source()
+            course: 0
         };
     }
 
     async componentDidMount() {
-        const cancelToken = this.state.signal.token;
+        const cancelToken = axios.CancelToken.source()
         const responseA = await MakeRequestAsync("courses/get/amount", { msg: "hello" }, "get", cancelToken);
         console.log(responseA);
         const amount = responseA.data;
@@ -42,7 +41,7 @@ class CoursesComponent extends Component {
     }
 
     handleChange = async (page, pageSize) => {
-        const cancelToken = this.state.signal.token;
+        const cancelToken = axios.CancelToken.source()
         const skip = (page * pageSize) - pageSize;
         const take = pageSize === 1 ? pageSize : page * pageSize;
         const response = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken);

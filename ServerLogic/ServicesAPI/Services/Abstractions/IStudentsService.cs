@@ -1,5 +1,5 @@
 ﻿using ServicesAPI.Responses;
-using ServicesAPI.Sorts;
+using ServicesAPI.DataPresentation;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
@@ -7,8 +7,7 @@ namespace ServicesAPI.Services.Abstractions
     public interface IStudentsService
     {
         Task<ApiResult> GetAllStudentsAsync();
-        Task<ApiResult> GetAmountOfStudentsAync();
-        Task<ApiResult> GetSortedStudentsAsync(Sorting sorting);
-        Task<ApiResult> SearchStudentsAsync(string search);
+        //Task<ApiResult> GetSortedStudentsAsync(Sort sorting);
+        Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort);
     }
 }

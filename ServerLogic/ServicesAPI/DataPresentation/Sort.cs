@@ -1,9 +1,8 @@
-﻿namespace ServicesAPI.Sorts
+﻿namespace ServicesAPI.DataPresentation
 {
-    public class Sorting
+    public class Sort
     {
         public string SortField { get; set; }
         public string SortOrder { get; set; }
-        public Pagination Pagination { get; set; }
     }
 }
