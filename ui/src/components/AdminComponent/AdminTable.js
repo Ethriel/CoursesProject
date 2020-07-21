@@ -63,12 +63,13 @@ function AdminTable() {
         }
     }, []);
 
+    // handles changes in sorting and pagination
     const handleChange = async (pagination, filters, sorter) => {
         setLoading(true);
         const signal = axios.CancelToken.source();
 
         const searchValue = localStorage.getItem("search_value");
-        const isSearch = searchValue !== "" || searchValue !== null;
+        const isSearch = searchValue !== "" && searchValue !== null && searchValue !== undefined;
 
         const sorting = {
             sortField: sorter.field,
@@ -101,6 +102,7 @@ function AdminTable() {
         }
     };
 
+    // renders inner table
     const expandedRowRender = (record, index, indent, expanded) => {
         try {
             if (expanded === true) {
@@ -114,6 +116,7 @@ function AdminTable() {
         }
     };
 
+    // handles search
     const onSearchHandler = async (value, event) => {
         const signal = axios.CancelToken.source();
         const isEmpty = value === "";

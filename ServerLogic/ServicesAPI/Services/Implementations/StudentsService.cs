@@ -17,13 +17,11 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
-        private readonly Pagination pagination;
 
         public StudentsService(CoursesSystemDbContext context, IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
-            pagination = new Pagination();
         }
 
         public async Task<ApiResult> GetAllStudentsAsync()
@@ -39,13 +37,39 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
+        public async Task<ApiResult> GetUserByIdAsync(int id)
+        {
+            var result = new ApiResult();
+
+            IEnumerable<string> errors = default;
+
+            var user = await context.SystemUsers.FindAsync(id);
+
+            if (user == null)
+            {
+                var message = $"User id = {id} was not found";
+                errors = new string[] { message };
+                result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
+            }
+            else
+            {
+                var data = mapperWrapper.MapFromEntity(user);
+                result.SetApiResult(ApiResultStatus.Ok, $"Returning user id = {id}", data);
+            }
+
+            return result;
+        }
+
         public async Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort)
         {
             IQueryable<SystemUser> systemUsers = default;
 
-            searchAndSort.Pagination ??= pagination;
-
             var allUsers = context.SystemUsers.GetOnlyUsers();
+
+            var amount = await allUsers.CountAsync();
+
+            searchAndSort.Pagination ??= new Pagination(amount);
+
             var skip = searchAndSort.Pagination.GetSkip();
             var take = searchAndSort.Pagination.GetTake();
 

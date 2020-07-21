@@ -9,7 +9,7 @@ function AppFooterComponent() {
 
     return (
         <FooterComponent myClasses={footerClasses}>
-            <H level={3} myText="THIS IS FOOTER"></H>
+            <H level={4} myText="THIS IS FOOTER"></H>
         </FooterComponent>
     )
 };

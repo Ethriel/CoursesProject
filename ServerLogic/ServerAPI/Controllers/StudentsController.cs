@@ -30,18 +30,17 @@ namespace ServerAPI.Controllers
             return this.GetActionResult(result, logger);
         }
 
-        //[HttpPost("post/sort")]
-        //public async Task<IActionResult> GetSortedStudents([FromBody] Sort sorting)
-        //{
-        //    var result = await studentsService.GetSortedStudentsAsync(sorting);
-
-        //    return this.GetActionResult(result, logger);
-        //}
-
         [HttpPost("post/searchAndSort")]
         public async Task<IActionResult> SearchStudents([FromBody] SearchAndSort searchAndSort)
         {
             var result = await studentsService.SearchAndSortStudentsAsync(searchAndSort);
+
+            return this.GetActionResult(result, logger);
+        }
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var result = await studentsService.GetUserByIdAsync(id);
 
             return this.GetActionResult(result, logger);
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServicesAPI.Responses;
+using ServicesAPI.Responses.AccountResponseData;
 
 namespace ServerAPI.Extensions
 {
@@ -11,7 +12,10 @@ namespace ServerAPI.Extensions
             switch (result.ApiResultStatus)
             {
                 case ApiResultStatus.Ok:
-                    logger.LogInformation(result.LoggerMessage);
+                    if (result.Data is AccountData)
+                    {
+                        logger.LogInformation(result.LoggerMessage);
+                    }
                     return controller.Ok(result.Data);
                 case ApiResultStatus.NotFound:
                     logger.LogWarning(result.LoggerMessage);

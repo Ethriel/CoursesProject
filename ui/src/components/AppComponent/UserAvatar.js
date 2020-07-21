@@ -1,7 +1,7 @@
 import React from 'react';
 import { Avatar, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import H from '../common/HAntD';
+import ProfileSubItem from './ProfileSubComponent';
 const { SubMenu } = Menu;
 
 function UserAvatar(props) {
@@ -11,11 +11,16 @@ function UserAvatar(props) {
     const withPicture = <Avatar src={src} />;
     const withIcon = <Avatar icon={icon} />;
     const avatar = showIcon ? withIcon : withPicture;
+
+    
     const avatarMenu =
         <Menu onClick={props.menuClick} mode="horizontal">
             <SubMenu icon={icon}>
-                <Menu.Item style={{width: "auto", height: "auto"}}>
-                    <H level={4} myText="Sign out"/>
+            <Menu.Item >
+                    <ProfileSubItem text="Profile"/>
+                </Menu.Item>
+                <Menu.Item >
+                    <ProfileSubItem text="Sign out"/>
                 </Menu.Item>
             </SubMenu>
         </Menu>

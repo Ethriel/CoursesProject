@@ -10,16 +10,25 @@ namespace ServicesAPI.DataPresentation
         public int Total { get; set; }
         public Pagination()
         {
-            Position = new string[] { "none", "bottomCenter" };
-            Current = 1;
-            PageSize = 5;
-            Total = 5;
+            SetDefaults(5);
+        }
+        public Pagination(int total)
+        {
+            SetDefaults(total);
+            Total = total;
         }
         public Pagination(IEnumerable<string> position, int current, int pageSize, int total)
         {
             Position = position;
             Current = current;
             PageSize = pageSize;
+            Total = total;
+        }
+        public void SetDefaults(int total)
+        {
+            Position = new string[] { "none", "bottomCenter" };
+            Current = 1;
+            PageSize = 3;
             Total = total;
         }
         public int GetSkip()

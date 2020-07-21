@@ -8,6 +8,7 @@ namespace ServicesAPI.Services.Abstractions
     {
         Task<ApiResult> GetAllStudentsAsync();
         //Task<ApiResult> GetSortedStudentsAsync(Sort sorting);
+        Task<ApiResult> GetUserByIdAsync(int id);
         Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort);
     }
 }
