@@ -3,8 +3,6 @@ import '../../index.css';
 import ContainerComponent from '../common/ContainerComponent';
 import SwitchAntD from './SwitchAntD';
 import H from '../common/HAntD';
-import ButtonComponent from '../common/ButtonComponent';
-
 
 class ToggleTwoComponents extends Component {
     constructor(props) {
@@ -22,11 +20,7 @@ class ToggleTwoComponents extends Component {
     };
 
     setText(text) {
-        return text === "Register" ? "Log in" : "Register";;
-    };
-
-    handleFaceBookClick(event) {
-
+        return text === "Sign up" ? "Sign in" : "Sign up";;
     };
 
     render() {
@@ -40,8 +34,8 @@ class ToggleTwoComponents extends Component {
             <ContainerComponent classes={classes}>
                 <H level={4} myText={title} />
                 <SwitchAntD
-                    myCheckedText="Register"
-                    myUnCheckedText="Log in"
+                    myCheckedText="Sign up"
+                    myUnCheckedText="Sign in"
                     myOnChange={this.handleSwitch}
                     myStyle={styles}
                     myTitle={tip} />

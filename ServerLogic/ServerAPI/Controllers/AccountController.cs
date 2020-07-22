@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServerAPI.Extensions;
+using ServicesAPI.DataPresentation.AccountManagement;
 using ServicesAPI.DTO;
 using ServicesAPI.Facebook;
 using ServicesAPI.Services.Abstractions;
@@ -44,11 +45,25 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateAccount([FromBody] AccountUpdateData accountUpdateData)
+        {
+            var result = await accountService.UpdateAccountAsync(accountUpdateData, HttpContext);
 
+            return this.GetActionResult(result, logger);
+        }
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(int userId, string token)
         {
             var result = await accountService.ConfirmEmailAsync(userId, token);
+
+            return this.GetActionResult(result, logger);
+        }
+        [Route("confirmChange", Name = "ConfirmChangeEmail")]
+        [HttpGet]
+        public async Task<IActionResult> ChangeEmail(int userId, string email, string token)
+        {
+            var result = await accountService.ConfirmChangeEmailAsync(userId, email, token);
 
             return this.GetActionResult(result, logger);
         }

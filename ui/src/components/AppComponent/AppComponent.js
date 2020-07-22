@@ -1,12 +1,11 @@
 import React from 'react';
 import '../../index.css';
-import AppSiderComponent from './AppSiderComponent';
 import AppHeaderComponent from './AppHeaderComponent';
 import Routes from '../../Routes';
 import AppFooterComponent from './AppFooterComponent';
 import { Layout } from 'antd';
 
-const { Sider, Content, Header, Footer } = Layout;
+const { Content, Header, Footer } = Layout;
 
 function AppComponent() {
     const color = "rgb(240, 242, 245)";
@@ -15,7 +14,7 @@ function AppComponent() {
             <Header>
                 <AppHeaderComponent />
             </Header>
-            <Content>
+            <Content className="overflow-scroll">
                 {<Routes />}
             </Content>
             <Footer>

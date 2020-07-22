@@ -185,11 +185,6 @@
     width: 98%;
 }
 
-.ant-table {
-    max-height: 50vh;
-    overflow: scroll;
-}
-
 .ant-layout-footer {
     padding: 0.5%;
 }
@@ -201,6 +196,10 @@
 .row-overflow {
     overflow: unset;
     max-height: 59vh;
+}
+
+.overflow-scroll {
+    overflow: scroll;
 }
 
 @media (min-height: 59vh) {

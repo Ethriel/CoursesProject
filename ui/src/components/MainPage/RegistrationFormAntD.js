@@ -5,11 +5,9 @@ import '../../css/styles.css';
 import {
   Form,
   Input,
-  Checkbox,
   Button,
   DatePicker
 } from 'antd';
-import ButtonFaceBook from './ButtonFacebook';
 import '../../css/styles.css';
 
 
@@ -56,10 +54,7 @@ const RegistrationForm = (props) => {
       name="register"
       onFinish={props.onFinish}
       size="small"
-      initialValues={{
-        residence: ['zhejiang', 'hangzhou', 'xihu'],
-        prefix: '86',
-      }}
+      
       scrollToFirstError
     >
       <Form.Item
@@ -157,26 +152,11 @@ const RegistrationForm = (props) => {
         }>
         <DatePicker format='DD/MM/YYYY' />
       </Form.Item>
-      <Form.Item
-        name="agreement"
-        valuePropName="checked"
-        rules={[
-          {
-            validator: (_, value) =>
-              value ? Promise.resolve() : Promise.reject('Accept an agreement, please'),
-          },
-        ]}
-        {...tailFormItemLayout}
-      >
-        <Checkbox>
-          I have read the <a href="">agreement</a>
-        </Checkbox>
-      </Form.Item>
+      
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit" size="large">
           Register
         </Button>
-        {/* <ButtonFaceBook onClick={props.facebookClick} facebookResponse={props.facebookResponse} /> */}
       </Form.Item>
     </Form>
   );

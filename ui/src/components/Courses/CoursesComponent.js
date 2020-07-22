@@ -70,7 +70,7 @@ class CoursesComponent extends Component {
 
     render() {
         const classes = ["display-flex", "col-flex", "center-flex", "width-100", "height-100"];
-        const header = <H myText="Select a training course" level={3} />;
+        const header = <H myText="Select a training course" level={4} />;
         const grid = <GridComponent colNum={12} elementsToDisplay={this.state.items} />;
         const pagination = <PaginationComponent defaultCurrent={1} pageSize={this.state.pageSize} total={this.state.amount} onChange={this.handleChange} />
         const content = <ContainerComponent classes={classes}>{grid}{pagination}</ContainerComponent>

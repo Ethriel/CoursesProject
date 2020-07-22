@@ -19,7 +19,7 @@ namespace ServicesAPI.Responses
         public string Message { get; set; }
         public IEnumerable<string> Errors { get; set; }
         public ApiResult() { }
-        public ApiResult(ApiResultStatus apiResultStatus, string loggerMessage, object data = null, string message = null, IEnumerable<string> errors = null)
+        public ApiResult(ApiResultStatus apiResultStatus, string loggerMessage = null, object data = null, string message = null, IEnumerable<string> errors = null)
         {
             ApiResultStatus = apiResultStatus;
             Data = data;
@@ -27,7 +27,7 @@ namespace ServicesAPI.Responses
             Message = message;
             Errors = errors;
         }
-        public void SetApiResult(ApiResultStatus apiResultStatus, string loggerMessage, object data = null, string message = null, IEnumerable<string> errors = null)
+        public void SetApiResult(ApiResultStatus apiResultStatus, string loggerMessage = null, object data = null, string message = null, IEnumerable<string> errors = null)
         {
             ApiResultStatus = apiResultStatus;
             Data = data;
