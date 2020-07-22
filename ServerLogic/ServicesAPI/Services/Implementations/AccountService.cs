@@ -73,12 +73,31 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
+        public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
+        {
+            var result = new ApiResult();
+
+            var userId = confirmEmailData.Id;
+
+            var user = await context.SystemUsers
+                                    .FindAsync(userId);
+            if (user == null)
+            {
+                result.SetApiResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
+            }
+            else
+            {
+                result = await GetConfirmEmailResultAsync(user, confirmEmailData.Token, result);
+            }
+
+            return result;
+        }
         public async Task<ApiResult> ConfirmChangeEmailAsync(int userId, string email, string token)
         {
             var result = new ApiResult();
 
             var user = await context.SystemUsers
-                              .FindAsync(userId);
+                                    .FindAsync(userId);
 
             if (user == null)
             {
@@ -228,7 +247,7 @@ namespace ServicesAPI.Services.Implementations
                 }
 
                 var newUser = await context.SystemUsers
-                                     .FindAsync(user.Id);
+                                           .FindAsync(user.Id);
 
                 var data = mapperWrapper.MapFromEntity(newUser);
 
@@ -271,16 +290,22 @@ namespace ServicesAPI.Services.Implementations
 
             if (creationResult.Succeeded)
             {
-                // client side needs to know about user's Id, so we re-assign user with one from database
-                user = await userManager.FindByEmailAsync(user.Email);
+                //// client side needs to know about user's Id, so we re-assign user with one from database
+                //user = await userManager.FindByEmailAsync(user.Email);
 
-                // send confirm request on user's email
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
+                //// send confirm request on user's email
+                //var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 //await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
 
+                ////await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
+
+                //var data = GetAccountData(user);
+                //result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
+
+                user = await userManager.FindByEmailAsync(user.Email);
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
                 var data = GetAccountData(user);
                 result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
             }
@@ -412,5 +437,7 @@ namespace ServicesAPI.Services.Implementations
             var errors = errorsCollection.Select(x => x.Description);
             return errors;
         }
+
+        
     }
 }

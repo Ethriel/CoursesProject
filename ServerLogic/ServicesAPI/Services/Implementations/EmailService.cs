@@ -18,9 +18,9 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task SendConfirmMessageAsync(int userId, string token, string email, string protocol)
         {
-            var callbackUrl = GetCallbackUrl("ConfirmEmail", new { userId = userId, token = token }, protocol);
-            //var callbackUrl = urlHelper.Action("ConfirmEmail", "Account", new { userId = userId, token = token }, protocol: protocol);
-            await SendConfirmEmailAsync(callbackUrl, email);
+            var subject = GetConfirmSubject();
+            var message = $"Confirm your email, please. Token: {token}";
+            await sendEmail.SendEmailAsync(email, subject, message);
         }
 
         public void SendNotifyMessage(string email, string courseDetails)

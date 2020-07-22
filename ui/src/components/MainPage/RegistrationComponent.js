@@ -36,6 +36,7 @@ class RegistrationComponent extends Component {
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
+            localStorage.setItem("current_email", user.email);
             setDataToLocalStorage(user.id, token, role);
             console.log("All good");
 
@@ -49,7 +50,7 @@ class RegistrationComponent extends Component {
 
     renderRedirect = () => {
         if (this.state.redirect) {
-            return <Redirect to="/courses" />
+            return <Redirect to="/confirmEmail" />
         }
     }
 

@@ -10,7 +10,7 @@ namespace ServicesAPI.Services.Abstractions
 
     public interface IAccountService
     {
-        public Task<ApiResult> ConfirmEmailAsync(int userId, string token);
+        public Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData);
         public Task<ApiResult> ConfirmChangeEmailAsync(int userId, string email, string token);
         public Task<ApiResult> SignInAsync(SystemUserDTO userData);
         public Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext);

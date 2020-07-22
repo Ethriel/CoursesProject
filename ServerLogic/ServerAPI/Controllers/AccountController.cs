@@ -52,10 +52,10 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
-        [HttpGet]
-        public async Task<IActionResult> ConfirmEmail(int userId, string token)
+        [HttpPost("confirmEmail")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailData confirmEmailData)
         {
-            var result = await accountService.ConfirmEmailAsync(userId, token);
+            var result = await accountService.ConfirmEmailAsync(confirmEmailData);
 
             return this.GetActionResult(result, logger);
         }

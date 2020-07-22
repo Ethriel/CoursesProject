@@ -3,13 +3,14 @@ import 'antd/dist/antd.css';
 import '../../index.css';
 import { Button } from 'antd';
 
-const ButtonComponent = props =>{
+const ButtonComponent = props => {
     return (
         <Button
-        type="primary"
-        size={props.mySize}
-        style={{backgroundColor: props.myBgColor}}
-        onClick={props.myHandler}>
+            type="primary"
+            size={props.mySize}
+            // style={{backgroundColor: props.myBgColor}}
+            onClick={props.myHandler}
+            style={{maxWidth: 150}}>
             {props.myText}
         </Button>
     );
