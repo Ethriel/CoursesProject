@@ -1,4 +1,5 @@
 ﻿using Infrastructure.DbContext;
+using Infrastructure.Helpers;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -55,24 +56,6 @@ namespace ServicesAPI.Services.Implementations
             this.emailService = emailService;
         }
 
-        public async Task<ApiResult> ConfirmEmailAsync(int userId, string token)
-        {
-            var result = new ApiResult();
-
-            var user = await context.SystemUsers
-                                    .FindAsync(userId);
-
-            if (user == null)
-            {
-                result.SetApiResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
-            }
-            else
-            {
-                result = await GetConfirmEmailResultAsync(user, token, result);
-            }
-
-            return result;
-        }
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
         {
             var result = new ApiResult();
@@ -92,9 +75,11 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
-        public async Task<ApiResult> ConfirmChangeEmailAsync(int userId, string email, string token)
+        public async Task<ApiResult> ConfirmChangeEmailAsync(ConfirmChangeEmailData confirmChangeEmail)
         {
             var result = new ApiResult();
+
+            var userId = confirmChangeEmail.Id;
 
             var user = await context.SystemUsers
                                     .FindAsync(userId);
@@ -105,7 +90,7 @@ namespace ServicesAPI.Services.Implementations
             }
             else
             {
-                result = await GetChangeEmailResultAsync(user, email, token, result);
+                result = await GetChangeEmailResultAsync(user, confirmChangeEmail.Email, confirmChangeEmail.Token, result);
             }
 
             return result;
@@ -167,7 +152,7 @@ namespace ServicesAPI.Services.Implementations
                 var user = await MapNewUserFromDTO(userData);
 
                 // try to create user
-                result = await TryCreateUser(user, userData.Password, result, httpContext);
+                result = await TryCreateUser(user, userData.Password, result);
             }
 
             return result;
@@ -227,49 +212,28 @@ namespace ServicesAPI.Services.Implementations
             {
                 if (accountUpdateData.IsEmailChanged)
                 {
-                    await UpdateEmailAsync(user, accountUpdateData.User.Email, httpContext.Request.Scheme);
-                }
-                else
-                {
-                    if (accountUpdateData.IsFirstNameChanged)
-                    {
-                        user = UpdateFirstName(user, accountUpdateData.User.FirstName);
-                    }
-
-                    if (accountUpdateData.IsLastNameChanged)
-                    {
-                        user = UpdateLastName(user, accountUpdateData.User.LastName);
-                    }
-
-                    context.Entry(user).State = EntityState.Modified;
-
-                    await context.SaveChangesAsync();
+                     await SendConfirmUpdateEmailMessageAsync(user, accountUpdateData.User.Email);
                 }
 
-                var newUser = await context.SystemUsers
-                                           .FindAsync(user.Id);
+                var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
 
-                var data = mapperWrapper.MapFromEntity(newUser);
+                user = UpdateHelper<SystemUser>.Update(context, user, newUser);
+                await context.SaveChangesAsync();
 
-                result.SetApiResult(ApiResultStatus.Ok, $"User id = {id} was updated", data);
+                var data = mapperWrapper.MapFromEntity(user);
+
+                result.SetApiResult(ApiResultStatus.Ok, data: data);
             }
 
             return result;
         }
-        private SystemUser UpdateFirstName(SystemUser user, string firstName)
-        {
-            user.FirstName = firstName;
-            return user;
-        }
-        private SystemUser UpdateLastName(SystemUser user, string lastName)
-        {
-            user.LastName = lastName;
-            return user;
-        }
-        private async Task UpdateEmailAsync(SystemUser user, string email, string protocol)
+        private async Task SendConfirmUpdateEmailMessageAsync(SystemUser user, string email)
         {
             var token = await userManager.GenerateChangeEmailTokenAsync(user, email);
-            await emailService.SendConfirmChangeEmailAsync(user.Id, token, email, protocol);
+
+            token = token.Replace("+", "%2B");
+
+            await emailService.SendConfirmChangeEmailAsync(token, email);
         }
         private async Task<SystemUser> MapNewUserFromDTO(SystemUserDTO userData)
         {
@@ -284,28 +248,22 @@ namespace ServicesAPI.Services.Implementations
 
             return user;
         }
-        private async Task<ApiResult> TryCreateUser(SystemUser user, string password, ApiResult result, HttpContext httpContext)
+        private async Task<ApiResult> TryCreateUser(SystemUser user, string password, ApiResult result)
         {
             var creationResult = await userManager.CreateAsync(user, password);
 
             if (creationResult.Succeeded)
             {
-                //// client side needs to know about user's Id, so we re-assign user with one from database
-                //user = await userManager.FindByEmailAsync(user.Email);
-
-                //// send confirm request on user's email
-                //var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                //await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
-
-                ////await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
-
-                //var data = GetAccountData(user);
-                //result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
-
+                // client side needs to know about user's Id, so we re-assign user with one from database
                 user = await userManager.FindByEmailAsync(user.Email);
+
+                // send confirm request on user's email
                 var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                await emailService.SendConfirmMessageAsync(user.Id, token, user.Email, httpContext.Request.Scheme);
+
+                token = token.Replace("+", "%2B");
+
+                await emailService.SendConfirmMessageAsync(token, user.Email);
+
                 var data = GetAccountData(user);
                 result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
             }
@@ -367,9 +325,11 @@ namespace ServicesAPI.Services.Implementations
             var formattedUrl = string.Format(FACEBOOK_VALIDATION_URL, facebookUser.AccessToken, addId, secret);
 
             // send a request to valiedate facebook token
-            var validationResult = await httpClientFactory.CreateClient().GetAsync(formattedUrl);
+            var validationResult = await httpClientFactory.CreateClient()
+                                                          .GetAsync(formattedUrl);
             validationResult.EnsureSuccessStatusCode();
-            var responseAsString = await validationResult.Content.ReadAsStringAsync();
+            var responseAsString = await validationResult.Content
+                                                         .ReadAsStringAsync();
 
             // deserialize response
             var facebookTokenData = JsonConvert.DeserializeObject<FacebookTokenData>(responseAsString);
@@ -437,7 +397,5 @@ namespace ServicesAPI.Services.Implementations
             var errors = errorsCollection.Select(x => x.Description);
             return errors;
         }
-
-        
     }
 }

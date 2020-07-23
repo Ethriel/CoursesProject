@@ -35,7 +35,7 @@ class LoginComponent extends Component {
             const role = data.user.roleName;
             const user = GetUserData(data.user);
 
-            setDataToLocalStorage(user.id, token, role, user.avatarPath);
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
             console.log("All good");
 
@@ -76,7 +76,7 @@ class LoginComponent extends Component {
         const role = data.user.roleName;
         const user = GetUserData(data.user);
 
-        setDataToLocalStorage(user.id, token, role);
+        setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
         this.setState({ redirect: true });
     }

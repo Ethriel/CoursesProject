@@ -59,11 +59,10 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
-        [Route("confirmChange", Name = "ConfirmChangeEmail")]
-        [HttpGet]
-        public async Task<IActionResult> ChangeEmail(int userId, string email, string token)
+        [HttpPost("confirmChangeEmail")]
+        public async Task<IActionResult> ChangeEmail([FromBody] ConfirmChangeEmailData confirmChangeEmail)
         {
-            var result = await accountService.ConfirmChangeEmailAsync(userId, email, token);
+            var result = await accountService.ConfirmChangeEmailAsync(confirmChangeEmail);
 
             return this.GetActionResult(result, logger);
         }

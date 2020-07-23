@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
+﻿using Microsoft.Extensions.Configuration;
 using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
 
@@ -9,18 +7,27 @@ namespace ServicesAPI.Services.Implementations
     public class EmailService : IEmailService
     {
         private readonly ISendEmailService sendEmail;
-        private readonly IUrlHelper urlHelper;
+        private readonly IConfiguration configuration;
 
-        public EmailService(ISendEmailService sendEmail, IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor)
+        public EmailService(ISendEmailService sendEmail,
+                            IConfiguration configuration)
         {
             this.sendEmail = sendEmail;
-            urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext);
+            this.configuration = configuration;
         }
-        public async Task SendConfirmMessageAsync(int userId, string token, string email, string protocol)
+
+        public async Task SendConfirmMessageAsync(string token, string email)
         {
-            var subject = GetConfirmSubject();
-            var message = $"Confirm your email, please. Token: {token}";
-            await sendEmail.SendEmailAsync(email, subject, message);
+            var clientRoute = "confirmEmail";
+
+            await SendConfirmEmailAsync(clientRoute, token, email);
+        }
+
+        public async Task SendConfirmChangeEmailAsync(string token, string email)
+        {
+            var clientRoute = "confirmChangeEmail";
+
+            await SendConfirmEmailAsync(clientRoute, token, email);
         }
 
         public void SendNotifyMessage(string email, string courseDetails)
@@ -30,31 +37,26 @@ namespace ServicesAPI.Services.Implementations
             sendEmail.SendEmail(email, subject, message);
         }
 
-        public async Task SendConfirmChangeEmailAsync(int userId, string token, string email, string protocol)
-        {
-            var callbackUrl = GetConfirmChangeEmailUrl(new { userId = userId, email = email, token = token }, protocol);
-            await SendConfirmEmailAsync(callbackUrl, email);
-        }
-        private string GetCallbackUrl(string action, object data, string protocol)
-        {
-            var callbackUrl = urlHelper.Action(action, "Account", data, protocol);
-            return callbackUrl;
-        }
-        private string GetConfirmChangeEmailUrl(object data, string protocol)
-        {
-            var callbackUrl = urlHelper.RouteUrl("ConfirmChangeEmail", data, protocol);
-            return callbackUrl;
-        }
-        private async Task SendConfirmEmailAsync(string callbackUrl, string email)
+        private async Task SendConfirmEmailAsync(string clientRoute, string token, string email)
         {
             var subject = GetConfirmSubject();
+            var callbackUrl = GetCallbackUrl(clientRoute, token);
             var message = GetConfirmMessage(callbackUrl);
             await sendEmail.SendEmailAsync(email, subject, message);
         }
+
+        private string GetCallbackUrl(string clientRoute, string token)
+        {
+            var client = configuration["client"];
+            var callbackUrl = $"{client}/{clientRoute}?token={token}";
+            return callbackUrl;
+        }
+
         private string GetConfirmSubject()
         {
             return "Confirm your email";
         }
+
         private string GetConfirmMessage(string callbackUrl)
         {
             return $"Confirm your email, please, by clicking on the link: <a href='{callbackUrl}'>Confirm</a>";

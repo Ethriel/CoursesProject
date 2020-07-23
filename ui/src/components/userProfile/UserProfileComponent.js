@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Modal } from 'antd';
 import UserInfoContainer from './UserInfoContainer';
 import MainContainer from '../common/ContainerComponent';
 import UserCoursesContainer from './UserCoursesContainer';
+import H from '../common/HAntD';
 import SetLocalStorage from '../../helpers/setDataToLocalStorage';
+import { Route, Switch } from 'react-router-dom';
 
 function UserProfileComponent(props) {
     const [user, setUser] = useState({});
     const [isLoading, setIsloading] = useState(true);
-    const [isFirstNameChanged, setIsFirstNameChanged] = useState(false);
-    const [isLastNameChanged, setIsLastNameChanged] = useState(false);
     const [isEmailChanged, setIsEmailChanged] = useState(false);
+    const [isEmailValid, setIsEmailValid] = useState(true);
     const [showDrawer, setShowDrawer] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const id = +localStorage.getItem("current_user_id");
 
     useEffect(() => {
@@ -41,18 +43,9 @@ function UserProfileComponent(props) {
 
     const changeField = (field, value) => {
         setUser(oldState => ({ ...oldState, [field]: value }));
-        switch (field) {
-            case "firstName":
-                setIsFirstNameChanged(true);
-                break;
-            case "lastName":
-                setIsLastNameChanged(true);
-                break;
-            case "email":
-                setIsEmailChanged(true);
-                break;
-            default:
-                break;
+        if (field === "email") {
+            localStorage.setItem("new_email", value);
+            setIsEmailChanged(true);
         }
     }
 
@@ -61,18 +54,15 @@ function UserProfileComponent(props) {
         setIsloading(true);
         const data = {
             user: user,
-            isFirstNameChanged: isFirstNameChanged,
-            isLastNameChanged: isLastNameChanged,
             isEmailChanged: isEmailChanged
         };
-
         try {
             const response = await MakeRequestAsync("account/update", data, "post", signal.token);
             const userData = response.data;
             setUser(userData);
         } catch (error) {
             console.log(error);
-        } finally{
+        } finally {
             setIsloading(false);
         }
     }
@@ -84,7 +74,20 @@ function UserProfileComponent(props) {
     const openDrawer = () => {
         setShowDrawer(true);
     }
+    const modalOk = (e) => {
+        this.setState({ modalVisible: false });
+    }
+
     const mainContainerClasses = ["display-flex", "width-100", "col-flex"];
+    const modal =
+        <Modal
+            title="You have changed email"
+            visible={showModal}
+            onOk={modalOk}>
+            <H
+                level={4}
+                myText="A confirm message was sent to your email. Follow the instructions" />
+        </Modal>
     return (
 
         <MainContainer classes={mainContainerClasses}>

@@ -5,12 +5,13 @@ import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import axios from "axios";
 const queryString = require('query-string');
 
-class ConfirmEmail extends React.Component {
+class ConfirmChangeEmail extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             confirmed: false,
-            id: localStorage.getItem("current_user_id")
+            id: localStorage.getItem("current_user_id"),
+            email: localStorage.getItem("new_email")
         }
     }
 
@@ -24,10 +25,11 @@ class ConfirmEmail extends React.Component {
             const signal = axios.CancelToken.source();
             const requestData = {
                 id: this.state.id,
-                token: token
+                token: token,
+                email: this.state.email
             };
             console.log(requestData);
-            const response = await MakeRequestAsync("account/confirmEmail", requestData, "post", signal.token);
+            const response = await MakeRequestAsync("account/confirmChangeEmail", requestData, "post", signal.token);
             console.log(response);
             if (response.status === 204) {
                 this.setState({
@@ -52,4 +54,4 @@ class ConfirmEmail extends React.Component {
     }
 }
 
-export default ConfirmEmail;
+export default ConfirmChangeEmail;

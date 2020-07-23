@@ -4,8 +4,8 @@ namespace ServicesAPI.Services.Abstractions
 {
     public interface IEmailService
     {
-        Task SendConfirmMessageAsync(int userId, string token, string email, string protocol);
-        Task SendConfirmChangeEmailAsync(int userId, string token, string email, string protocol);
+        Task SendConfirmMessageAsync(string token, string email);
+        Task SendConfirmChangeEmailAsync(string token, string email);
         void SendNotifyMessage(string email, string courseDetails);
     }
 }

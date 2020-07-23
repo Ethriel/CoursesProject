@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
 import RegistrationForm from './RegistrationFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import GetUserData from '../../helpers/GetUserData';
@@ -7,15 +6,16 @@ import ButtonFaceBook from '../MainPage/ButtonFacebook';
 import axios from 'axios';
 import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
 import 'antd/dist/antd.css';
-import { Spin, Space } from 'antd';
+import { Spin, Space, Modal } from 'antd';
 import '../../index.css';
 import '../../css/styles.css';
+import H from '../common/HAntD';
 
 class RegistrationComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: false,
+            modalVisible: false,
             spin: false
         };
     }
@@ -36,24 +36,18 @@ class RegistrationComponent extends Component {
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
-            localStorage.setItem("current_email", user.email);
             setDataToLocalStorage(user.id, token, role);
             console.log("All good");
 
             this.setState({ spin: false });
-
-            this.setState({ redirect: true });
+            this.setState({ modalVisible: true });
         } catch (error) {
             console.log(error);
         }
     }
-
-    renderRedirect = () => {
-        if (this.state.redirect) {
-            return <Redirect to="/confirmEmail" />
-        }
+    modalOk = (e) => {
+        this.setState({ modalVisible: false });
     }
-
     facebookClick = () => { }
     facebookResponseHandler = async (response) => {
         this.setState({ spin: true });
@@ -70,32 +64,40 @@ class RegistrationComponent extends Component {
             pictureUrl: response.picture.data.url,
             userId: response.userID
         };
-        
+
         const reqResponse = await MakeRequestAsync("https://localhost:44382/account/signin-facebook", userData, "post", cancelToken);
         console.log(reqResponse);
         const data = reqResponse.data;
         const token = data.token.key;
         const role = data.user.roleName;
         const user = GetUserData(data.user);
-        setDataToLocalStorage(user.id, token, role);
+        setDataToLocalStorage(user.id, token, role, user.email);
 
         this.setState({ spin: false });
-
-        this.setState({ redirect: true });
     }
     render() {
         const { spin } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Signing you up..." size="large" /></Space>;
+        const { modalVisible } = this.state;
+        const modal =
+            <Modal
+                title="Sign up was successful!"
+                visible={this.state.modalVisible}
+                onOk={this.modalOk}>
+                <H
+                    level={4}
+                    myText="A confirm message was sent to your email. Follow the instructions" />
+            </Modal>
         const signUp =
             <>
-                {this.state.redirect && this.renderRedirect()}
-                {this.state.redirect === false && <RegistrationForm onFinish={this.confirmHandler} />}
-                {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+                <RegistrationForm onFinish={this.confirmHandler} />
+                <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />
             </>
         return (
             <>
                 {spin === true && spinner}
                 {spin === false && signUp}
+                {modalVisible === true && modal}
             </>
         )
     }

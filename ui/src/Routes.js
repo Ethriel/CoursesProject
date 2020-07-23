@@ -7,6 +7,7 @@ import AdminComponent from './components/AdminComponent/AdminComponent';
 import CourseDetails from './components/Courses/CourseDetailsComponent';
 import UserProfileComponent from './components/userProfile/UserProfileComponent';
 import ConfirmEmail from './components/MainPage/confirm/ConfirmEmail';
+import ConfirmChangeEmail from './components/MainPage/confirm/ConfirmChangeEmail';
 
 const Routes = () => (
     <Switch>
@@ -16,7 +17,8 @@ const Routes = () => (
         <Route exact path="/aboutus" component={AboutUsComponent} />
         <Route exact path="/admin" component={AdminComponent} />
         <Route exact path="/profile" component={UserProfileComponent} />
-        <Route exact path="/confirmEmail" component={ConfirmEmail} />
+        <Route path="/confirmEmail" component={ConfirmEmail} />
+        <Route path="/confirmChangeEmail" component={ConfirmChangeEmail} />
     </Switch>
 );
 export default Routes;

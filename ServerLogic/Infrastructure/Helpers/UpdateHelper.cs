@@ -1,8 +1,6 @@
 ﻿using Infrastructure.DbContext;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Infrastructure.Helpers
 {
@@ -10,26 +8,36 @@ namespace Infrastructure.Helpers
     {
         public static T Update(CoursesSystemDbContext context, T oldEntity, T newEntity)
         {
-            context.Entry(oldEntity).State = EntityState.Detached;
-            var type = oldEntity.GetType();
+            var type = UnProxy(context, newEntity.GetType());
             var properties = type.GetProperties();
+            var filteredProperties = properties.Where(x => x.DeclaringType
+                                                            .Namespace
+                                                            .Equals("Infrastructure.Models"));
             object propValue = null;
             var propName = "";
-            foreach (var p in properties)
+            foreach (var property in filteredProperties)
             {
-                for (int i = 0; i < properties.Length; i++)
+                propName = property.Name;
+                propValue = type.GetProperty(propName)
+                                .GetValue(newEntity);
+
+                property.SetValue(oldEntity, propValue);
+            }
+            return oldEntity;
+        }
+        private static Type UnProxy(CoursesSystemDbContext context, Type type)
+        {
+            var entityTypes = context.Model.GetEntityTypes();
+            Type tmp = null;
+            foreach (var entityType in entityTypes)
+            {
+                tmp = entityType.ClrType;
+                if (tmp.Name.Equals(type.Name))
                 {
-                    propName = properties[i].Name;
-                    if (i == 0 && propName.Contains("Id"))
-                    {
-                        continue;
-                    }
-                    propValue = type.GetProperty(propName).GetValue(newEntity);
-                    properties[i].SetValue(oldEntity, propValue);
+                    break;
                 }
             }
-            context.Entry(oldEntity).State = EntityState.Modified; 
-            return oldEntity;
+            return tmp;
         }
     }
 }
