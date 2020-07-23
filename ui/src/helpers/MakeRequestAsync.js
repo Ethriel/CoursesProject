@@ -34,7 +34,7 @@ async function MakeRequestAsync(urlTail, info, method, cancelToken, parameters =
         const response = await axios(axiosConfig);
         return response;
     } catch (error) {
-        return error.response;
+        throw error;
     }
 };
 

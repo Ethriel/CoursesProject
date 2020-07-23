@@ -75,6 +75,7 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
+
         public async Task<ApiResult> ConfirmChangeEmailAsync(ConfirmChangeEmailData confirmChangeEmail)
         {
             var result = new ApiResult();
@@ -95,6 +96,7 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
+
         public async Task<ApiResult> SignInAsync(SystemUserDTO userData)
         {
             var result = new ApiResult();
@@ -141,10 +143,11 @@ namespace ServicesAPI.Services.Implementations
 
             if (findUser != null)
             {
-                var errors = new string[] { $"User with {userData.Email} already exists in the database" };
+                var message = $"User with email {userData.Email} already exists in the database";
+                var errors = new string[] { message };
                 result.SetApiResult(ApiResultStatus.BadRequest,
                                     $"New user {userData.Email} has tried to sign up. User with this email already exists in the database",
-                                    message: "Sign up has failed",
+                                    message: message,
                                     errors: errors);
             }
             else
@@ -212,7 +215,7 @@ namespace ServicesAPI.Services.Implementations
             {
                 if (accountUpdateData.IsEmailChanged)
                 {
-                     await SendConfirmUpdateEmailMessageAsync(user, accountUpdateData.User.Email);
+                    await SendConfirmUpdateEmailMessageAsync(user, accountUpdateData.User.Email);
                 }
 
                 var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
@@ -223,6 +226,23 @@ namespace ServicesAPI.Services.Implementations
                 var data = mapperWrapper.MapFromEntity(user);
 
                 result.SetApiResult(ApiResultStatus.Ok, data: data);
+            }
+
+            return result;
+        }
+        public async Task<ApiResult> VerifyEmailAsync(string email)
+        {
+            var result = new ApiResult();
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user != null)
+            {
+                result.SetApiResult(ApiResultStatus.BadRequest, message: $"User with email {email} already exists in database");
+            }
+            else
+            {
+                result.SetApiResult(ApiResultStatus.Ok, data: new { varified = true });
             }
 
             return result;
@@ -397,5 +417,7 @@ namespace ServicesAPI.Services.Implementations
             var errors = errorsCollection.Select(x => x.Description);
             return errors;
         }
+
+
     }
 }

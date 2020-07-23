@@ -6,17 +6,20 @@ import ButtonFaceBook from '../MainPage/ButtonFacebook';
 import axios from 'axios';
 import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
 import 'antd/dist/antd.css';
-import { Spin, Space, Modal } from 'antd';
+import { Spin, Space } from 'antd';
 import '../../index.css';
 import '../../css/styles.css';
-import H from '../common/HAntD';
+import ModalWithMessage from '../common/ModalWithMessage';
 
 class RegistrationComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            spin: false,
+            allGood: false,
             modalVisible: false,
-            spin: false
+            modalMessage: "",
+            modalTitle: ""
         };
     }
     confirmHandler = async values => {
@@ -36,13 +39,25 @@ class RegistrationComponent extends Component {
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
-            setDataToLocalStorage(user.id, token, role);
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
             console.log("All good");
-
-            this.setState({ spin: false });
-            this.setState({ modalVisible: true });
+            this.setState({
+                allGood: true,
+                modalMessage: "A confirm message was sent to your email. Follow the instructions",
+                modalTitle: "Sign up successful",
+            });
         } catch (error) {
-            console.log(error);
+            console.log(error.response.data);
+            const data = error.response.data;
+            this.setState({
+                modalMessage: `${data.message}`,
+                modalTitle: "Sign up has failed"
+            });
+        } finally {
+            this.setState({
+                spin: false,
+                modalVisible: true
+            });
         }
     }
     modalOk = (e) => {
@@ -72,22 +87,23 @@ class RegistrationComponent extends Component {
         const role = data.user.roleName;
         const user = GetUserData(data.user);
         setDataToLocalStorage(user.id, token, role, user.email);
-
-        this.setState({ spin: false });
+        this.setState({
+            spin: false,
+            allGood: true,
+            modalMessage: "You can now use your Facebook account to enter the system",
+            modalTitle: "Sign up successful"
+        });
     }
     render() {
-        const { spin } = this.state;
+        const { spin, modalVisible, allGood, modalMessage, modalTitle } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Signing you up..." size="large" /></Space>;
-        const { modalVisible } = this.state;
         const modal =
-            <Modal
-                title="Sign up was successful!"
-                visible={this.state.modalVisible}
-                onOk={this.modalOk}>
-                <H
-                    level={4}
-                    myText="A confirm message was sent to your email. Follow the instructions" />
-            </Modal>
+            <ModalWithMessage
+                modalTitle={modalTitle}
+                modalVisible={modalVisible}
+                modalOk={this.modalOk}
+                modalCancel={this.modalCancel}
+                modalMessage={modalMessage} />;
         const signUp =
             <>
                 <RegistrationForm onFinish={this.confirmHandler} />
@@ -97,7 +113,8 @@ class RegistrationComponent extends Component {
             <>
                 {spin === true && spinner}
                 {spin === false && signUp}
-                {modalVisible === true && modal}
+                {allGood === false && modalVisible === true && modal}
+                {allGood === true && modalVisible === true && modal}
             </>
         )
     }

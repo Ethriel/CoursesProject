@@ -66,5 +66,12 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+        [HttpGet("verifyEmail/{email}")]
+        public async Task<IActionResult> VerifyEmail(string email)
+        {
+            var result = await accountService.VerifyEmailAsync(email);
+
+            return this.GetActionResult(result, logger);
+        }
     }
 }

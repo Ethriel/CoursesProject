@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
 {
-
     public interface IAccountService
     {
         public Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData);
@@ -16,5 +15,6 @@ namespace ServicesAPI.Services.Abstractions
         public Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext);
         public Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser);
         public Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData, HttpContext httpContext);
+        public Task<ApiResult> VerifyEmailAsync(string email);
     }
 }

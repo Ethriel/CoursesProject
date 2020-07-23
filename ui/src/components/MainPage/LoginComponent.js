@@ -10,13 +10,17 @@ import 'antd/dist/antd.css';
 import { Spin, Space } from 'antd';
 import '../../index.css';
 import '../../css/styles.css';
+import ModalWithMessage from '../common/ModalWithMessage';
 
 class LoginComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             redirect: false,
-            spin: false
+            spin: false,
+            modalVisible: false,
+            modalMessage: "",
+            modalTitle: ""
         };
     }
     confirmHandler = async values => {
@@ -40,13 +44,20 @@ class LoginComponent extends Component {
             console.log("All good");
 
             this.setState({ redirect: true });
-
-            this.setState({ spin: false });
-
         } catch (error) {
+            const data = error.response.data;
+            const message = data.message;
+            this.setState({
+                modalMessage: message,
+                modalTitle: "Sign in has failed",
+                modalVisible: true
+            });
             console.log(error);
+        } finally {
+            this.setState({
+                spin: false,
+            });
         }
-
     }
 
     renderRedirect = () => {
@@ -69,32 +80,63 @@ class LoginComponent extends Component {
             userId: response.userID
         };
 
-        const reqResponse = await MakeRequestAsync("account/signin-facebook", userData, "post", cancelToken);
+        try {
+            const reqResponse = await MakeRequestAsync("account/signin-facebook", userData, "post", cancelToken);
 
-        const data = reqResponse.data;
-        const token = data.token.key;
-        const role = data.user.roleName;
-        const user = GetUserData(data.user);
+            const data = reqResponse.data;
+            const token = data.token.key;
+            const role = data.user.roleName;
+            const user = GetUserData(data.user);
 
-        setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
-        this.setState({ redirect: true });
+            this.setState({ redirect: true });
+        } catch (error) {
+            const data = error.response.data;
+            const message = data.message;
+            this.setState({
+                modalMessage: message,
+                modalTitle: "Sign in has failed",
+                modalVisible: true
+            });
+        } finally {
+            this.setState({
+                spin: false,
+            });
+        }
+
     }
 
+    modalOk = (e) => {
+        this.setState({ modalVisible: false });
+    }
+    modalCancel = (e) => {
+        this.setState({ modalVisible: false });
+    }
     render() {
+        const { spin, modalVisible, modalMessage, modalTitle } = this.state;
+        const modal =
+            <ModalWithMessage
+                modalTitle={modalTitle}
+                modalVisible={modalVisible}
+                modalOk={this.modalOk}
+                modalCancel={this.modalCancel}
+                modalMessage={modalMessage} />;
 
-        const { spin } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Signing you in..." size="large" /></Space>;
+
         const login =
             <>
                 {this.state.redirect && this.renderRedirect()}
                 {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler} />}
                 {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
-            </>
+            </>;
+
         return (
             <>
                 {spin === true && spinner}
                 {spin === false && login}
+                {modalVisible === true && modal}
             </>
         )
     }
