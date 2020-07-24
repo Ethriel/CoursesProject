@@ -16,7 +16,7 @@ namespace ServerAPI.Extensions
                     {
                         logger.LogInformation(result.LoggerMessage);
                     }
-                    return controller.Ok(result.Data);
+                    return controller.Ok(result);
                 case ApiResultStatus.NotFound:
                     logger.LogWarning(result.LoggerMessage);
                     return controller.NotFound(result);

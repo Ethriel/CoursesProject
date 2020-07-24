@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import GridComponent from '../common/GridComponent';
 import '../../css/styles.css';
 import MapCards from '../../helpers/MapCards';
-import PaginationComponent from '../common/PaginationComponent';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import H from '../common/HAntD';
-import ContainerComponent from '../common/ContainerComponent';
 import LayoutAntD from '../common/LayoutAntD';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
+import GetModalPresentation from '../../helpers/GetModalPresentation';
+import ModalWithMessage from '../common/ModalWithMessage';
+import SetModalData from '../../helpers/SetModalData';
+import CoursesContent from './CoursesContent';
+import { Spin, Space } from 'antd';
 
 class CoursesComponent extends Component {
 
@@ -16,41 +18,65 @@ class CoursesComponent extends Component {
         super(props);
         this.state = {
             items: [],
-            amount: 0,
-            skip: 0,
-            page: 1,
-            pageSize: 3,
+            pagination: null,
             redirect: false,
-            course: 0
+            loading: true,
+            course: 0,
+            modal: GetModalPresentation(this.modalOk, this.modalCancel)
         };
     }
 
     async componentDidMount() {
-        const cancelToken = axios.CancelToken.source();
-        const responseA = await MakeRequestAsync("courses/get/amount", { msg: "hello" }, "get", cancelToken.token);
-        console.log(responseA);
-        const amount = responseA.data;
-        const skip = this.state.skip;
-        const take = this.state.pageSize;
-        const responseTake = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken.token);
-        const info = responseTake.data;
-        this.setState({
-            amount: amount.amount,
-            items: MapCards(info, this.handleCourseClick)
-        });
+        const signal = axios.CancelToken.source();
+        const { pagination } = this.state;
+        const coursesPagination = {
+            pagination: pagination
+        };
+        try {
+            const response = await MakeRequestAsync("courses/get/paged", coursesPagination, "post", signal.token);
+            const data = response.data.data;
+            const courses = data.courses;
+            const newPagination = data.pagination;
+            this.setState({ pagination: newPagination });
+            this.setState({ items: MapCards(courses, this.handleCourseClick) });
+            this.setState({ loading: false });
+        } catch (error) {
+            this.setCatch(error);
+        }
     }
 
     handleChange = async (page, pageSize) => {
-        const cancelToken = axios.CancelToken.source()
-        const skip = (page * pageSize) - pageSize;
-        const take = pageSize === 1 ? pageSize : page * pageSize;
-        const response = await MakeRequestAsync(`courses/get/forpage/${skip}/${take}`, { msg: "hello" }, "get", cancelToken.token);
-        const info = response.data;
-        this.setState({
-            skip: skip,
+
+        const signal = axios.CancelToken.source()
+        this.setState({ loading: true });
+        const pagination = {
+            position: this.state.position,
             page: page,
-            items: MapCards(info, this.handleCourseClick)
-        });
+            pageSize: pageSize,
+            total: this.state.total
+        };
+
+        const coursesPagination = {
+            pagination: pagination
+        };
+
+        this.setState(old => ({
+            pagination: {
+                ...old.pagination,
+                page: page,
+                pageSize: pageSize
+            }
+        }));
+
+        try {
+            const response = await MakeRequestAsync("courses/get/paged", coursesPagination, "post", signal.token);
+            const data = response.data.data;
+            const courses = data.courses;
+            this.setState({ items: MapCards(courses, this.handleCourseClick) });
+            this.setState({ loading: false });
+        } catch (error) {
+            this.setCatch(error);
+        }
     };
 
     handleCourseClick = event => {
@@ -68,16 +94,57 @@ class CoursesComponent extends Component {
         }
     }
 
+    setCatch(error) {
+        const modalData = SetModalData(error);
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                message: modalData.message,
+                errors: modalData.errors,
+                visible: true
+            }
+        }));
+    }
+
+    modalOk = (e) => {
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                visible: false
+            }
+        }));
+    }
+
+    modalCancel = (e) => {
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                visible: false
+            }
+        }));
+    }
     render() {
-        const classes = ["display-flex", "col-flex", "center-flex", "width-100", "height-100"];
         const header = <H myText="Select a training course" level={4} />;
-        const grid = <GridComponent colNum={12} elementsToDisplay={this.state.items} />;
-        const pagination = <PaginationComponent defaultCurrent={1} pageSize={this.state.pageSize} total={this.state.amount} onChange={this.handleChange} />
-        const content = <ContainerComponent classes={classes}>{grid}{pagination}</ContainerComponent>
-        return (
+        const { pagination, loading, items, modal } = this.state;
+        const modalWindow = ModalWithMessage(modal);
+        const spinner = <Space size="middle"> <Spin tip="Loading courses..." size="large" /></Space>;
+
+        const content = <CoursesContent
+            pagination={pagination}
+            handleChange={this.handleChange}
+            items={items} />
+
+        const toRender =
             <>
                 {this.state.redirect && this.handleRedirect()}
                 {this.state.redirect === false && <LayoutAntD myHeader={header} myContent={content} />}
+            </>;
+
+        return (
+            <>
+                {loading === true && spinner}
+                {loading === false && toRender}
+                {this.state.modal.visible === true && modalWindow}
             </>
         );
     };

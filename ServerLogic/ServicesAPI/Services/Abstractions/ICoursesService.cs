@@ -1,4 +1,5 @@
-﻿using ServicesAPI.Responses;
+﻿using ServicesAPI.DataPresentation;
+using ServicesAPI.Responses;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
@@ -9,5 +10,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> GetAllCoursesAsync();
         Task<ApiResult> GetForPage(int skip, int take);
         Task<ApiResult> GetById(int id);
+        Task<ApiResult> GetPagedAsync(CoursesPagination coursesPagination);
     }
 }

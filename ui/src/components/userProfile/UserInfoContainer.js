@@ -23,7 +23,8 @@ const UserInfoContainer = props => {
                 size="default"
                 onClick={submitClick}
                 style={{ width: 150 }}>
-                Submit</Button>
+                Submit
+                </Button>
         </Container>
     )
 }

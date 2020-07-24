@@ -35,7 +35,7 @@ function AdminTable() {
             const response = await MakeRequestAsync(url, searchAndSort, "post", token);
 
             if (response.status === 200) {
-                const respData = response.data;
+                const respData = response.data.data;
                 const pagination = respData.pagination;
                 const users = respData.users;
                 setPaginationState(pagination);

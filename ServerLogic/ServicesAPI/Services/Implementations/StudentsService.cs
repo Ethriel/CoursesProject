@@ -64,14 +64,18 @@ namespace ServicesAPI.Services.Implementations
         {
             IQueryable<SystemUser> systemUsers = default;
 
-            var allUsers = context.SystemUsers.GetOnlyUsers();
+            var allUsers = context.SystemUsers
+                                  .GetOnlyUsers();
 
             var amount = await allUsers.CountAsync();
 
             searchAndSort.Pagination ??= new Pagination(amount);
 
-            var skip = searchAndSort.Pagination.GetSkip();
-            var take = searchAndSort.Pagination.GetTake();
+            var skip = searchAndSort.Pagination
+                                    .GetSkip();
+
+            var take = searchAndSort.Pagination
+                                    .GetTake();
 
             if (searchAndSort.IsSearch)
             {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServerAPI.Extensions;
+using ServicesAPI.DataPresentation;
 using ServicesAPI.Services.Abstractions;
 using System.Threading.Tasks;
 
@@ -43,6 +44,13 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
 
+        }
+        [HttpPost("get/paged")]
+        public async Task<IActionResult> GetPaged([FromBody] CoursesPagination coursesPagination)
+        {
+            var result = await coursesService.GetPagedAsync(coursesPagination);
+
+            return this.GetActionResult(result, logger);
         }
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetById(int id)

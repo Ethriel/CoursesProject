@@ -5,7 +5,7 @@ namespace ServicesAPI.DataPresentation
     public class Pagination
     {
         public IEnumerable<string> Position { get; set; }
-        public int Current { get; set; }
+        public int Page { get; set; }
         public int PageSize { get; set; }
         public int Total { get; set; }
         public Pagination()
@@ -17,23 +17,23 @@ namespace ServicesAPI.DataPresentation
             SetDefaults(total);
             Total = total;
         }
-        public Pagination(IEnumerable<string> position, int current, int pageSize, int total)
+        public Pagination(IEnumerable<string> position, int page, int pageSize, int total)
         {
             Position = position;
-            Current = current;
+            Page = page;
             PageSize = pageSize;
             Total = total;
         }
         public void SetDefaults(int total)
         {
             Position = new string[] { "none", "bottomCenter" };
-            Current = 1;
-            PageSize = 3;
+            Page = 1;
+            PageSize = 2;
             Total = total;
         }
         public int GetSkip()
         {
-            return (this.Current * this.PageSize) - this.PageSize;
+            return (this.Page * this.PageSize) - this.PageSize;
         }
         public int GetTake()
         {

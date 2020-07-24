@@ -102,12 +102,13 @@ namespace ServicesAPI.Services.Implementations
             var result = new ApiResult();
 
             // find user
-            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(userData.Email));
+            var user = await userManager.FindByEmailAsync(userData.Email);
 
             if (user == null)
             {
-                var message = $"User with email {user.Email} was not found";
-                result.SetApiResult(ApiResultStatus.NotFound, message, message: message);
+                var message = "Sign in has failed";
+                var errors = new string[] { $"Email {user.Email} is incorrect" };
+                result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
             }
             else
             {
@@ -124,10 +125,11 @@ namespace ServicesAPI.Services.Implementations
                 else
                 {
                     // if not - set message, set errors and return Bad Request
+                    var message = "Sign in has failed";
                     var errors = new string[] { "Password is incorrect" };
                     result.SetApiResult(ApiResultStatus.BadRequest,
                                         $"User email {user.Email} has failed to sign in with password",
-                                        "Sign in failed",
+                                        message: message,
                                         errors: errors);
                 }
             }
@@ -143,8 +145,8 @@ namespace ServicesAPI.Services.Implementations
 
             if (findUser != null)
             {
-                var message = $"User with email {userData.Email} already exists in the database";
-                var errors = new string[] { message };
+                var message = "Sign up has failed";
+                var errors = new string[] { $"User {userData.Email} is already registered. Try to sign in" };
                 result.SetApiResult(ApiResultStatus.BadRequest,
                                     $"New user {userData.Email} has tried to sign up. User with this email already exists in the database",
                                     message: message,
@@ -209,7 +211,8 @@ namespace ServicesAPI.Services.Implementations
             if (user == null)
             {
                 var message = "User was not found";
-                result.SetApiResult(ApiResultStatus.NotFound, $"User id = {id} was not found", message: message, errors: new string[] { message });
+                var errors = new string[] { message };
+                result.SetApiResult(ApiResultStatus.NotFound, $"User id = {id} was not found", message: message, errors: errors);
             }
             else
             {
@@ -218,10 +221,13 @@ namespace ServicesAPI.Services.Implementations
                     await SendConfirmUpdateEmailMessageAsync(user, accountUpdateData.User.Email);
                 }
 
-                var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
+                if (accountUpdateData.AnyFieldChanged)
+                {
+                    var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
 
-                user = UpdateHelper<SystemUser>.Update(context, user, newUser);
-                await context.SaveChangesAsync();
+                    user = UpdateHelper<SystemUser>.Update(context, user, newUser);
+                    await context.SaveChangesAsync();
+                }
 
                 var data = mapperWrapper.MapFromEntity(user);
 
@@ -238,7 +244,9 @@ namespace ServicesAPI.Services.Implementations
 
             if (user != null)
             {
-                result.SetApiResult(ApiResultStatus.BadRequest, message: $"User with email {email} already exists in database");
+                var message = "Email change has failed";
+                var errors = new string[] { $"User {email} is already registered" };
+                result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
             }
             else
             {
@@ -417,7 +425,5 @@ namespace ServicesAPI.Services.Implementations
             var errors = errorsCollection.Select(x => x.Description);
             return errors;
         }
-
-
     }
 }

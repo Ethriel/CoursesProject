@@ -1,6 +1,7 @@
 ﻿using Infrastructure.DbContext;
 using Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
+using ServicesAPI.DataPresentation;
 using ServicesAPI.DTO;
 using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
@@ -73,6 +74,32 @@ namespace ServicesAPI.Services.Implementations
             var data = mapperWrapper.MapCollectionFromEntities(courses);
 
             var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of courses. Count = {courses.Length}", data);
+
+            return result;
+        }
+
+        public async Task<ApiResult> GetPagedAsync(CoursesPagination coursesPagination)
+        {
+            var amount = await context.TrainingCourses
+                                      .CountAsync();
+
+            coursesPagination.Pagination ??= new Pagination(amount);
+
+            var skip = coursesPagination.Pagination
+                                        .GetSkip();
+
+            var take = coursesPagination.Pagination
+                                        .GetTake();
+
+            var coursesData = await context.TrainingCourses
+                                 .GetPortionOfQueryable(skip, take)
+                                 .ToArrayAsync();
+
+            var courses = mapperWrapper.MapCollectionFromEntities(coursesData);
+
+            var data = new { pagination = coursesPagination.Pagination, courses = courses };
+
+            var result = new ApiResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }

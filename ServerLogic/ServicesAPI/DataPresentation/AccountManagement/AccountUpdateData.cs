@@ -6,5 +6,6 @@ namespace ServicesAPI.DataPresentation.AccountManagement
     {
         public SystemUserDTO User { get; set; }
         public bool IsEmailChanged { get; set; }
+        public bool AnyFieldChanged { get; set; }
     }
 }

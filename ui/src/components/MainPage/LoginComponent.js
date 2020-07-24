@@ -11,6 +11,9 @@ import { Spin, Space } from 'antd';
 import '../../index.css';
 import '../../css/styles.css';
 import ModalWithMessage from '../common/ModalWithMessage';
+import SetModalData from '../../helpers/SetModalData';
+import GetFacebookData from './GetFacebookData';
+import GetModalPresentation from '../../helpers/GetModalPresentation';
 
 class LoginComponent extends Component {
     constructor(props) {
@@ -18,11 +21,31 @@ class LoginComponent extends Component {
         this.state = {
             redirect: false,
             spin: false,
-            modalVisible: false,
-            modalMessage: "",
-            modalTitle: ""
+            modal: {
+                message: "",
+                errors: [],
+                visible: false,
+                modalOk: this.modalOk,
+                modal: GetModalPresentation(this.modalOk, this.modalCancel)
+            }
         };
     }
+
+    setCatch = error => {
+        const modalData = SetModalData(error);
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                message: modalData.message,
+                errors: modalData.errors
+            }
+        }));
+    };
+
+    setFinally = () => {
+        this.setState({ spin: false });
+    }
+
     confirmHandler = async values => {
         this.setState({ spin: true });
 
@@ -34,9 +57,11 @@ class LoginComponent extends Component {
             const cancelToken = axios.CancelToken.source().token;
 
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
-            const data = response.data;
+            console.log(response);
+            const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
+
             const user = GetUserData(data.user);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
@@ -45,20 +70,11 @@ class LoginComponent extends Component {
 
             this.setState({ redirect: true });
         } catch (error) {
-            const data = error.response.data;
-            const message = data.message;
-            this.setState({
-                modalMessage: message,
-                modalTitle: "Sign in has failed",
-                modalVisible: true
-            });
-            console.log(error);
+            this.setCatch(error);
         } finally {
-            this.setState({
-                spin: false,
-            });
+            this.setFinally();
         }
-    }
+    };
 
     renderRedirect = () => {
         const role = localStorage.getItem("current_user_role");
@@ -66,62 +82,55 @@ class LoginComponent extends Component {
             const redirectDirection = role === "ADMIN" ? "/admin" : "/courses";
             return <Redirect to={redirectDirection} push={true} />
         }
-    }
+    };
 
-    facebookClick = () => { }
+    facebookClick = () => { };
+
     facebookResponseHandler = async (response) => {
         const cancelToken = axios.CancelToken.source().token;
-        const userData = {
-            firstName: response.first_name,
-            lastName: response.last_name,
-            email: response.email,
-            accessToken: response.accessToken,
-            pictureUrl: response.picture.data.url,
-            userId: response.userID
-        };
+        const userData = GetFacebookData(response);
 
         try {
             const reqResponse = await MakeRequestAsync("account/signin-facebook", userData, "post", cancelToken);
 
-            const data = reqResponse.data;
+            const data = reqResponse.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
+
             const user = GetUserData(data.user);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
             this.setState({ redirect: true });
         } catch (error) {
-            const data = error.response.data;
-            const message = data.message;
-            this.setState({
-                modalMessage: message,
-                modalTitle: "Sign in has failed",
-                modalVisible: true
-            });
+            this.setCatch(error);
         } finally {
-            this.setState({
-                spin: false,
-            });
+            this.setFinally();
         }
-
-    }
+    };
 
     modalOk = (e) => {
-        this.setState({ modalVisible: false });
-    }
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                visible: false
+            }
+        }));
+    };
+
     modalCancel = (e) => {
-        this.setState({ modalVisible: false });
-    }
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                visible: false
+            }
+        }));
+    };
+
     render() {
-        const { spin, modalVisible, modalMessage, modalTitle } = this.state;
-        const modal =
-            <ModalWithMessage
-                modalTitle={modalTitle}
-                modalVisible={modalVisible}
-                modalOk={this.modalOk}
-                modalCancel={this.modalCancel}
-                modalMessage={modalMessage} />;
+        const { spin, modal } = this.state;
+
+        const modalWindow = ModalWithMessage(modal);
 
         const spinner = <Space size="middle"> <Spin tip="Signing you in..." size="large" /></Space>;
 
@@ -136,7 +145,7 @@ class LoginComponent extends Component {
             <>
                 {spin === true && spinner}
                 {spin === false && login}
-                {modalVisible === true && modal}
+                {modal.visible === true && modalWindow}
             </>
         )
     }
