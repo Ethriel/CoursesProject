@@ -1,43 +1,74 @@
-﻿using Infrastructure.DbContext;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
 using System;
+using System.Collections;
 using System.Linq;
 
 namespace Infrastructure.Helpers
 {
     public class UpdateHelper<T> where T : class
     {
-        public static T Update(CoursesSystemDbContext context, T oldEntity, T newEntity)
+        /// <summary>
+        /// Update values of properties of <paramref name="oldEntity"/> with new values of properties of <paramref name="newEntity"/>
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="oldEntity"></param>
+        /// <param name="newEntity"></param>
+        /// <returns></returns>
+        public static T Update(IModel model, T oldEntity, T newEntity)
         {
-            var type = UnProxy(context, newEntity.GetType());
-            var properties = type.GetProperties();
+            // get the original type
+            var originalType = UnProxy(model, newEntity.GetType());
+
+            // get all properties
+            var properties = originalType.GetProperties();
+
+            // get only needed properties
             var filteredProperties = properties.Where(x => x.DeclaringType
                                                             .Namespace
                                                             .Equals("Infrastructure.Models"));
-            object propValue = null;
+            var oldType = oldEntity.GetType();
+
+            object oldValue = null;
+            object newValue = null;
+
             var propName = "";
             foreach (var property in filteredProperties)
             {
                 propName = property.Name;
-                propValue = type.GetProperty(propName)
-                                .GetValue(newEntity);
+                oldValue = oldType.GetProperty(propName)
+                                  .GetValue(oldEntity);
 
-                property.SetValue(oldEntity, propValue);
+                newValue = originalType.GetProperty(propName)
+                                       .GetValue(newEntity);
+
+                if (!oldValue.Equals(newValue) && !(oldValue is ICollection))
+                {
+                    property.SetValue(oldEntity, newValue);
+                }
             }
             return oldEntity;
         }
-        private static Type UnProxy(CoursesSystemDbContext context, Type type)
+
+        /// <summary>
+        /// Get the original type of old entity which equals the <paramref name="type"/> of new one
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private static Type UnProxy(IModel model, Type type)
         {
-            var entityTypes = context.Model.GetEntityTypes();
-            Type tmp = null;
+            // get all entity types from db context
+            var entityTypes = model.GetEntityTypes();
+            Type originalType = null;
             foreach (var entityType in entityTypes)
             {
-                tmp = entityType.ClrType;
-                if (tmp.Name.Equals(type.Name))
+                originalType = entityType.ClrType;
+                if (originalType.Name.Equals(type.Name))
                 {
                     break;
                 }
             }
-            return tmp;
+            return originalType;
         }
     }
 }

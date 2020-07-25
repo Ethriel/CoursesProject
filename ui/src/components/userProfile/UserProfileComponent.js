@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Spin, Space } from 'antd';
 import UserInfoContainer from './UserInfoContainer';
 import MainContainer from '../common/ContainerComponent';
 import UserCoursesContainer from './UserCoursesContainer';
 import SetLocalStorage from '../../helpers/setDataToLocalStorage';
 import ModalWithMessage from '../common/ModalWithMessage';
 import SetModalData from '../../helpers/SetModalData';
-import GetUserData from '../../helpers/GetUserData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
+import ValidateEmail from '../../helpers/ValidateEmail';
 
 function UserProfileComponent(props) {
     const id = +localStorage.getItem("current_user_id");
@@ -33,17 +33,6 @@ function UserProfileComponent(props) {
         valid: false,
         changed: false
     });
-
-    const setCatch = error => {
-        const modalData = SetModalData(error);
-        setModalState(old => ({
-            ...old, ...{
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
-    };
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
@@ -71,8 +60,17 @@ function UserProfileComponent(props) {
     const changeField = (field, value) => {
         setUser(old => ({ ...old, [field]: value }));
         if (field === "email") {
-            localStorage.setItem("new_email", value);
-            setEmailState(old => ({ ...old, ...{ changed: true } }));
+            try {
+                if (ValidateEmail(value)) {
+                    localStorage.setItem("new_email", value);
+                    setEmailState(old => ({ ...old, ...{ changed: true } }));
+                }
+                else {
+                    throw new Error("Invalid email input");
+                }
+            } catch (error) {
+                setCatch(error)
+            }
         }
         else {
             setFieldChanged(true);
@@ -88,29 +86,46 @@ function UserProfileComponent(props) {
             anyFieldChanged: fieldChanged
         };
         try {
+            // if email was changed - make a request to verify new email
+            if (emailState.changed === true) {
+                const email = localStorage.getItem("new_email");
+                const verifyResponse = await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
 
-            const email = localStorage.getItem("new_email");
-            const verifyResponse = await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
+                setEmailState(old => ({ ...old, ...{ valid: true } }));
 
-            setEmailState(old => ({ ...old, ...{ valid: true } }));
+                setModalState(old => ({
+                    ...old, ...{
+                        message: "Confirm your new email, please",
+                        errors: "A confirm message was sent to your email. Follow the instructions",
+                        visible: true
+                    }
+                }));
+            }
 
-            setModalState(old => ({
-                ...old, ...{
-                    message: "Confirm your new email, please",
-                    errors: "A confirm message was sent to your email. Follow the instructions",
-                    visible: true
-                }
-            }));
+            // if user data was changed - send an update request
+            if (fieldChanged === true || emailState.changed === true) {
+                const response = await MakeRequestAsync("account/update", data, "post", signal.token);
+                const userData = response.data.data;
+                setUser(userData);
+            }
 
-            const response = await MakeRequestAsync("account/update", data, "post", signal.token);
-            const userData = response.data.data;
-            setUser(userData);
         } catch (error) {
             setCatch(error);
         } finally {
             setIsloading(false);
         }
     }
+
+    const setCatch = error => {
+        const modalData = SetModalData(error);
+        setModalState(old => ({
+            ...old, ...{
+                message: modalData.message,
+                errors: modalData.errors,
+                visible: true
+            }
+        }));
+    };
 
     const closeDrawer = () => {
         setShowDrawer(false);
@@ -126,9 +141,9 @@ function UserProfileComponent(props) {
         <>
             <Button type="primary" onClick={openDrawer}
                 style={{ width: 150, alignSelf: "flex-end" }}>
-                Open user info
+                Open profile info
           </Button>
-            <Drawer title="User info"
+            <Drawer title="Your profile info"
                 width={400}
                 placement="left"
                 closable={true}
@@ -139,11 +154,14 @@ function UserProfileComponent(props) {
             <UserCoursesContainer userId={id} />
         </>;
 
-    const mainContainerClasses = ["display-flex", "width-100", "col-flex"];
+    const spinner = <Space size="middle"> <Spin tip="Getting your data..." size="large" /></Space>;
+
+    const mainContainerClasses = ["display-flex", "width-100", "col-flex", "center-flex"];
 
     return (
         <MainContainer classes={mainContainerClasses}>
-            {content}
+            {isLoading === true && spinner}
+            {isLoading === false && content}
             {emailState.valid === true && emailState.changed === true && modalState.visible === true && modalWindow}
             {emailState.valid === false && modalState.visible === true && modalWindow}
         </MainContainer>

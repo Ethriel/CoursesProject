@@ -225,7 +225,8 @@ namespace ServicesAPI.Services.Implementations
                 {
                     var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
 
-                    user = UpdateHelper<SystemUser>.Update(context, user, newUser);
+                    user = UpdateHelper<SystemUser>.Update(context.Model, user, newUser);
+
                     await context.SaveChangesAsync();
                 }
 

@@ -54,7 +54,7 @@ namespace Infrastructure.DAL.Repositories
 
         public void Update(TrainingCourse oldEntity, TrainingCourse newEntity)
         {
-            oldEntity = UpdateHelper<TrainingCourse>.Update(context, oldEntity, newEntity);
+            oldEntity = UpdateHelper<TrainingCourse>.Update(context.Model, oldEntity, newEntity);
         }
     }
 }

@@ -59,5 +59,12 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+        [HttpGet("check/{userId}/{courseId}")]
+        public async Task<IActionResult> CheckCourse(int userId, int courseId)
+        {
+            var result = await coursesService.CheckCourseAsync(userId, courseId);
+
+            return this.GetActionResult(result, logger);
+        }
     }
 }

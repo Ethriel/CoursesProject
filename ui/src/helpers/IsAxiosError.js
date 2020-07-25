@@ -1,5 +1,5 @@
 const IsAxiosError = (error) => {
-    if (error.response || error.request) {
+    if (error.isAxiosError) {
         return true;
     }
     return false;

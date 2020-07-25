@@ -7,6 +7,7 @@ using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Implementations
@@ -21,6 +22,60 @@ namespace ServicesAPI.Services.Implementations
             this.context = context;
             this.mapperWrapper = mapperWrapper;
         }
+
+        public async Task<ApiResult> CheckCourseAsync(int userId, int courseId)
+        {
+            var result = new ApiResult();
+
+            var user = await context.SystemUsers
+                                    .FindAsync(userId);
+            // find user
+            if (user == null)
+            {
+                var message = "Unable to fetch course data";
+                var errors = new string[] { "User not found" };
+                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+            }
+            else
+            {
+                // find course
+                var course = await context.TrainingCourses
+                                          .FindAsync(courseId);
+
+                if (course == null)
+                {
+                    var message = "Unable to fetch course data";
+                    var errors = new string[] { "Course not found" };
+                    result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                }
+                else
+                {
+                    // check if user has course
+                    var userCourse = user.SystemUsersTrainingCourses
+                                         .FirstOrDefault(x => x.TrainingCourseId
+                                                               .Equals(courseId));
+
+                    var courseData = new CourseData();
+
+                    // set course data
+                    if (userCourse == null)
+                    {
+                        courseData.IsPresent = false;
+                    }
+                    else
+                    {
+                        courseData.IsPresent = true;
+                        courseData.StudyDate = userCourse.StudyDate
+                                                         .ToShortDateString();
+                    }
+
+                    result.SetApiResult(ApiResultStatus.Ok, data: courseData);
+                }
+            }
+
+            return result;
+        }
+
         public async Task<ApiResult> GetAllCoursesAsync()
         {
             var result = new ApiResult();
@@ -53,8 +108,9 @@ namespace ServicesAPI.Services.Implementations
 
             if (course == null)
             {
-                var message = $"Course with id = {id} was not found";
-                result.SetApiResult(ApiResultStatus.NotFound, message, message: message);
+                var message = "Course not found";
+                var errors = new string[] { $"Course with id = {id} was not found" };
+                result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
             }
             else
             {
@@ -92,8 +148,8 @@ namespace ServicesAPI.Services.Implementations
                                         .GetTake();
 
             var coursesData = await context.TrainingCourses
-                                 .GetPortionOfQueryable(skip, take)
-                                 .ToArrayAsync();
+                                           .GetPortionOfQueryable(skip, take)
+                                           .ToArrayAsync();
 
             var courses = mapperWrapper.MapCollectionFromEntities(coursesData);
 

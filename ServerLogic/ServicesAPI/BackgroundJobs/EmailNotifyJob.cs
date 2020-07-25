@@ -58,7 +58,7 @@ namespace ServicesAPI.BackgroundJobs
             var days = (studyDate - notifyDate).TotalDays;
             messageBody ??= $"in {days} at {studyDate.ToShortDateString()}";
             var message = string.Format(STANDARD_MESSAGE, title, messageBody);
-            notifyDate.AddHours(8);
+            notifyDate = notifyDate.AddHours(8);
             backgroundJobClient.Schedule<ISendEmailService>((x) => x.SendEmail(email, SUBJECT, message), notifyDate);
         }
     }

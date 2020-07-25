@@ -11,5 +11,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> GetForPage(int skip, int take);
         Task<ApiResult> GetById(int id);
         Task<ApiResult> GetPagedAsync(CoursesPagination coursesPagination);
+        Task<ApiResult> CheckCourseAsync(int userId, int courseId);
     }
 }

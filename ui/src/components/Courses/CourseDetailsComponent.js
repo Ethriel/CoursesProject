@@ -1,38 +1,88 @@
 import React, { Component } from 'react';
-import { Typography, DatePicker } from 'antd';
+import { Spin, Space } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import Container from '../common/ContainerComponent';
-import H from '../common/HAntD';
-import ButtonComponent from '../common/ButtonComponent';
 import moment from 'moment';
-
-const { Paragraph } = Typography;
+import GetModalPresentation from '../../helpers/GetModalPresentation';
+import ModalWithMessage from '../common/ModalWithMessage';
+import CourseContainer from './CourseContainer';
+import axios from 'axios';
+import SetModalData from '../../helpers/SetModalData';
 
 class CourseDetailsComponent extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            id: props.match.params.id,
-            course: null,
+            course: {
+                id: props.match.params.id,
+                course: null,
+                isPresent: false
+            },
             isLoading: true,
             plug: { title: "", cover: "", description: "" },
-            selectedDate: ""
+            selectedDate: "",
+            modal: GetModalPresentation(this.modalOk, this.modalCancel)
         }
-        this.handleConfirm = this.handleConfirm.bind(this);
     }
 
-    async componentDidMount() {
-        const response = await MakeRequestAsync(`courses/get/${this.state.id}`, { msg: "hello" }, "get");
-        const course = response.data;
-        this.setState({
-            course: course,
-            isLoading: false
-        });
-    }
+    getCourse = async (token) => {
+        try {
+            const response = await MakeRequestAsync(`courses/get/${this.state.course.id}`, { msg: "hello" }, "get", token);
+            const course = response.data.data;
+            this.setState(old => ({
+                course: {
+                    ...old.course,
+                    course: course
+                }
+            }));
+        } catch (error) {
+            this.setCatch(error);
+        } finally {
+            this.setFinally();
+        }
 
-    async handleConfirm() {
+    }
+    checkCourse = async (token) => {
         const userId = localStorage.getItem("current_user_id");
-        const courseId = this.state.id;
+        const courseId = this.state.course.id;
+        try {
+            const response = await MakeRequestAsync(`courses/check/${userId}/${courseId}`, { msg: "hello" }, "get", token);
+            const data = response.data.data;
+            const isPresent = data.isPresent;
+            const studyDate = data.studyDate;
+            this.setState(old => ({
+                course: {
+                    ...old.course,
+                    isPresent: isPresent,
+                    studyDate: data.studyDate
+                }
+            }));
+            if (isPresent === true) {
+                this.setState(old => ({
+                    modal: {
+                        ...old.modal,
+                        message: `You already have this course in your list. Start at ${studyDate}`,
+                        visible: true
+                    }
+                }));
+            }
+
+        } catch (error) {
+            this.setCatch(error);
+        } finally {
+            this.setFinally();
+        }
+
+    }
+    componentDidMount = async () => {
+        const signal = axios.CancelToken.source();
+        await this.checkCourse(signal.token);
+        await this.getCourse(signal.token);
+    }
+
+    handleConfirm = async () => {
+        this.setState({isLoading: true});
+        const userId = localStorage.getItem("current_user_id");
+        const courseId = this.state.course.id;
         const date = this.state.selectedDate;
         const data = {
             systemUserId: userId,
@@ -42,7 +92,9 @@ class CourseDetailsComponent extends Component {
         try {
             const response = await MakeRequestAsync("UserCourses/add", data, "post");
         } catch (error) {
-            console.log(error);
+            this.setCatch(error);
+        } finally{
+            this.setFinally();
         }
     }
 
@@ -50,46 +102,70 @@ class CourseDetailsComponent extends Component {
         this.setState({
             selectedDate: dateString
         });
-    }
+    };
 
     disabledDate = current => {
         const start = moment();
         return current < start;
+    };
+
+    modalOk = (e) => {
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                visible: false
+            }
+        }));
+    };
+
+    modalCancel = (e) => {
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                visible: false
+            }
+        }));
+    };
+
+    setCatch = (error) => {
+        const modalData = SetModalData(error);
+        this.setState(oldState => ({
+            modal: {
+                ...oldState.modal,
+                message: modalData.message,
+                errors: modalData.errors
+            }
+        }));
+    };
+
+    setFinally = () => {
+        this.setState({ isLoading: false });
     }
 
     render() {
-        const classNameContainer = ["display-flex", "col-flex", "center-flex", "width-75", "center-a-div"];
-        const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
-        const { title, cover, description } = this.state.isLoading ? this.state.plug : this.state.course;
-        const isDateSelected = this.state.selectedDate !== "" && this.state.selectedDate !== null;
+        const { isLoading, course, selectedDate, modal, plug } = this.state;
+        const isDateSelected = selectedDate !== "" && selectedDate !== null;
+        const courseData = course.course === null ? plug : course.course;
+        const isPresent = course.isPresent;
+        const spinner = <Space size="middle"> <Spin tip="Getting course data..." size="large" /></Space>;
+        const modalWindow = ModalWithMessage(modal);
         return (
             <>
+                {isLoading === true && spinner}
+                {modal.visible === true && modalWindow}
                 {
-                    !this.state.isLoading &&
-                    <Container classes={classNameContainer}>
-                        <H myText={title} level={3} />
-                        <img
-                            style={{ margin: "0 auto" }}
-                            alt="No"
-                            src={`https://localhost:44382/${cover}`} />
-                        <Paragraph>
-                            {description}
-                        </Paragraph>
-                        <Container classes={classNameConfirm}>
-                            <DatePicker
-                                format='DD/MM/YYYY'
-                                onChange={this.handleDateChange}
-                                disabledDate={this.disabledDate} />
-                            {
-                                isDateSelected &&
-                                <ButtonComponent size="medium" myHandler={this.handleConfirm} myText="Select course" />
-                            }
-                        </Container>
-                    </Container>
+                    isLoading === false &&
+                    <CourseContainer
+                        isPresent={isPresent}
+                        course={courseData}
+                        isDateSelected={isDateSelected}
+                        handleDateChange={this.handleDateChange}
+                        disabledDate={this.disabledDate}
+                        handleConfirm={this.handleConfirm}
+                    />
                 }
             </>
-
-        );
+        )
     };
 };
 

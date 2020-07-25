@@ -10,7 +10,7 @@ const GetModalErrorContainer = (errors) => {
     const paragraphs = [];
     if (errors.length > 0) {
         paragraphs.push(
-            <Paragraph key={getKey()}>Erorrs:</Paragraph>
+            <Paragraph key={getKey()}>Errors:</Paragraph>
         );
         
         const errosParagraphs = errors.map((error) => {

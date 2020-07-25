@@ -55,7 +55,7 @@ namespace Infrastructure.DAL.Repositories
 
         public void Update(SystemUser oldEntity, SystemUser newEntity)
         {
-            oldEntity = UpdateHelper<SystemUser>.Update(context, oldEntity, newEntity);
+            oldEntity = UpdateHelper<SystemUser>.Update(context.Model, oldEntity, newEntity);
         }
     }
 }

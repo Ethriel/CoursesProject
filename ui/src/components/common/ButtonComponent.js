@@ -10,7 +10,8 @@ const ButtonComponent = props => {
             size={props.mySize}
             // style={{backgroundColor: props.myBgColor}}
             onClick={props.myHandler}
-            style={{maxWidth: 150}}>
+            disabled={props.disabled}
+            style={{ maxWidth: 150 }}>
             {props.myText}
         </Button>
     );
