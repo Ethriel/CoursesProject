@@ -80,7 +80,7 @@ class CourseDetailsComponent extends Component {
     }
 
     handleConfirm = async () => {
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
         const userId = localStorage.getItem("current_user_id");
         const courseId = this.state.course.id;
         const date = this.state.selectedDate;
@@ -93,7 +93,7 @@ class CourseDetailsComponent extends Component {
             const response = await MakeRequestAsync("UserCourses/add", data, "post");
         } catch (error) {
             this.setCatch(error);
-        } finally{
+        } finally {
             this.setFinally();
         }
     }
@@ -133,7 +133,8 @@ class CourseDetailsComponent extends Component {
             modal: {
                 ...oldState.modal,
                 message: modalData.message,
-                errors: modalData.errors
+                errors: modalData.errors,
+                visible: true
             }
         }));
     };

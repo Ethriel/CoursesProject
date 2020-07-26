@@ -9,14 +9,41 @@ import Container from '../common/ContainerComponent';
 import H from '../common/HAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
+import SetModalData from '../../helpers/SetModalData';
+import ModalWithMessage from '../common/ModalWithMessage';
+import GetModalPresentation from '../../helpers/GetModalPresentation';
 
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
 
-function AdminTable() {
+const AdminTable = () => {
+    const modalOk = (e) => {
+        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
+    };
+
+    const modalCancel = (e) => {
+        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
+    };
+
+    const setCatch = (error) => {
+        const modalData = SetModalData(error);
+        setModal(oldModal => ({
+            ...oldModal, ...{
+                message: modalData.message,
+                errors: modalData.errors,
+                visible: true
+            }
+        }));
+    };
+
+    const setFinally = () => {
+        setLoading(false);
+    }
+
     const [table, setTable] = useState({});
     const [loading, setLoading] = useState(true);
     const [paginationState, setPaginationState] = useState();
+    const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
     async function getUsers(token) {
         try {
@@ -43,9 +70,9 @@ function AdminTable() {
             }
 
         } catch (error) {
-            console.log(error);
+            setCatch(error);
         } finally {
-            setLoading(false);
+            setFinally();
         }
     }
 
@@ -68,6 +95,13 @@ function AdminTable() {
         setLoading(true);
         const signal = axios.CancelToken.source();
 
+        const newPagination = {
+            page: pagination.current,
+            pageSize: pagination.pageSize,
+            position: pagination.position,
+            total: pagination.total
+        }
+
         const searchValue = localStorage.getItem("search_value");
         const isSearch = searchValue !== "" && searchValue !== null && searchValue !== undefined;
 
@@ -79,26 +113,24 @@ function AdminTable() {
         const searchAndSort = {
             searchField: searchValue,
             sort: sorting,
-            pagination: pagination,
+            pagination: newPagination,
             isSearch: isSearch
         };
 
         try {
             const response = await MakeRequestAsync(url, searchAndSort, "post", signal.token);
 
-            if (response.status === 200) {
-                const data = response.data;
-                const pagination = data.pagination;
-                const users = data.users;
+            const data = response.data.data;
+            const responsePagination = data.pagination;
+            const users = data.users;
 
-                setPaginationState(pagination);
-                setTable({ columns: getTableCols(), data: getTableData(users) });
-            }
+            setPaginationState(responsePagination);
+            setTable({ columns: getTableCols(), data: getTableData(users) });
 
         } catch (error) {
-            console.log(error);
+            setCatch(error);
         } finally {
-            setLoading(false);
+            setFinally();
         }
     };
 
@@ -112,7 +144,7 @@ function AdminTable() {
                 return <Table />
             }
         } catch (error) {
-            console.log(error);
+            setCatch(error);
         }
     };
 
@@ -136,15 +168,20 @@ function AdminTable() {
                 pagination: paginationState
             };
 
-            const response = await MakeRequestAsync(url, searchAndSort, "post", signal.token);
-            if (response.status === 200) {
-                const data = response.data;
+            try {
+                const response = await MakeRequestAsync(url, searchAndSort, "post", signal.token);
+                const data = response.data.data;
                 const users = data.users;
                 const pagination = data.pagination;
 
                 setPaginationState(pagination);
                 setTable({ columns: getTableCols(), data: getTableData(users) });
+            } catch (error) {
+                setCatch(error);
+            } finally {
+                setFinally();
             }
+
         }
         else {
             // if search criteria is empty - get all users
@@ -155,28 +192,31 @@ function AdminTable() {
 
     const outerContainerClasses = ["display-flex", "col-flex"];
     const innerContainerClasses = ["width-30", "display-flex", "mb-25px"];
+    const modalWindow = ModalWithMessage(modal);
 
     return (
-        <Container classes={outerContainerClasses}>
-            <H level={2} myText="Admin table" />
-            <Container classes={innerContainerClasses}>
-                <Search
-                    placeholder="Enter search criteria"
-                    onSearch={onSearchHandler}
-                    allowClear={true}
-                    enterButton />
+        <>
+            {modal.visible === true && modalWindow}
+            <Container classes={outerContainerClasses}>
+                <H level={2} myText="Admin table" />
+                <Container classes={innerContainerClasses}>
+                    <Search
+                        placeholder="Enter search criteria"
+                        onSearch={onSearchHandler}
+                        allowClear={true}
+                        enterButton />
+                </Container>
+                <Table
+                    className="components-table-demo-nested"
+                    columns={table.columns}
+                    expandedRowRender={expandedRowRender}
+                    dataSource={table.data}
+                    loading={loading}
+                    pagination={paginationState}
+                    onChange={handleChange}
+                />
             </Container>
-            <Table
-                className="components-table-demo-nested"
-                columns={table.columns}
-                expandedRowRender={expandedRowRender}
-                dataSource={table.data}
-                loading={loading}
-                pagination={paginationState}
-                onChange={handleChange}
-            />
-        </Container>
-
+        </>
     )
 };
 

@@ -16,18 +16,16 @@ const NestedTable = (props) => {
                 // getting courses
                 const data = { msg: "Hello" };
                 const response = await MakeRequestAsync(`UserCourses/get/${userId}`, data, "get", signal.token);
-                if (response.status === 200) {
-                    const coursesData = response.data;
-                    const data = [];
+                const coursesData = response.data.data;
+                    const info = [];
                     let obj = {};
                     for (let c of coursesData) {
                         obj = getNestedData(c);
-                        data.push(obj);
+                        info.push(obj);
                     };
-                    setState(oldState => ({ ...oldState, ...{ data: data } }));
-                }
+                    setState(oldState => ({ ...oldState, ...{ data: info } }));
             } catch (error) {
-                console.log(error)
+                throw error;
             }
             finally {
                 setLoading(false);
