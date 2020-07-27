@@ -29,6 +29,16 @@ namespace ServicesAPI.Services.Implementations
 
             await SendConfirmEmailAsync(clientRoute, token, email);
         }
+        public async Task SendResetPasswordData(string token, string email)
+        {
+            var subject = "Reset password";
+            var client = configuration["client"];
+            var clientRoute = "resetPassword";
+            var callbackUrl = $"{client}/{clientRoute}?token={token}&email={email}";
+            var message = GetResetPasswordMessage(callbackUrl);
+
+            await sendEmail.SendEmailAsync(email, subject, message);
+        }
 
         public void SendNotifyMessage(string email, string courseDetails)
         {
@@ -59,7 +69,17 @@ namespace ServicesAPI.Services.Implementations
 
         private string GetConfirmMessage(string callbackUrl)
         {
-            return $"Confirm your email, please, by clicking on the link: <a href='{callbackUrl}'>Confirm</a>";
+            var link = GetLink(callbackUrl, "Confirm");
+            return $"Confirm your email, please, by clicking on the link: {link}";
+        }
+        private string GetResetPasswordMessage(string callbackUrl)
+        {
+            var link = GetLink(callbackUrl, "Reset");
+            return $"Reset your password by clicking the link: {link}";
+        }
+        private string GetLink(string callbackUrl, string message)
+        {
+            return $"<a href='{callbackUrl}'>{message}</a>";
         }
     }
 }

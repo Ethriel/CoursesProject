@@ -12,11 +12,13 @@ import axios from 'axios';
 import SetModalData from '../../helpers/SetModalData';
 import ModalWithMessage from '../common/ModalWithMessage';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
+import { withRouter } from "react-router";
+import { useStore } from 'react-redux';
 
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
 
-const AdminTable = () => {
+const AdminTable = (props) => {
     const modalOk = (e) => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
@@ -76,19 +78,29 @@ const AdminTable = () => {
         }
     }
 
+    const store = useStore();
+
     useEffect(() => {
+        const storeState = store.getState();
+        const userRole = storeState.userRoleReducer.role;
         const signal = axios.CancelToken.source();
-
-        async function fetchData() {
-            await getUsers(signal.token);
+        if (userRole !== "ADMIN") {
+            props.history.push("/admin/notAdmin");
         }
+        else {
 
-        fetchData();
+            async function fetchData() {
+                await getUsers(signal.token);
+            }
+
+            fetchData();
+        }
 
         return function cleanup() {
             signal.cancel("CANCEL IN GET USERS");
         }
     }, []);
+
 
     // handles changes in sorting and pagination
     const handleChange = async (pagination, filters, sorter) => {
@@ -193,7 +205,6 @@ const AdminTable = () => {
     const outerContainerClasses = ["display-flex", "col-flex"];
     const innerContainerClasses = ["width-30", "display-flex", "mb-25px"];
     const modalWindow = ModalWithMessage(modal);
-
     return (
         <>
             {modal.visible === true && modalWindow}
@@ -220,4 +231,4 @@ const AdminTable = () => {
     )
 };
 
-export default AdminTable;
+export default withRouter(AdminTable);

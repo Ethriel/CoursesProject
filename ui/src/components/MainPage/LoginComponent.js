@@ -14,6 +14,7 @@ import ModalWithMessage from '../common/ModalWithMessage';
 import SetModalData from '../../helpers/SetModalData';
 import GetFacebookData from './GetFacebookData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
+import { connect } from 'react-redux';
 
 class LoginComponent extends Component {
     constructor(props) {
@@ -45,6 +46,9 @@ class LoginComponent extends Component {
     setFinally = () => {
         this.setState({ spin: false });
     }
+    changeRole = role => {
+        this.props.onRoleChange(role);
+    };
 
     confirmHandler = async values => {
         this.setState({ spin: true });
@@ -57,13 +61,12 @@ class LoginComponent extends Component {
             const cancelToken = axios.CancelToken.source().token;
 
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
-            console.log(response);
             const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
-
             const user = GetUserData(data.user);
-
+            
+            this.changeRole(role);
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
             console.log("All good");
@@ -151,4 +154,18 @@ class LoginComponent extends Component {
     }
 }
 
-export default LoginComponent;
+export default connect(
+    state => ({
+        store: state
+    }),
+    dispatch => ({
+        onRoleChange: (role) => {
+            dispatch({
+                type: "SET_ROLE",
+                payload: {
+                    role: role
+                },
+            })
+        }
+    })
+)(LoginComponent);

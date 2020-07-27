@@ -162,6 +162,40 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
+        public async Task<ApiResult> SignOutAsync(EmailWrapper emailWrapper)
+        {
+            var result = new ApiResult();
+
+            var email = emailWrapper.Email;
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var message = "User not found";
+                var errors = new string[] { $"User {email} not found" };
+
+                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+            }
+            else
+            {
+                var stampResult = await userManager.UpdateSecurityStampAsync(user);
+
+                if (stampResult.Succeeded)
+                {
+                    await signInManager.SignOutAsync();
+                    result.SetApiResult(ApiResultStatus.Ok);
+                }
+                else
+                {
+                    var message = "Sign out error";
+                    var errors = GetIdentityErrors(stampResult.Errors);
+                    result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                }
+
+            }
+            return result;
+        }
 
         public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser)
         {
@@ -252,6 +286,75 @@ namespace ServicesAPI.Services.Implementations
             else
             {
                 result.SetApiResult(ApiResultStatus.Ok, data: new { varified = true });
+            }
+
+            return result;
+        }
+        public async Task<ApiResult> ResetPasswordAsync(ResetPasswordData resetPasswordData)
+        {
+            var result = new ApiResult();
+
+            var email = resetPasswordData.Email;
+            var token = resetPasswordData.Token;
+            var password = resetPasswordData.Password;
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var message = "User not found";
+                var errors = new string[] { $"User {email} not found" };
+
+                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+            }
+            else
+            {
+                var resetResult = await userManager.ResetPasswordAsync(user, token, password);
+
+                if (resetResult.Succeeded)
+                {
+                    var message = "Password was reseted. Use your new password to sign in";
+
+                    result.SetApiResult(ApiResultStatus.Ok, message: message);
+                }
+                else
+                {
+                    var message = "Password reset error";
+                    var errors = GetIdentityErrors(resetResult.Errors);
+
+                    result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<ApiResult> ForgotPasswordAsync(EmailWrapper emailWrapper)
+        {
+            var result = new ApiResult();
+
+            var email = emailWrapper.Email;
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var message = "User not found";
+                var errors = new string[] { $"User {email} not found" };
+
+                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+            }
+            else
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+                token = token.Replace("+", "%2B");
+
+                await emailService.SendResetPasswordData(token, email);
+
+                var message = "A confirm token was sent to your email. Follow the instructions";
+
+                result.SetApiResult(ApiResultStatus.Ok, message: message);
             }
 
             return result;
@@ -426,5 +529,7 @@ namespace ServicesAPI.Services.Implementations
             var errors = errorsCollection.Select(x => x.Description);
             return errors;
         }
+
+        
     }
 }

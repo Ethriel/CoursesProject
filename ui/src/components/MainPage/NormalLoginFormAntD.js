@@ -3,11 +3,15 @@ import 'antd/dist/antd.css';
 import '../../index.css';
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-
+import { withRouter } from "react-router";
 
 const NormalLoginForm = (props) => {
     const confirHandler = props.myConfirHandler;
     const forgetRef = props.myForgetRef;
+
+    const forgotClick = (event) =>{
+        props.history.push("/forgotPassword");
+    }
 
     return (
         <Form
@@ -49,7 +53,7 @@ const NormalLoginForm = (props) => {
                     <Checkbox>Remember me</Checkbox>
                 </Form.Item>
 
-                <a className="login-form-forgot" href={forgetRef}>
+                <a className="login-form-forgot" onClick={forgotClick} href={forgetRef}>
                     Forgot password
           </a>
             </Form.Item>
@@ -63,4 +67,4 @@ const NormalLoginForm = (props) => {
     );
 };
 
-export default NormalLoginForm;
+export default withRouter(NormalLoginForm);

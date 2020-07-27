@@ -52,6 +52,11 @@ namespace ServerAPI.Extensions
                     .AddEntityFrameworkStores<CoursesSystemDbContext>()
                     .AddDefaultTokenProviders();
 
+            services.Configure<SecurityStampValidatorOptions>(options =>
+            {
+                options.ValidationInterval = TimeSpan.FromMinutes(5);
+            });
+
             AddAuthenticationServices(services, configuration);
 
             AddCorsServices(services, configuration);

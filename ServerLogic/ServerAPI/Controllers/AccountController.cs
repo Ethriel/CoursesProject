@@ -38,6 +38,13 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+        [HttpPost("signout")]
+        public async Task<IActionResult> SignOut(EmailWrapper emailWrapper)
+        {
+            var result = await accountService.SignOutAsync(emailWrapper);
+
+            return this.GetActionResult(result, logger);
+        }
         [HttpPost("signin-facebook")]
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUser facebookUser)
         {
@@ -70,6 +77,20 @@ namespace ServerAPI.Controllers
         public async Task<IActionResult> VerifyEmail(string email)
         {
             var result = await accountService.VerifyEmailAsync(email);
+
+            return this.GetActionResult(result, logger);
+        }
+        [HttpPost("forgotPassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] EmailWrapper emailWrapper)
+        {
+            var result = await accountService.ForgotPasswordAsync(emailWrapper);
+
+            return this.GetActionResult(result, logger);
+        }
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordData resetPasswordData)
+        {
+            var result = await accountService.ResetPasswordAsync(resetPasswordData);
 
             return this.GetActionResult(result, logger);
         }
