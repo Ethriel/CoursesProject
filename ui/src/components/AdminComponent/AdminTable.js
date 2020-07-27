@@ -15,6 +15,7 @@ import GetModalPresentation from '../../helpers/GetModalPresentation';
 import { withRouter } from "react-router";
 import { useStore } from 'react-redux';
 
+
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
 
@@ -47,6 +48,14 @@ const AdminTable = (props) => {
     const [paginationState, setPaginationState] = useState();
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
+    const editClick = record => {
+        console.log(record);
+    }
+
+    const getCols = () => {
+        return getTableCols(editClick);
+    }
+
     async function getUsers(token) {
         try {
             const sorting = {
@@ -68,7 +77,7 @@ const AdminTable = (props) => {
                 const pagination = respData.pagination;
                 const users = respData.users;
                 setPaginationState(pagination);
-                setTable({ columns: getTableCols(), data: getTableData(users) });
+                setTable({ columns: getCols(), data: getTableData(users) });
             }
 
         } catch (error) {
@@ -137,7 +146,7 @@ const AdminTable = (props) => {
             const users = data.users;
 
             setPaginationState(responsePagination);
-            setTable({ columns: getTableCols(), data: getTableData(users) });
+            setTable({ columns: getCols(), data: getTableData(users) });
 
         } catch (error) {
             setCatch(error);
@@ -187,7 +196,7 @@ const AdminTable = (props) => {
                 const pagination = data.pagination;
 
                 setPaginationState(pagination);
-                setTable({ columns: getTableCols(), data: getTableData(users) });
+                setTable({ columns: getCols(), data: getTableData(users) });
             } catch (error) {
                 setCatch(error);
             } finally {

@@ -15,6 +15,7 @@ import SetModalData from '../../helpers/SetModalData';
 import GetFacebookData from './GetFacebookData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import { connect } from 'react-redux';
+import { SET_ROLE, GET_ROLE } from '../../reducers/reducersActions';
 
 class LoginComponent extends Component {
     constructor(props) {
@@ -161,10 +162,10 @@ export default connect(
     dispatch => ({
         onRoleChange: (role) => {
             dispatch({
-                type: "SET_ROLE",
+                type: SET_ROLE,
                 payload: {
                     role: role
-                },
+                }
             })
         }
     })

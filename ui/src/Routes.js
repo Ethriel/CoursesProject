@@ -11,6 +11,7 @@ import ConfirmEmail from './components/MainPage/confirm/ConfirmEmail';
 import ConfirmChangeEmail from './components/MainPage/confirm/ConfirmChangeEmail';
 import ForgotPassword from './components/MainPage/ForgotPassword';
 import ResetPassword from './components/MainPage/ResetPassword';
+import EditStudent from './components/AdminComponent/EditStudent';
 
 const Routes = () => (
     <Switch>
@@ -19,6 +20,7 @@ const Routes = () => (
         <Route path="/coursedetails/:id" component={CourseDetails} />
         <Route exact path="/aboutus" component={AboutUsComponent} />
         <Route exact path="/admin" component={AdminComponent} />
+        <Route exact path="/admin/editStudent:id" component={EditStudent} />
         <Route exact path="/admin/notAdmin" component={NotAdminPage} />
         <Route exact path="/profile" component={UserProfileComponent} />
         <Route exact path="/forgotPassword" component={ForgotPassword} />

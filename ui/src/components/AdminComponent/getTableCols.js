@@ -1,12 +1,46 @@
-function getTableCols(){
-    return [
-        {title: "Id", dataIndex: "id", key: "id", sorter: true, align: "center"},
-        {title: "First Name", dataIndex: "firstname", key: "firstname", sorter: true, align: "center"},
-        {title: "Last Name", dataIndex: "lastname", key: "lastname", sorter: true, align: "center"},
-        {title: "Age", dataIndex: "age", key: "age", sorter: true, align: "center"},
-        {title: "Email", dataIndex: "email", key: "email", align: "center"},
-        {title: "Registered Date", dataIndex: "registereddate", key: "registereddate", align: "center"}
-    ];
+import React from 'react';
+
+const names = ["Id", "First Name", "Last Name", "Age", "Email", "Registered Date"];
+const indexes = names.map((value) => {
+    let index = value.replace(" ", "");
+    index = index.toLowerCase();
+    return index;
+});
+
+const getCol = (name, index, sorter, editable) => {
+    return {
+        title: name,
+        dataIndex: index,
+        key: index,
+        sorter: sorter,
+        align: "center",
+        editable: editable
+    }
+};
+
+const getTableCols = (editClick) => {
+    const cols = [];
+    let sorter = false;
+    let editable = false;
+    for (let i = 0; i < names.length; i++) {
+        sorter = i < 4 ? true : false;
+        editable = (i === 1 || i === 2 || i === 4) ? true : false;
+        const col = getCol(names[i], indexes[i], sorter, editable);
+        cols.push(col);
+    };
+    cols.push({
+        title: "Action",
+        dataIndex: "action",
+        key: "action",
+        align: "center",
+        render: 
+        (_,record) => {
+            return(
+                <a onClick={() => editClick(record)}>Edit</a>
+            )
+        }
+    })
+    return cols;
 };
 
 export default getTableCols;
