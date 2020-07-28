@@ -3,7 +3,7 @@ import H from '../common/HAntD';
 
 const NotAdminPage = () => {
     return (
-        <H level={3} myText="This page is for administrators ONLY" />
+        <H level={3} myText="You have no acsses to this page" />
     );
 }
 

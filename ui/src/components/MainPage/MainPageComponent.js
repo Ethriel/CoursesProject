@@ -5,7 +5,7 @@ import Reg from './RegistrationComponent';
 import '../../index.css';
 
 function MainPageComponent() {
-  const toggleClasses = ["display-flex", "col-flex", "align-center", "width-100", "height-100"];
+  const toggleClasses = ["display-flex", "col-flex", "align-center", "width-100", "height-100", "justify-center"];
   
   return (
     <Toggle classes={toggleClasses} firstComponent={<Login />} secondComponent={<Reg />} />

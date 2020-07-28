@@ -1,38 +1,48 @@
 import React, { useState } from 'react';
-import '../../index.css';
+import { useStore, useDispatch } from 'react-redux';
+import { withRouter } from "react-router";
+import axios from 'axios';
 import TopMenu from '../common/TopMenuComponent';
 import Container from '../common/ContainerComponent';
-import Avatar from './UserAvatar';
 import headerLogo from '../../img/logo.png';
 import H from '../common/HAntD';
 import ClearLocalStorage from '../../helpers/ClearLocalStorage';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import { withRouter } from "react-router";
-import axios from 'axios';
 import SetModalData from '../../helpers/SetModalData';
-import ModalWithMessage from '../common/ModalWithMessage';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
-import { useStore, useDispatch } from 'react-redux';
+import ModalWithMessage from '../common/ModalWithMessage';
+import { main, courses, aboutUs, admin, userProfile } from '../../Routes/RoutersDirections';
+import { SET_ROLE } from '../../reducers/reducersActions';
+import { ADMIN, UNDEFINED, NULL } from '../common/roles';
+import '../../index.css';
 
 const AppHeaderComponent = (props) => {
     const store = useStore();
     const dispatch = useDispatch();
+
+    // get user's role from redux store
     const getRole = () => {
         const state = store.getState();
         const role = state.userRoleReducer.role;
         return role;
     }
-    getRole();
+
     const role = getRole();
+
+    const isUser = role !== UNDEFINED && role !== NULL;
+
     const subItems = [];
-    subItems.push({ key: 1, text: "Home", to: "/" });
-    if (role !== undefined) {
-        subItems.push({ key: 2, text: "Courses", to: "/courses" });
-        subItems.push({ key: 3, text: "About us", to: "/aboutus" });
-        if (role === "ADMIN") {
-            subItems.push({ key: 4, text: "Admin", to: "/admin" });
+
+    subItems.push({ key: 1, text: "Home", to: main });
+
+    if (isUser) {
+        subItems.push({ key: 2, text: "Courses", to: courses });
+        subItems.push({ key: 3, text: "About us", to: aboutUs });
+        if (role === ADMIN) {
+            subItems.push({ key: 4, text: "Admin", to: admin });
         }
     }
+
     const closeModal = () => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
@@ -46,27 +56,39 @@ const AppHeaderComponent = (props) => {
     };
 
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
-    const containerClasses = ["display-flex", "space-around-flex", "align-center"];
-    const avatarClasses = ["display-flex", "col-flex"];
+    const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
+    const logoTextContainer = ["display-flex", "align-center", "justify-center", "width-90", "max-width-350"];
+    const menuContainer = ["display-flex", "space-around-flex", "align-center", "width-90"];
     const logo = <img src={headerLogo} width={'50px'} height={'50px'} alt="Logo" />
     const headerText = <H level={2} myText="Forge your future with us!" />;
 
     const profileClick = async (event) => {
-        const text = event.item.props.children[1].props.text;
+        const key = event.key;
         const signal = axios.CancelToken.source();
-        if (text === "Sign out") {
+        if (key !== "profile" && key !== "signout") {
+            return;
+        }
+        else if (key === "signout") {
             try {
                 const email = localStorage.getItem("current_user_email");
                 const requestData = {
                     email: email
                 };
-                const response = await MakeRequestAsync("account/signout", requestData, "post", signal.token);
+
+                // sign out user on server
+                await MakeRequestAsync("account/signout", requestData, "post", signal.token);
+
+                // set user role to undefined in redux store
                 dispatch({
-                    type: "SET_ROLE",
-                    payload: { role: undefined }
+                    type: SET_ROLE,
+                    payload: { role: UNDEFINED }
                 });
+
+                // clear local storage
                 ClearLocalStorage();
-                props.history.push("/");
+
+                // redirect to main page
+                props.history.push(main);
             } catch (error) {
                 const modalData = SetModalData(error);
                 setModal(oldModal => ({
@@ -79,8 +101,9 @@ const AppHeaderComponent = (props) => {
                 }));
             }
         }
-        else if (text === "Profile") {
-            props.history.push("/profile");
+        else if (key === "profile") {
+            // redirect user's profile
+            props.history.push(userProfile);
         }
     }
 
@@ -89,14 +112,16 @@ const AppHeaderComponent = (props) => {
     return (
         <>
             {modal.visible === true && modalWindow}
-            <Container classes={containerClasses}>
-                {logo}
-                {headerText}
-                <TopMenu myMenuItems={subItems} />
-                <Container classes={avatarClasses}>
-                    {role !== undefined && <Avatar menuClick={profileClick} />}
+            <Container classes={headerContainer}>
+                <Container classes={logoTextContainer}>
+                    {logo}
+                    {headerText}
+                </Container>
+                <Container classes={menuContainer}>
+                    <TopMenu myMenuItems={subItems} isUser={isUser} menuClick={profileClick} />
                 </Container>
             </Container>
+
         </>
     );
 }

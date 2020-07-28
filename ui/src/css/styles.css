@@ -1,3 +1,25 @@
+html {
+  font-size: calc(10px + 1vmax/100) !important;
+}
+
+h2.ant-typography,
+.ant-typography h2 {
+  font-size: 2.3rem;
+}
+
+h4.ant-typography,
+.ant-typography h4 {
+  font-size: 1.8rem;
+}
+
+.ant-table {
+  font-size: 1.35rem;
+}
+
+.ant-menu-item {
+  font-size: 1.3rem;
+}
+
 .width-100 {
   width: 100%;
 }
@@ -32,6 +54,10 @@
 
 .max-width-300 {
   max-width: 300px;
+}
+
+.max-width-350 {
+  max-width: 350px;
 }
 
 .min-width-150 {
@@ -71,8 +97,12 @@
   align-items: center;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
 .center-a-div {
-  margin: 2% auto;
+  margin: 1.5% auto;
 }
 
 .my-sign-up-form {
@@ -91,7 +121,6 @@
 .header-flex {
   align-items: initial;
 }
-
 .header-flex * {
   margin: 0.5%;
 }
@@ -106,6 +135,14 @@
   width: 100%;
 }
 
+.ant-menu {
+  background-color: transparent;
+}
+
+.ant-form-item {
+  margin: 0 0 8px 0;
+}
+
 .img-card-my {
   width: 100%;
   height: auto;
@@ -115,17 +152,21 @@
   background-color: transparent;
 }
 
-.ant-menu-submenu-popup>.ant-menu {
-  background-color: rgb(240, 242, 245);
+.ant-login-form-my {
+  max-width: 220px;
 }
 
-.ant-form-item {
-  margin: 0 0 8px 0;
+.ant-btn-primary-my {
+  text-transform: uppercase;
+}
+
+.ant-menu-submenu-popup > .ant-menu {
+  background-color: #f0f2f5;
 }
 
 .ant-layout-header {
-  height: 55px;
-  line-height: 55px;
+  height: auto;
+  line-height: 25px;
   background-color: transparent;
 }
 
@@ -143,18 +184,15 @@
 }
 
 .row-overflow {
-  overflow: unset;
-  max-height: 59vh;
+  overflow: auto;
 }
 
-.overflow-scroll {
-  overflow: scroll;
+.overflow-auto {
+  overflow: auto;
 }
 
-@media (min-height: 59vh) {
-  .row-overflow {
-    overflow: scroll;
-  }
+.anticon {
+  margin: 0 auto;
 }
 
 .my-facebook {
@@ -163,7 +201,7 @@
   background-color: #3c5a99;
   color: white;
   border: none;
-  margin-left: 5px;
+  width: 192px;
 }
 
 .my-facebook:hover {
@@ -197,7 +235,6 @@
     margin-left: 0;
   }
 }
-
 @media (min-width: 576px) {
   .ant-col-sm-16 {
     max-width: 100%;

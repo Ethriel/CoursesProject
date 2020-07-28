@@ -1,0 +1,12 @@
+export const main = "/";
+export const courses = "/courses";
+export const coursesDetails = "/coursedetails/:id";
+export const aboutUs = "/aboutus";
+export const admin = "/admin";
+export const editStudent = "/admin/editStudent/:id";
+export const forbidden = "/forbidden";
+export const userProfile = "/profile";
+export const forgotPassword = "/forgotPassword";
+export const confirmEmail = "/confirmEmail";
+export const confirmChangeEmail = "/confirmChangeEmail";
+export const resetPassword = "/resetPassword";

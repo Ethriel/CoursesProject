@@ -14,7 +14,7 @@ import ModalWithMessage from '../common/ModalWithMessage';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import { withRouter } from "react-router";
 import { useStore } from 'react-redux';
-
+import { forbidden } from '../../Routes/RoutersDirections';
 
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
@@ -48,8 +48,8 @@ const AdminTable = (props) => {
     const [paginationState, setPaginationState] = useState();
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
-    const editClick = record => {
-        console.log(record);
+    const editClick = id => {
+        props.history.push(`/admin/editStudent/${id}`);
     }
 
     const getCols = () => {
@@ -94,7 +94,7 @@ const AdminTable = (props) => {
         const userRole = storeState.userRoleReducer.role;
         const signal = axios.CancelToken.source();
         if (userRole !== "ADMIN") {
-            props.history.push("/admin/notAdmin");
+            props.history.push(forbidden);
         }
         else {
 
@@ -107,7 +107,7 @@ const AdminTable = (props) => {
 
         return function cleanup() {
             signal.cancel("CANCEL IN GET USERS");
-        }
+        };
     }, []);
 
 
@@ -218,7 +218,7 @@ const AdminTable = (props) => {
         <>
             {modal.visible === true && modalWindow}
             <Container classes={outerContainerClasses}>
-                <H level={2} myText="Admin table" />
+                <H level={4} myText="Admin table" />
                 <Container classes={innerContainerClasses}>
                     <Search
                         placeholder="Enter search criteria"

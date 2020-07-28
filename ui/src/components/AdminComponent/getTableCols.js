@@ -36,7 +36,7 @@ const getTableCols = (editClick) => {
         render: 
         (_,record) => {
             return(
-                <a onClick={() => editClick(record)}>Edit</a>
+                <a onClick={() => editClick(record.id)}>Edit</a>
             )
         }
     })

@@ -12,18 +12,17 @@ function UserAvatar(props) {
     const withIcon = <Avatar icon={icon} />;
     const avatar = showIcon ? withIcon : withPicture;
 
-    
     const avatarMenu =
-        <Menu onClick={props.menuClick} mode="horizontal">
-            <SubMenu icon={icon}>
-            <Menu.Item >
-                    <ProfileSubItem text="Profile"/>
-                </Menu.Item>
-                <Menu.Item >
-                    <ProfileSubItem text="Sign out"/>
-                </Menu.Item>
-            </SubMenu>
-        </Menu>
+        // <Menu onClick={props.menuClick} mode="horizontal">
+        <SubMenu key={5} icon={icon}>
+            <Menu.Item key={"profile"}>
+                <ProfileSubItem text="Profile" />
+            </Menu.Item>
+            <Menu.Item key={"signout"}>
+                <ProfileSubItem text="Sign out" />
+            </Menu.Item>
+        </SubMenu>
+    // </Menu>
 
     return avatarMenu;
 };

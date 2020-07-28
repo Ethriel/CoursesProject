@@ -26,7 +26,7 @@ class ToggleTwoComponents extends Component {
     render() {
         const { classes, firstComponent, secondComponent } = this.props;
         const { toSwitch } = this.state;
-        const styles = { margin: '2%', maxWidth: 75 };
+        const styles = { margin: '1%', maxWidth: 100 };
         const tip = toSwitch === true ? "Click to switch to sign up" : "Click to switch to sign in";
         const title = toSwitch === true ? "Sign in" : "Sign up";
 

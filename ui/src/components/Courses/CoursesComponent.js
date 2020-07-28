@@ -11,6 +11,10 @@ import ModalWithMessage from '../common/ModalWithMessage';
 import SetModalData from '../../helpers/SetModalData';
 import CoursesContent from './CoursesContent';
 import { Spin, Space } from 'antd';
+import { withRouter } from "react-router";
+import { connect } from 'react-redux';
+import { SET_ROLE, GET_ROLE } from '../../reducers/reducersActions';
+import { forbidden } from '../../Routes/RoutersDirections';
 
 class CoursesComponent extends Component {
 
@@ -27,21 +31,27 @@ class CoursesComponent extends Component {
     }
 
     async componentDidMount() {
-        const signal = axios.CancelToken.source();
-        const { pagination } = this.state;
-        const coursesPagination = {
-            pagination: pagination
-        };
-        try {
-            const response = await MakeRequestAsync("courses/get/paged", coursesPagination, "post", signal.token);
-            const data = response.data.data;
-            const courses = data.courses;
-            const newPagination = data.pagination;
-            this.setState({ pagination: newPagination });
-            this.setState({ items: MapCards(courses, this.handleCourseClick) });
-            this.setState({ loading: false });
-        } catch (error) {
-            this.setCatch(error);
+        const role = this.props.store.userRoleReducer.role;
+        if (role !== "USER" && role !== "ADMIN") {
+            this.props.history.push(forbidden);
+        }
+        else {
+            const signal = axios.CancelToken.source();
+            const { pagination } = this.state;
+            const coursesPagination = {
+                pagination: pagination
+            };
+            try {
+                const response = await MakeRequestAsync("courses/get/paged", coursesPagination, "post", signal.token);
+                const data = response.data.data;
+                const courses = data.courses;
+                const newPagination = data.pagination;
+                this.setState({ pagination: newPagination });
+                this.setState({ items: MapCards(courses, this.handleCourseClick) });
+                this.setState({ loading: false });
+            } catch (error) {
+                this.setCatch(error);
+            }
         }
     }
 
@@ -149,4 +159,15 @@ class CoursesComponent extends Component {
         );
     };
 }
-export default CoursesComponent;
+export default withRouter(connect(
+    state => ({
+        store: state
+    }),
+    dispatch => ({
+        onGetRole: () => {
+            dispatch({
+                type: GET_ROLE
+            })
+        }
+    })
+)(CoursesComponent));

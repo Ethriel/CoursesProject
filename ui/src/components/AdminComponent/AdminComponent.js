@@ -1,14 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
 import AdminTable from "./AdminTable";
 
-class AdminComponent extends Component {
+const AdminComponent = () => {
 
-    render() {
-        return (
-            <AdminTable />
-        )
-    }
+    return (
+        <AdminTable />
+    )
 }
 export default AdminComponent;

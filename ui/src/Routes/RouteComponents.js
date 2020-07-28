@@ -1,0 +1,12 @@
+export {default as MainPage}  from '../components/MainPage/MainPageComponent';
+export {default as Courses}  from '../components/Courses/CoursesComponent';
+export {default as AboutUs}  from '../components/AboutUs/AboutUsComponent';
+export {default as Admin}  from '../components/AdminComponent/AdminComponent';
+export {default as CourseDetails}  from '../components/Courses/CourseDetailsComponent';
+export {default as UserProfile}  from '../components/userProfile/UserProfileComponent';
+export {default as ConfirmEmail}  from '../components/MainPage/confirm/ConfirmEmail';
+export {default as ConfirmChangeEmail}  from '../components/MainPage/confirm/ConfirmChangeEmail';
+export {default as ForgotPassword}  from '../components/MainPage/ForgotPassword';
+export {default as ResetPassword}  from'../components/MainPage/ResetPassword';
+export {default as EditStudent}  from '../components/AdminComponent/EditStudent';
+export {default as NoAccessPage}  from '../components/common/NoAccessPage';

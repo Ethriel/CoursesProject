@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../index.css';
 import AppHeaderComponent from './AppHeaderComponent';
-import Routes from '../../Routes';
+import Routes from '../../Routes/Routes';
 import AppFooterComponent from './AppFooterComponent';
 import { Layout } from 'antd';
 
@@ -14,7 +14,7 @@ function AppComponent() {
             <Header>
                 <AppHeaderComponent />
             </Header>
-            <Content className="overflow-scroll">
+            <Content className="overflow-auto">
                 {<Routes />}
             </Content>
             <Footer>

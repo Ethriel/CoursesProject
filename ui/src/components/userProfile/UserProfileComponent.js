@@ -11,8 +11,9 @@ import SetModalData from '../../helpers/SetModalData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import ValidateEmail from '../../helpers/ValidateEmail';
 
-function UserProfileComponent(props) {
-    const id = +localStorage.getItem("current_user_id");
+const UserProfileComponent = (props) => {
+    const userId = props.userId;
+    const id = (userId === undefined || userId < 0) ? +localStorage.getItem("current_user_id") : userId;
 
     const modalOk = (e) => {
         setModalState(old => ({ ...old, ...{ visible: false } }));

@@ -17,7 +17,7 @@ const UserCoursesContainer = props => {
             try {
                 const response = await MakeRequestAsync(`UserCourses/get/${id}`, { msg: "hello" }, "get", signal.token);
                 if (response.status === 200) {
-                    const coursesData = response.data;
+                    const coursesData = response.data.data;
                     const data = [];
                     let obj = {};
                     for (let c of coursesData) {
@@ -44,7 +44,7 @@ const UserCoursesContainer = props => {
     const columns = getNestedCols();
     return (
         <Container classes={containerClasses}>
-            <H level={4} myText="Your courses"/>
+            <H level={4} myText="Courses"/>
             <Table columns={columns} dataSource={courses} pagination={false} loading={isLoading} />
         </Container>
     );

@@ -16,11 +16,13 @@ import GetFacebookData from './GetFacebookData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import { connect } from 'react-redux';
 import { SET_ROLE, GET_ROLE } from '../../reducers/reducersActions';
-
+import { ADMIN, USER, NULL, UNDEFINED } from '../common/roles';
+import { courses, admin } from '../../Routes/RoutersDirections';
 class LoginComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            signal: axios.CancelToken.source(),
             redirect: false,
             spin: false,
             modal: {
@@ -32,7 +34,10 @@ class LoginComponent extends Component {
             }
         };
     }
-
+    componentWillUnmount() {
+        console.log("here");
+        this.state.signal.cancel();
+    }
     setCatch = error => {
         const modalData = SetModalData(error);
         this.setState(oldState => ({
@@ -46,7 +51,8 @@ class LoginComponent extends Component {
 
     setFinally = () => {
         this.setState({ spin: false });
-    }
+    };
+
     changeRole = role => {
         this.props.onRoleChange(role);
     };
@@ -58,19 +64,19 @@ class LoginComponent extends Component {
             email: values.username,
             password: values.password
         };
+
         try {
-            const cancelToken = axios.CancelToken.source().token;
+            const cancelToken = this.state.signal.token;
 
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
             const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
-            
-            this.changeRole(role);
-            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
-            console.log("All good");
+            this.changeRole(role);
+
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
             this.setState({ redirect: true });
         } catch (error) {
@@ -83,15 +89,14 @@ class LoginComponent extends Component {
     renderRedirect = () => {
         const role = localStorage.getItem("current_user_role");
         if (this.state.redirect) {
-            const redirectDirection = role === "ADMIN" ? "/admin" : "/courses";
+            const redirectDirection = role === ADMIN ? admin : courses;
             return <Redirect to={redirectDirection} push={true} />
         }
     };
 
-    facebookClick = () => { };
-
     facebookResponseHandler = async (response) => {
-        const cancelToken = axios.CancelToken.source().token;
+        const cancelToken = this.state.signal.token;
+
         const userData = GetFacebookData(response);
 
         try {
@@ -102,6 +107,8 @@ class LoginComponent extends Component {
             const role = data.user.roleName;
 
             const user = GetUserData(data.user);
+
+            this.changeRole(role);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
 
@@ -141,8 +148,11 @@ class LoginComponent extends Component {
         const login =
             <>
                 {this.state.redirect && this.renderRedirect()}
-                {this.state.redirect === false && <NormalLoginFormAntD myConfirHandler={this.confirmHandler} />}
-                {this.state.redirect === false && <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />}
+                {this.state.redirect === false && <NormalLoginFormAntD
+                    myConfirHandler={this.confirmHandler}
+                    facebookClick={this.facebookClick}
+                    facebookResponse={this.facebookResponse} />}
+                {this.state.redirect === false && <ButtonFaceBook facebookResponse={this.facebookResponseHandler} />}
             </>;
 
         return (
