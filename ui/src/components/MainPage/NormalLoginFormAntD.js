@@ -4,19 +4,20 @@ import '../../index.css';
 import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { withRouter } from "react-router";
+import  {forgotPassword} from '../../Routes/RoutersDirections'
 
 const NormalLoginForm = (props) => {
     const confirHandler = props.myConfirHandler;
     const forgetRef = props.myForgetRef;
 
     const forgotClick = (event) => {
-        props.history.push("/forgotPassword");
+        props.history.push(forgotPassword);
     }
 
     return (
         <Form
             name="normal_login"
-            className="ant-login-form-my"
+            // className="ant-login-form-my"
             initialValues={{
                 remember: true,
             }}
@@ -30,7 +31,10 @@ const NormalLoginForm = (props) => {
                         message: 'Please input your Username!',
                     },
                 ]}>
-                <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+                <Input
+                    className="ant-input-my"
+                    prefix={<UserOutlined className="site-form-item-icon" />}
+                    placeholder="Username" />
             </Form.Item>
 
             <Form.Item
@@ -42,6 +46,7 @@ const NormalLoginForm = (props) => {
                     },
                 ]}>
                 <Input
+                    className="ant-input-my"
                     prefix={<LockOutlined className="site-form-item-icon" />}
                     type="password"
                     placeholder="Password"

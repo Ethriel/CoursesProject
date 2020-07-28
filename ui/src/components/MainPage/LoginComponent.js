@@ -19,10 +19,10 @@ import { SET_ROLE, GET_ROLE } from '../../reducers/reducersActions';
 import { ADMIN, USER, NULL, UNDEFINED } from '../common/roles';
 import { courses, admin } from '../../Routes/RoutersDirections';
 class LoginComponent extends Component {
+    signal = axios.CancelToken.source();
     constructor(props) {
         super(props);
         this.state = {
-            signal: axios.CancelToken.source(),
             redirect: false,
             spin: false,
             modal: {
@@ -36,7 +36,7 @@ class LoginComponent extends Component {
     }
     componentWillUnmount() {
         console.log("here");
-        this.state.signal.cancel();
+        this.signal.cancel();
     }
     setCatch = error => {
         const modalData = SetModalData(error);
@@ -66,7 +66,7 @@ class LoginComponent extends Component {
         };
 
         try {
-            const cancelToken = this.state.signal.token;
+            const cancelToken = this.signal.token;
 
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
             const data = response.data.data;
@@ -95,7 +95,7 @@ class LoginComponent extends Component {
     };
 
     facebookResponseHandler = async (response) => {
-        const cancelToken = this.state.signal.token;
+        const cancelToken = this.signal.token;
 
         const userData = GetFacebookData(response);
 

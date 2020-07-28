@@ -156,6 +156,18 @@ h4.ant-typography,
   max-width: 220px;
 }
 
+.ant-input-my {
+  width: 300px;
+  height: 4rem;
+  font-size: 1.5rem;
+}
+
+.ant-input-my-sign-up {
+  width: 300px;
+  height: 3.5rem;
+  font-size: 1.5rem;
+}
+
 .ant-btn-primary-my {
   text-transform: uppercase;
 }
@@ -171,7 +183,7 @@ h4.ant-typography,
 }
 
 .ant-layout-content {
-  margin: 0.5% auto;
+  margin: 0.1% auto;
   width: 98%;
 }
 
@@ -201,7 +213,7 @@ h4.ant-typography,
   background-color: #3c5a99;
   color: white;
   border: none;
-  width: 192px;
+  width: 300px;
 }
 
 .my-facebook:hover {

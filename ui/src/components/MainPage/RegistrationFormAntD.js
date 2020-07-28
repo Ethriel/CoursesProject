@@ -48,18 +48,17 @@ const RegistrationForm = (props) => {
 
   return (
     <Form
-      {...formItemLayout}
       form={form}
-      style={{ width: '50%', maxWidth: 600 }}
       name="register"
       onFinish={props.onFinish}
       size="small"
-      
+
       scrollToFirstError
     >
       <Form.Item
         name={['user', 'name']}
-        label="First name"
+        // label="First name"
+        className="ant-input-my-sign-up"
         rules={
           [
             {
@@ -68,11 +67,14 @@ const RegistrationForm = (props) => {
             }
           ]
         }>
-        <Input />
+        <Input placeholder="First name"
+        className="ant-input-my-sign-up"
+        />
       </Form.Item>
       <Form.Item
         name={['user', 'lastname']}
-        label="Last name"
+        // label="Last name"
+        className="ant-input-my-sign-up"
         rules={
           [
             {
@@ -81,12 +83,15 @@ const RegistrationForm = (props) => {
             }
           ]
         }>
-        <Input />
+        <Input placeholder="Last name"
+        className="ant-input-my-sign-up"
+        />
       </Form.Item>
-      
+
       <Form.Item
         name="email"
-        label="E-mail"
+        // label="E-mail"
+        className="ant-input-my-sign-up"
         rules={[
           {
             type: 'email',
@@ -98,12 +103,15 @@ const RegistrationForm = (props) => {
           },
         ]}
       >
-        <Input />
+        <Input placeholder="Email"
+        className="ant-input-my-sign-up"
+        />
       </Form.Item>
 
       <Form.Item
         name="password"
-        label="Password"
+        className="ant-input-my-sign-up"
+        // label="Password"
         rules={[
           {
             required: true,
@@ -112,12 +120,15 @@ const RegistrationForm = (props) => {
         ]}
         hasFeedback
       >
-        <Input.Password />
+        <Input.Password placeholder="Password"
+        className="ant-input-my-sign-up"
+        />
       </Form.Item>
 
       <Form.Item
         name="confirm"
-        label="Confirm Password"
+        className="ant-input-my-sign-up"
+        // label="Confirm Password"
         dependencies={['password']}
         hasFeedback
         rules={[
@@ -136,11 +147,14 @@ const RegistrationForm = (props) => {
           }),
         ]}
       >
-        <Input.Password />
+        <Input.Password placeholder="Confirm password"
+        className="ant-input-my-sign-up"
+        />
       </Form.Item>
       <Form.Item
         name="birthdate"
-        label="Birth date"
+        // label="Birth date"
+
         rules={
           [
             {
@@ -150,12 +164,22 @@ const RegistrationForm = (props) => {
             }
           ]
         }>
-        <DatePicker format='DD/MM/YYYY' />
+        <DatePicker
+          format='DD/MM/YYYY'
+          className="ant-input-my-sign-up"
+          placeholder="Select birth date"
+        />
       </Form.Item>
-      
+
       <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit" size="large">
-          Register
+        <Button
+          type="primary"
+          htmlType="submit"
+          size="large"
+          className="ant-btn-primary-my"
+          style={{ width: '100%' }}
+        >
+          Sign up
         </Button>
       </Form.Item>
     </Form>
