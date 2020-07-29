@@ -4,16 +4,16 @@ import '../../index.css';
 import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { withRouter } from "react-router";
-import  {forgotPassword} from '../../Routes/RoutersDirections'
+import { forgotPassword } from '../../Routes/RoutersDirections'
+import ButtonFaceBook from '../MainPage/ButtonFacebook';
 
 const NormalLoginForm = (props) => {
     const confirHandler = props.myConfirHandler;
-    const forgetRef = props.myForgetRef;
+    const facebookResponse = props.facebookResponse;
 
     const forgotClick = (event) => {
         props.history.push(forgotPassword);
     }
-
     return (
         <Form
             name="normal_login"
@@ -60,7 +60,11 @@ const NormalLoginForm = (props) => {
             </Form.Item>
 
             <Form.Item>
-                <a className="login-form-forgot ant-login-forgot-my" onClick={forgotClick} href={forgetRef}>
+                <ButtonFaceBook facebookResponse={facebookResponse} />
+            </Form.Item>
+
+            <Form.Item>
+                <a className="login-form-forgot ant-login-forgot-my" onClick={forgotClick} href={forgotPassword}>
                     Forgot password
                 </a>
             </Form.Item>

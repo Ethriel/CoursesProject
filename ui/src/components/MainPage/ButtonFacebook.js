@@ -4,20 +4,23 @@ import '../../css/styles.css';
 
 const ButtonFaceBook = props => {
     const responseHandler = props.facebookResponse;
-    return(
+    return (
         <FacebookLogin
-                    appId="327773058385961"
-                    fields="first_name,last_name,email,picture"
-                    callback={responseHandler}
-                    render={
-                        renderProps => (
-                            <button
-                                onClick={renderProps.onClick}
-                                className="my-facebook">
-                                Continue with Facebook
-                            </button>
-                        )
-                    }/>
+            appId="327773058385961"
+            htmlType="button"
+            fields="first_name,last_name,email,picture"
+            callback={responseHandler}
+            render={
+                renderProps => (
+                    <>
+                        <div
+                            onClick={renderProps.onClick}
+                            className="my-facebook">
+                            Continue with Facebook
+                        </div>
+                    </>
+                )
+            } />
     );
 };
 

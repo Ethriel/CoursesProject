@@ -15,9 +15,10 @@ import SetModalData from '../../helpers/SetModalData';
 import GetFacebookData from './GetFacebookData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import { connect } from 'react-redux';
-import { SET_ROLE, GET_ROLE } from '../../reducers/reducersActions';
-import { ADMIN, USER, NULL, UNDEFINED } from '../common/roles';
+import { SET_ROLE } from '../../reducers/reducersActions';
+import { ADMIN } from '../common/roles';
 import { courses, admin } from '../../Routes/RoutersDirections';
+
 class LoginComponent extends Component {
     signal = axios.CancelToken.source();
     constructor(props) {
@@ -35,7 +36,6 @@ class LoginComponent extends Component {
         };
     }
     componentWillUnmount() {
-        console.log("here");
         this.signal.cancel();
     }
     setCatch = error => {
@@ -151,8 +151,7 @@ class LoginComponent extends Component {
                 {this.state.redirect === false && <NormalLoginFormAntD
                     myConfirHandler={this.confirmHandler}
                     facebookClick={this.facebookClick}
-                    facebookResponse={this.facebookResponse} />}
-                {this.state.redirect === false && <ButtonFaceBook facebookResponse={this.facebookResponseHandler} />}
+                    facebookResponse={this.facebookResponseHandler} />}
             </>;
 
         return (

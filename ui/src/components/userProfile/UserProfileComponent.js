@@ -10,6 +10,7 @@ import ModalWithMessage from '../common/ModalWithMessage';
 import SetModalData from '../../helpers/SetModalData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import ValidateEmail from '../../helpers/ValidateEmail';
+import { ProfileOutlined } from '@ant-design/icons';
 
 const UserProfileComponent = (props) => {
     const userId = props.userId;
@@ -132,21 +133,31 @@ const UserProfileComponent = (props) => {
         setShowDrawer(false);
     };
 
-    const openDrawer = () => {
+    const openDrawer = (e) => {
         setShowDrawer(true);
     }
+
+    const openProfile =
+        <Button
+            icon={<ProfileOutlined />}
+            title="Open profile"
+            style={{ alignSelf: "flex-end" }}
+            onClick={openDrawer}
+            type="primary"
+        />
 
     const modalWindow = ModalWithMessage(modalState);
 
     const content =
         <>
-            <Button type="primary" onClick={openDrawer}
+            {/* <Button type="primary" onClick={openDrawer}
                 style={{ width: 150, alignSelf: "flex-end" }}>
                 Open profile info
-          </Button>
-            <Drawer title="Your profile info"
+            </Button> */}
+            {openProfile}
+            <Drawer title="Profile info"
                 width={400}
-                placement="left"
+                placement="right"
                 closable={true}
                 onClose={closeDrawer}
                 visible={showDrawer}>

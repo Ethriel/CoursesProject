@@ -282,6 +282,10 @@ div.ant-typography,
     font-size: 1.5rem;
 }
 
+.ant-input {
+    font-size: 1.5rem;
+}
+
 .ant-input-my {
     width: 300px;
     height: 4rem;
@@ -309,6 +313,11 @@ div.ant-typography,
 
 .ant-menu-submenu-popup>.ant-menu {
     background-color: rgb(240, 242, 245);
+}
+
+.ant-btn-lg {
+    font-size: 1.7rem;
+    padding: 0;
 }
 
 .ant-layout-header {
@@ -347,8 +356,10 @@ div.ant-typography,
 }
 
 .my-facebook {
+    @include displayFlex();
+    @include centerFlex();
     height: 40px;
-    font-size: 16px;
+    font-size: 1.7rem;
     background-color: #3c5a99;
     color: white;
     border: none;
@@ -381,14 +392,89 @@ div.ant-typography,
     justify-content: space-around;
 }
 
-@media (min-width: 576px) {
+@media (min-width: 576px) and (max-width: 767.98px) {
     .ant-col-sm-offset-8 {
         margin-left: 0;
     }
-}
 
-@media (min-width: 576px) {
     .ant-col-sm-16 {
         max-width: 100%;
     }
+
+    h2.ant-typography,
+    .ant-typography h2 {
+        font-size: 1.7rem;
+        margin: 0;
+    }
+
+    h3.ant-typography,
+    .ant-typography h3 {
+        font-size: 1.6rem;
+    }
+
+    h4.ant-typography,
+    .ant-typography h4 {
+        font-size: 1.5rem;
+    }
+
+    div.ant-typography,
+    .ant-typography p {
+        font-size: 1rem;
+    }
+
+    .ant-table {
+        font-size: 1rem;
+    }
+
+    .ant-menu-item {
+        font-size: 0.9rem;
+    }
+
+    .header-menu-width {
+        li {
+            font-size: 1.1rem;
+        }
+    }
 }
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+
+    h2.ant-typography,
+    .ant-typography h2 {
+        font-size: 2.5rem;
+        margin: 0;
+    }
+
+    h3.ant-typography,
+    .ant-typography h3 {
+        font-size: 2.4rem;
+    }
+
+    h4.ant-typography,
+    .ant-typography h4 {
+        font-size: 2.2rem;
+    }
+
+    div.ant-typography,
+    .ant-typography p {
+        font-size: 1.3rem;
+    }
+
+    .ant-table {
+        font-size: 1.3rem;
+    }
+
+    .ant-menu-item {
+        font-size: 1.2rem;
+    }
+
+    .header-menu-width {
+        li {
+            font-size: 1.5rem;
+        }
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {}
+
+@media (min-width: 1200px) {}

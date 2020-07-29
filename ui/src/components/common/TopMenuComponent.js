@@ -1,30 +1,22 @@
 import React from 'react'
 import 'antd/dist/antd.css';
 import '../../index.css';
-import { Menu, Avatar } from 'antd';
+import { Menu } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { UserOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 const { SubMenu } = Menu;
 
 const TopMenuComponent = (props) => {
-    const items = props.myMenuItems;
-    const isUser = props.isUser;
-    const src = localStorage.getItem("user_picture");
-    const showIcon = (src === "" || src === null) ? true : false;
-    const icon = <UserOutlined />;
-    const withPicture = <Avatar src={src} />;
-    const withIcon = <Avatar icon={icon} />;
-    const className = props.className;
-    const avatar = showIcon ? withIcon : withPicture;
+    const mode = isSmallScreen() ? "inline" : "horizontal";
 
-    const menuItems = items.map((item) => {
+    const menuItems = props.myMenuItems.map((item) => {
         return <Menu.Item
             key={item.key}>
             <NavLink to={item.to} />{item.text}
         </Menu.Item>;
     });
 
-    const avatarMenu =
+    const userMenu =
         <SubMenu key={5} icon={<UserOutlined />}>
             <Menu.Item key={"profile"} icon={<ProfileOutlined />}
                 className="header-sub-my">
@@ -37,15 +29,20 @@ const TopMenuComponent = (props) => {
         </SubMenu>;
 
     return (
-        <Menu mode="horizontal"
+        <Menu mode={mode}
             onClick={props.menuClick}
-            className={className}>
+            className={props.className}>
             {menuItems}
             {
-                isUser === true && avatarMenu
+                props.isUser === true && userMenu
             }
         </Menu>
     );
+};
+
+const isSmallScreen = () => {
+    const width = window.innerWidth;
+    return width <= 600;
 };
 
 export default TopMenuComponent;
