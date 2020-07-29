@@ -60,7 +60,7 @@ const NormalLoginForm = (props) => {
             </Form.Item>
 
             <Form.Item>
-                <a className="login-form-forgot" onClick={forgotClick} href={forgetRef}>
+                <a className="login-form-forgot ant-login-forgot-my" onClick={forgotClick} href={forgetRef}>
                     Forgot password
                 </a>
             </Form.Item>

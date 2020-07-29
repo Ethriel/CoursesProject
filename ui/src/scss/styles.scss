@@ -26,6 +26,10 @@
     height: 100%;
 }
 
+@mixin height-80 {
+    height: 80%;
+}
+
 @mixin displayFlex {
     display: flex;
 }
@@ -57,17 +61,27 @@ html {
 
 h2.ant-typography,
 .ant-typography h2 {
-    font-size: 2.5rem;
+    font-size: 2.7rem;
     margin: 0;
+}
+
+h3.ant-typography,
+.ant-typography h3 {
+    font-size: 2.5rem;
 }
 
 h4.ant-typography,
 .ant-typography h4 {
-    font-size: 1.8rem;
+    font-size: 2.3rem;
+}
+
+div.ant-typography,
+.ant-typography p {
+    font-size: 1.5rem;
 }
 
 .ant-table {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
 }
 
 .ant-menu-item {
@@ -122,6 +136,10 @@ h4.ant-typography,
     @include height-100();
 }
 
+.height-80 {
+    @include height-80();
+}
+
 .display-flex {
     @include displayFlex();
 }
@@ -144,6 +162,10 @@ h4.ant-typography,
 
 .space-between-flex {
     @include spaceBetweenFlex();
+}
+
+.background-course-details {
+    background-color: honeydew;
 }
 
 .align-center {
@@ -191,6 +213,8 @@ h4.ant-typography,
 
 .img-container-my {
     width: 100%;
+    max-width: 300px;
+    height: auto;
 }
 
 .header-menu-width {
@@ -254,9 +278,17 @@ h4.ant-typography,
     max-width: 220px;
 }
 
+.ant-login-forgot-my {
+    font-size: 1.5rem;
+}
+
 .ant-input-my {
     width: 300px;
     height: 4rem;
+    font-size: 1.5rem;
+}
+
+.ant-input-search-my {
     font-size: 1.5rem;
 }
 
@@ -292,6 +324,10 @@ h4.ant-typography,
 
 .ant-layout-footer {
     padding: 0.5%;
+}
+
+.ant-card-meta-description {
+    min-height: 155px;
 }
 
 .ant-pagination {

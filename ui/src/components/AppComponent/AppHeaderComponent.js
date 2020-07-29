@@ -34,10 +34,11 @@ const AppHeaderComponent = (props) => {
     const subItems = [];
 
     subItems.push({ key: 1, text: "Home", to: main });
-
+    
+    subItems.push({ key: 3, text: "About us", to: aboutUs });
+    
     if (isUser) {
         subItems.push({ key: 2, text: "Courses", to: courses });
-        subItems.push({ key: 3, text: "About us", to: aboutUs });
         if (role === ADMIN) {
             subItems.push({ key: 4, text: "Admin", to: admin });
         }

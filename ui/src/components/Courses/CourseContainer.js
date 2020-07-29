@@ -14,9 +14,13 @@ const CourseContainer = props => {
     const handleConfirm = props.handleConfirm;
     const disableButton = props.isPresent === true ? true : !isDateSelected;
 
-    const classNameContainer = ["display-flex", "col-flex", "center-flex", "width-75", "center-a-div"];
+    const classNameContainer =
+        [
+            "display-flex", "col-flex", "center-flex",
+            "width-75", "center-a-div", "background-course-details"
+        ];
     const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
-    
+
     return (
         <Container classes={classNameContainer}>
             <H myText={course.title} level={3} />

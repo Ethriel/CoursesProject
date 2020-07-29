@@ -13,7 +13,8 @@ import CoursesContent from './CoursesContent';
 import { Spin, Space } from 'antd';
 import { withRouter } from "react-router";
 import { connect } from 'react-redux';
-import { SET_ROLE, GET_ROLE } from '../../reducers/reducersActions';
+import { GET_ROLE } from '../../reducers/reducersActions';
+import { ADMIN, USER } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
 
 class CoursesComponent extends Component {
@@ -32,7 +33,7 @@ class CoursesComponent extends Component {
 
     async componentDidMount() {
         const role = this.props.store.userRoleReducer.role;
-        if (role !== "USER" && role !== "ADMIN") {
+        if (role !== USER && role !== ADMIN) {
             this.props.history.push(forbidden);
         }
         else {

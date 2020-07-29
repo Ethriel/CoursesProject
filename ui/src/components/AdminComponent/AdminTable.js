@@ -221,6 +221,7 @@ const AdminTable = (props) => {
                 <H level={4} myText="Admin table" />
                 <Container classes={innerContainerClasses}>
                     <Search
+                        className="ant-input-search-my"
                         placeholder="Enter search criteria"
                         onSearch={onSearchHandler}
                         allowClear={true}
