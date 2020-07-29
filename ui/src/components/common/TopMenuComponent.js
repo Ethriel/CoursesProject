@@ -3,8 +3,7 @@ import 'antd/dist/antd.css';
 import '../../index.css';
 import { Menu, Avatar } from 'antd';
 import { NavLink } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
-import ProfileSubItem from '../AppComponent/ProfileSubComponent';
+import { UserOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 const { SubMenu } = Menu;
 
 const TopMenuComponent = (props) => {
@@ -15,6 +14,7 @@ const TopMenuComponent = (props) => {
     const icon = <UserOutlined />;
     const withPicture = <Avatar src={src} />;
     const withIcon = <Avatar icon={icon} />;
+    const className = props.className;
     const avatar = showIcon ? withIcon : withPicture;
 
     const menuItems = items.map((item) => {
@@ -25,17 +25,21 @@ const TopMenuComponent = (props) => {
     });
 
     const avatarMenu =
-    <SubMenu key={5} icon={icon}>
-        <Menu.Item key={"profile"}>
-            <ProfileSubItem text="Profile" />
-        </Menu.Item>
-        <Menu.Item key={"signout"}>
-            <ProfileSubItem text="Sign out" />
-        </Menu.Item>
-    </SubMenu>;
+        <SubMenu key={5} icon={<UserOutlined />}>
+            <Menu.Item key={"profile"} icon={<ProfileOutlined />}
+                className="header-sub-my">
+                Profile
+            </Menu.Item>
+            <Menu.Item key={"signout"} icon={<LogoutOutlined />}
+                className="header-sub-my">
+                Sign out
+            </Menu.Item>
+        </SubMenu>;
 
     return (
-        <Menu mode="horizontal" onClick={props.menuClick}>
+        <Menu mode="horizontal"
+            onClick={props.menuClick}
+            className={className}>
             {menuItems}
             {
                 isUser === true && avatarMenu

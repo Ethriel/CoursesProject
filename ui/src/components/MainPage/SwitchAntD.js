@@ -7,8 +7,8 @@ const SwitchAntD = (props) => {
     const checkedText = props.myCheckedText;
     const unCheckedText = props.myUnCheckedText;
     const onChange = props.myOnChange;
-    const style = props.myStyle;
     const title = props.myTitle;
+    const className = props.className;
 
     return (
         <Switch
@@ -16,7 +16,7 @@ const SwitchAntD = (props) => {
             unCheckedChildren={unCheckedText}
             defaultChecked
             onChange={onChange}
-            style={style}
+            className={className}
             title={title} />
     );
 };

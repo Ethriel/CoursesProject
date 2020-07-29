@@ -57,10 +57,10 @@ const AppHeaderComponent = (props) => {
 
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
     const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
-    const logoTextContainer = ["display-flex", "align-center", "justify-center", "width-90", "max-width-350"];
-    const menuContainer = ["display-flex", "space-around-flex", "align-center", "width-90"];
-    const logo = <img src={headerLogo} width={'50px'} height={'50px'} alt="Logo" />
-    const headerText = <H level={2} myText="Forge your future with us!" />;
+    const menuContainer = ["display-flex", "justify-center", "align-center", "width-90"];
+    // const logoTextContainer = ["display-flex", "align-center", "justify-center", "width-90", "max-width-350"];
+    // const logo = <img src={headerLogo} className="logo-img" alt="Logo" />
+    // const headerText = <H level={2} myText="Forge your future with us!" />;
 
     const profileClick = async (event) => {
         const key = event.key;
@@ -113,12 +113,16 @@ const AppHeaderComponent = (props) => {
         <>
             {modal.visible === true && modalWindow}
             <Container classes={headerContainer}>
-                <Container classes={logoTextContainer}>
+                {/* <Container classes={logoTextContainer}>
                     {logo}
                     {headerText}
-                </Container>
+                </Container> */}
                 <Container classes={menuContainer}>
-                    <TopMenu myMenuItems={subItems} isUser={isUser} menuClick={profileClick} />
+                    <TopMenu 
+                    myMenuItems={subItems}
+                    isUser={isUser}
+                    menuClick={profileClick}
+                    className="header-menu-width" />
                 </Container>
             </Container>
 

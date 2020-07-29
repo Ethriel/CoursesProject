@@ -17,10 +17,6 @@ const NormalLoginForm = (props) => {
     return (
         <Form
             name="normal_login"
-            // className="ant-login-form-my"
-            initialValues={{
-                remember: true,
-            }}
             onFinish={confirHandler}>
 
             <Form.Item

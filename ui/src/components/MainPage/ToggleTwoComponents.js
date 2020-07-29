@@ -26,18 +26,19 @@ class ToggleTwoComponents extends Component {
     render() {
         const { classes, firstComponent, secondComponent } = this.props;
         const { toSwitch } = this.state;
-        const styles = { margin: '1%', maxWidth: 100 };
-        const tip = toSwitch === true ? "Click to switch to sign up" : "Click to switch to sign in";
-        const title = toSwitch === true ? "Sign in" : "Sign up";
+        const className = "ant-switch-my";
+        const tip = toSwitch === true ? "Switch to sign up" : "Switch to sign in";
+
+        // const title = toSwitch === true ? "Sign in" : "Sign up";
 
         return (
             <ContainerComponent classes={classes}>
-                <H level={4} myText={title} />
+                {/* <H level={4} myText={title} /> */}
                 <SwitchAntD
                     myCheckedText="Sign up"
                     myUnCheckedText="Sign in"
                     myOnChange={this.handleSwitch}
-                    myStyle={styles}
+                    className={className}
                     myTitle={tip} />
                 {toSwitch === true ? firstComponent : secondComponent}
             </ContainerComponent>

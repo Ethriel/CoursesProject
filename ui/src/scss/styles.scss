@@ -57,7 +57,8 @@ html {
 
 h2.ant-typography,
 .ant-typography h2 {
-    font-size: 2.3rem;
+    font-size: 2.5rem;
+    margin: 0;
 }
 
 h4.ant-typography,
@@ -110,7 +111,7 @@ h4.ant-typography,
 }
 
 .max-width-350 {
-    max-width: 350px;
+    max-width: 370px;
 }
 
 .min-width-150 {
@@ -154,7 +155,11 @@ h4.ant-typography,
 }
 
 .center-a-div {
-    margin: 1.5% auto;
+    margin: 1.0% auto;
+}
+
+.center-a-div-no-margin {
+    margin: 0 auto;
 }
 
 .my-sign-up-form {
@@ -188,6 +193,46 @@ h4.ant-typography,
     width: 100%;
 }
 
+.header-menu-width {
+    @include width75();
+    @include displayFlex();
+    @include spaceAroundFlex();
+
+    li {
+        width: 25%;
+        text-align: center;
+        font-size: 1.7rem;
+    }
+}
+
+.social-link {
+    font-size: 2rem;
+}
+
+.social-link-facebook {
+    color: #3c5a99;
+}
+
+.header-sub-my {
+    text-align: center;
+    font-size: 1.7rem;
+}
+
+.ant-switch-my {
+    margin: 1.5%;
+    max-width: 150px;
+}
+
+.margin-inside {
+    * {
+        margin: 0.1%;
+    }
+}
+
+.ant-switch-inner {
+    font-size: 1.3rem;
+}
+
 .ant-menu {
     background-color: transparent;
 }
@@ -219,6 +264,11 @@ h4.ant-typography,
     width: 300px;
     height: 3.5rem;
     font-size: 1.5rem;
+}
+
+.logo-img {
+    width: 65px;
+    height: 65px;
 }
 
 .ant-btn-primary-my {
