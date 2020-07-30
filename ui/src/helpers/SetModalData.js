@@ -11,6 +11,10 @@ const SetModalData = (error) => {
                 modalData.message = "Server error occured";
                 modalData.errors.push("Internal server error");
             }
+            else if(error.response.status === 401){
+                modalData.message = "No access";
+                modalData.errors.push("Unauthorised");
+            }
             else {
                 modalData.message = error.response.data.message;
                 modalData.errors = error.response.data.errors;

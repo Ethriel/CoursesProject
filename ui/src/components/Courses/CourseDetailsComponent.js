@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { Spin, Space } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import moment from 'moment';
@@ -7,6 +9,8 @@ import ModalWithMessage from '../common/ModalWithMessage';
 import CourseContainer from './CourseContainer';
 import axios from 'axios';
 import SetModalData from '../../helpers/SetModalData';
+import { USER, ADMIN } from '../common/roles';
+import { forbidden } from '../../Routes/RoutersDirections';
 
 class CourseDetailsComponent extends Component {
     constructor(props) {
@@ -74,9 +78,15 @@ class CourseDetailsComponent extends Component {
 
     }
     componentDidMount = async () => {
-        const signal = axios.CancelToken.source();
-        await this.checkCourse(signal.token);
-        await this.getCourse(signal.token);
+        const role = this.props.store.userRoleReducer.role;
+        if (role !== USER && role !== ADMIN) {
+            this.props.history.push(forbidden);
+        }
+        else {
+            const signal = axios.CancelToken.source();
+            await this.checkCourse(signal.token);
+            await this.getCourse(signal.token);
+        }
     }
 
     handleConfirm = async () => {
@@ -90,7 +100,7 @@ class CourseDetailsComponent extends Component {
             studyDate: date
         };
         try {
-            const response = await MakeRequestAsync("UserCourses/add", data, "post");
+            await MakeRequestAsync("UserCourses/add", data, "post");
         } catch (error) {
             this.setCatch(error);
         } finally {
@@ -109,7 +119,7 @@ class CourseDetailsComponent extends Component {
         return current < start;
     };
 
-    modalOk = (e) => {
+    setModal = () =>{
         this.setState(oldState => ({
             modal: {
                 ...oldState.modal,
@@ -117,14 +127,13 @@ class CourseDetailsComponent extends Component {
             }
         }));
     };
+    
+    modalOk = (e) => {
+        this.setModal();
+    };
 
     modalCancel = (e) => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
+        this.setModal();
     };
 
     setCatch = (error) => {
@@ -170,4 +179,8 @@ class CourseDetailsComponent extends Component {
     };
 };
 
-export default CourseDetailsComponent;
+export default withRouter(connect(
+    state => ({
+        store: state
+    })
+)(CourseDetailsComponent));

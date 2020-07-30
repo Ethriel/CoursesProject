@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import 'antd/dist/antd.css';
 import { Table, Input } from 'antd';
 import getTableCols from './getTableCols';
@@ -12,13 +12,14 @@ import SetModalData from '../../../helpers/SetModalData';
 import ModalWithMessage from '../../common/ModalWithMessage';
 import GetModalPresentation from '../../../helpers/GetModalPresentation';
 import { withRouter } from "react-router";
-import { useStore } from 'react-redux';
+import { connect } from 'react-redux';
 import { forbidden } from '../../../Routes/RoutersDirections';
 
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
 
-const AdminTable = (props) => {
+const AdminTable = ({ userRole, history, ...props }) => {
+
     const modalOk = (e) => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
@@ -47,15 +48,16 @@ const AdminTable = (props) => {
     const [paginationState, setPaginationState] = useState();
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
-    const editClick = id => {
-        props.history.push(`/admin/editStudent/${id}`);
-    }
 
-    const getCols = () => {
+
+    const getCols = useCallback(() => {
+        const editClick = id => {
+            history.push(`/admin/editStudent/${id}`);
+        }
         return getTableCols(editClick);
-    }
+    }, [history]);
 
-    async function getUsers(token) {
+    const getUsers = useCallback(async (token) => {
         try {
             const sorting = {
                 sortField: "id",
@@ -84,30 +86,21 @@ const AdminTable = (props) => {
         } finally {
             setFinally();
         }
-    }
-
-    const store = useStore();
+    }, [getCols]);
 
     useEffect(() => {
-        const storeState = store.getState();
-        const userRole = storeState.userRoleReducer.role;
         const signal = axios.CancelToken.source();
         if (userRole !== "ADMIN") {
-            props.history.push(forbidden);
+            history.push(forbidden);
         }
         else {
-
-            async function fetchData() {
-                await getUsers(signal.token);
-            }
-
-            fetchData();
+            getUsers(signal.token);
         }
 
         return function cleanup() {
             signal.cancel("CANCEL IN GET USERS");
         };
-    }, []);
+    }, [userRole, history, getUsers]);
 
 
     // handles changes in sorting and pagination
@@ -240,4 +233,8 @@ const AdminTable = (props) => {
     )
 };
 
-export default withRouter(AdminTable);
+export default withRouter(connect(
+    state => ({
+        userRole: state.userRoleReducer.role
+    })
+)(AdminTable));

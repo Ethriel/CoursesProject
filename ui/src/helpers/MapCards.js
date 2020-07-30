@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from 'antd';
 const { Meta } = Card;
 
-function MapCards(elements, onClickHandler) {
+const MapCards = (elements, onClickHandler) => {
     const cards = elements.map((elem) => {
         const cover =
             <div className="img-container-my">
@@ -27,7 +27,7 @@ function MapCards(elements, onClickHandler) {
     return cards;
 }
 
-function cutDescr(descr) {
+const cutDescr = (descr) => {
     let index = descr.indexOf(".", 0);
     return descr.substr(0, index);
 }

@@ -1,4 +1,4 @@
-function ConvertArray(arr) {
+const ConvertArray = arr => {
     let str = arr.toString();
     str = str.split(",").join(" ");
     return str;

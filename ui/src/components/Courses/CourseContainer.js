@@ -12,7 +12,7 @@ const CourseContainer = props => {
     const handleDateChange = props.handleDateChange;
     const disabledDate = props.disabledDate;
     const handleConfirm = props.handleConfirm;
-    const disableButton = props.isPresent === true ? true : !isDateSelected;
+    const disableButton =  !isDateSelected;
 
     const classNameContainer =
         [
@@ -35,7 +35,8 @@ const CourseContainer = props => {
                 <DatePicker
                     format='DD/MM/YYYY'
                     onChange={handleDateChange}
-                    disabledDate={disabledDate} />
+                    disabledDate={disabledDate}
+                    disabled={props.isPresent === true} />
                 <ButtonComponent
                     size="medium"
                     myHandler={handleConfirm}

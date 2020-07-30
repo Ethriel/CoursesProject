@@ -1,4 +1,4 @@
-import {SET_ROLE, GET_ROLE} from './reducersActions';
+import { SET_ROLE } from './reducersActions';
 
 const localRole = localStorage.getItem("current_user_role");
 const initialState =
@@ -11,8 +11,6 @@ const userRoleReducer = (state = initialState, action) => {
             ...state,
             role: action.payload.role
         }
-    } else if(action.type === GET_ROLE){
-        return newState;
     }
     return newState;
 }

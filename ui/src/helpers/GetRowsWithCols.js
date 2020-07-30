@@ -6,16 +6,16 @@ const GetRowsWithCols = (elements) => {
     return row;
 };
 
-function getRow(items) {
+const getRow = (items) => {
     let columns = items.map((item) => {
         return <Col key={item.key}>{item}</Col>;
     });
-    return <Row key={updateIndex (1)}>{columns}</Row>;
+    return <Row key={updateIndex(1)}>{columns}</Row>;
 };
 
 let index = 0;
-function updateIndex(key) {
-    return ( key + index++);
+const updateIndex = (key) => {
+    return (key + index++);
 };
 
 

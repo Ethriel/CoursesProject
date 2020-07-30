@@ -66,6 +66,20 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+        [HttpPost("checkEmailConfirmed")]
+        public async Task<IActionResult> CheckEmailConfirmed([FromBody] EmailWrapper emailWrapper)
+        {
+            var result = await accountService.CheckEmailConfirmedAsync(emailWrapper);
+
+            return this.GetActionResult(result, logger);
+        }
+        [HttpPost("confirmEmailRequest")]
+        public async Task<IActionResult> ConfirmEmailRequest([FromBody] EmailWrapper emailWrapper)
+        {
+            var result = await accountService.ConfirmEmailRequestAsync(emailWrapper);
+
+            return this.GetActionResult(result, logger);
+        }
         [HttpPost("confirmChangeEmail")]
         public async Task<IActionResult> ChangeEmail([FromBody] ConfirmChangeEmailData confirmChangeEmail)
         {

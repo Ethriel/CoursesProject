@@ -7,6 +7,7 @@ import Container from '../common/ContainerComponent';
 
 const SwitchUserActions = (props) => {
     const [current, setCurrent] = useState("signin");
+    
     const handleClick = event => {
         setCurrent(event.key);
     };

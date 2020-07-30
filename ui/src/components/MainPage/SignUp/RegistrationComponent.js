@@ -75,25 +75,22 @@ class RegistrationComponent extends Component {
         }
     }
 
-    modalOk = (e) => {
+    setModal = () => {
         this.setState(oldState => ({
             modal: {
                 ...oldState.modal,
                 visible: false
             }
         }));
-    }
+    };
+
+    modalOk = (e) => {
+        this.setModal();
+    };
 
     modalCancel = (e) => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    }
-
-    facebookClick = () => { };
+        this.setModal();
+    };
 
     facebookCallback = async (response) => {
         this.setState({ spin: true });

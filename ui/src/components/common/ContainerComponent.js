@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ConvertArray from '../../helpers/ConvertArray';
-import '../../index.css';
 
 class ContainerComponent extends Component {
     render(){

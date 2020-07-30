@@ -75,7 +75,57 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
+        public async Task<ApiResult> CheckEmailConfirmedAsync(EmailWrapper emailWrapper)
+        {
+            var result = new ApiResult();
 
+            var email = emailWrapper.Email;
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var message = "User not found";
+                var errors = new string[] { $"User {email} not found" };
+                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+            }
+            else
+            {
+                if (user.EmailConfirmed)
+                {
+                    result.SetApiResult(ApiResultStatus.Ok);
+                }
+                else
+                {
+                    var message = "Email is not confirmed";
+                    var errors = new string[] { $"Email {email} is not confirmed" };
+                    result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<ApiResult> ConfirmEmailRequestAsync(EmailWrapper emailWrapper)
+        {
+            var result = new ApiResult();
+            var email = emailWrapper.Email;
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var message = "User not found";
+                var errors = new string[] { $"User {email} not found" };
+                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+            }
+            else
+            {
+                await SendEmailConfirmAsync(user);
+                result.SetApiResult(ApiResultStatus.Ok, message: "A confirm message was sent to your email. Follow the instructions");
+            }
+
+            return result;
+        }
         public async Task<ApiResult> ConfirmChangeEmailAsync(ConfirmChangeEmailData confirmChangeEmail)
         {
             var result = new ApiResult();
@@ -390,11 +440,7 @@ namespace ServicesAPI.Services.Implementations
                 user = await userManager.FindByEmailAsync(user.Email);
 
                 // send confirm request on user's email
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                token = token.Replace("+", "%2B");
-
-                await emailService.SendConfirmMessageAsync(token, user.Email);
+                await SendEmailConfirmAsync(user);
 
                 var data = GetAccountData(user);
                 result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
@@ -410,6 +456,14 @@ namespace ServicesAPI.Services.Implementations
             }
 
             return result;
+        }
+        private async Task SendEmailConfirmAsync(SystemUser user)
+        {
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            token = token.Replace("+", "%2B");
+
+            await emailService.SendConfirmMessageAsync(token, user.Email);
         }
         private async Task<ApiResult> GetConfirmEmailResultAsync(SystemUser user, string token, ApiResult result)
         {
@@ -530,6 +584,6 @@ namespace ServicesAPI.Services.Implementations
             return errors;
         }
 
-        
+
     }
 }

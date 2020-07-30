@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-async function MakeRequestAsync(urlTail, info, method, cancelToken, parameters = null) {
+const MakeRequestAsync = async (urlTail, info, method, cancelToken, parameters = null) => {
     const requestUrl = "https://localhost:44382/api/".concat(urlTail);
     axios.defaults.withCredentials = true;
     let axiosConfig = {};

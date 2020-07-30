@@ -1,4 +1,4 @@
-const getNestedData =(course) => {
+const getNestedData = (course) => {
     return {
         key: course.trainingCourseId,
         id: course.trainingCourseId,

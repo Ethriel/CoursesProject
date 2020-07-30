@@ -1,8 +1,8 @@
-function getTableData(users){
+const getTableData = (users) => {
     const data = [];
     let obj = {};
 
-    for(let user of users){
+    for (let user of users) {
         obj = {
             key: user.id,
             id: user.id,

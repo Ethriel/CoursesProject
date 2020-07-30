@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import 'antd/dist/antd.css';
-import '../../index.css';
 import { Form, Input, Button } from 'antd';
-import MakeRequestAsync from '../../helpers/MakeRequestAsync';
+import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import SetModalData from '../../helpers/SetModalData';
-import ModalWithMessage from '../common/ModalWithMessage';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
+import SetModalData from '../../../helpers/SetModalData';
+import ModalWithMessage from '../../common/ModalWithMessage';
+import GetModalPresentation from '../../../helpers/GetModalPresentation';
 
-const ForgotPassword = () => {
+const ConfirmEmailForm = () => {
     const modalOk = () => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
@@ -16,6 +15,7 @@ const ForgotPassword = () => {
     const modalCancel = () => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
+
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
     const setCatch = (error) => {
@@ -44,7 +44,7 @@ const ForgotPassword = () => {
                 email: values.email,
             };
 
-            const response = await MakeRequestAsync("account/forgotPassword", userData, "post", signal.token);
+            const response = await MakeRequestAsync("account/confirmEmailRequest", userData, "post", signal.token);
             const data = response.data;
             const message = data.message;
 
@@ -101,4 +101,4 @@ const ForgotPassword = () => {
     )
 }
 
-export default ForgotPassword;
+export default ConfirmEmailForm;

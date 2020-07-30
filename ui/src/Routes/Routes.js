@@ -4,12 +4,13 @@ import { Route, Switch } from 'react-router-dom';
 import {
     main, courses, coursesDetails, aboutUs, admin,
     editStudent, forbidden, userProfile, forgotPassword,
-    confirmEmail, confirmChangeEmail, resetPassword
+    confirmEmail, confirmChangeEmail, resetPassword,
+    confirmEmailForm
 } from './RoutersDirections';
 
 import {
     MainPage, Courses, AboutUs, Admin, CourseDetails,
-    UserProfile, ConfirmEmail, ConfirmChangeEmail,
+    UserProfile, ConfirmEmail, ConfirmEmailForm, ConfirmChangeEmail,
     ForgotPassword, ResetPassword, EditStudent,
     NoAccessPage
 } from './RouteComponents';
@@ -26,6 +27,7 @@ const Routes = () => (
         <Route exact path={userProfile} component={UserProfile} />
         <Route exact path={forgotPassword} component={ForgotPassword} />
         <Route path={confirmEmail} component={ConfirmEmail} />
+        <Route path={confirmEmailForm} component={ConfirmEmailForm} />
         <Route path={confirmChangeEmail} component={ConfirmChangeEmail} />
         <Route path={resetPassword} component={ResetPassword} />
     </Switch>

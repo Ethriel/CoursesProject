@@ -202,6 +202,10 @@ div.ant-typography,
     text-align: left;
 }
 
+.ant-row {
+    justify-content: center;
+}
+
 .header-flex {
     align-items: initial;
 
@@ -440,9 +444,9 @@ div.ant-typography,
         font-size: 1rem;
     }
 
-    .ant-menu-item {
-        font-size: 0.9rem;
-    }
+    // .ant-menu-item {
+    //     font-size: 0.9rem;
+    // }
 
     .header-menu-width {
         li {
@@ -478,9 +482,9 @@ div.ant-typography,
         font-size: 1.3rem;
     }
 
-    .ant-menu-item {
-        font-size: 1.2rem;
-    }
+    // .ant-menu-item {
+    //     font-size: 1.2rem;
+    // }
 
     .header-menu-width {
         li {

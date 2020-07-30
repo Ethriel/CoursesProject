@@ -8,5 +8,6 @@ export const forbidden = "/forbidden";
 export const userProfile = "/profile";
 export const forgotPassword = "/forgotPassword";
 export const confirmEmail = "/confirmEmail";
+export const confirmEmailForm = "/confirmEmailForm";
 export const confirmChangeEmail = "/confirmChangeEmail";
 export const resetPassword = "/resetPassword";

@@ -146,6 +146,10 @@ div.ant-typography,
   text-align: left;
 }
 
+.ant-row {
+  justify-content: center;
+}
+
 .header-flex {
   align-items: initial;
 }
@@ -380,10 +384,6 @@ div.ant-typography,
     font-size: 1rem;
   }
 
-  .ant-menu-item {
-    font-size: 0.9rem;
-  }
-
   .header-menu-width li {
     font-size: 1.1rem;
   }
@@ -412,10 +412,6 @@ div.ant-typography,
 
   .ant-table {
     font-size: 1.3rem;
-  }
-
-  .ant-menu-item {
-    font-size: 1.2rem;
   }
 
   .header-menu-width li {

@@ -1,7 +1,7 @@
-function GetUserData(user){
+const GetUserData = (user) => {
     const userData = {
-        id:user.id,
-        email:user.email,
+        id: user.id,
+        email: user.email,
         roleName: user.roleName,
         birthDate: user.birthDate,
         age: user.age,

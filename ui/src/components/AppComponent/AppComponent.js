@@ -6,7 +6,7 @@ import { Layout } from 'antd';
 
 const { Content, Header, Footer } = Layout;
 
-function AppComponent() {
+const AppComponent = () => {
     return (
         <Layout>
             <Header>

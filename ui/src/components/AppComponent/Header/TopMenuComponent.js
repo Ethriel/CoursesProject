@@ -1,7 +1,7 @@
 import React from 'react'
 import 'antd/dist/antd.css';
 import { Menu } from 'antd';
-import { NavLink } from 'react-router-dom';
+import { NavLink, withRouter } from 'react-router-dom';
 import { UserOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 const { SubMenu } = Menu;
 
@@ -30,7 +30,7 @@ const TopMenuComponent = (props) => {
 
     return (
         <Menu mode={mode}
-            triggerSubMenuAction="click"
+            selectedKeys={[props.location.pathname]}
             onClick={props.menuClick}
             className={props.className}>
             {menuItems}
@@ -46,4 +46,4 @@ const isSmallScreen = () => {
     return width <= 600;
 };
 
-export default TopMenuComponent;
+export default withRouter(TopMenuComponent);

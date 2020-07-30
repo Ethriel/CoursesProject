@@ -36,14 +36,16 @@ class LoginComponent extends Component {
     componentWillUnmount() {
         this.signal.cancel();
     };
-    
+
     setCatch = error => {
         const modalData = SetModalData(error);
+        console.log(modalData);
         this.setState(oldState => ({
             modal: {
                 ...oldState.modal,
                 message: modalData.message,
-                errors: modalData.errors
+                errors: modalData.errors,
+                visible: true
             }
         }));
     };
@@ -79,6 +81,7 @@ class LoginComponent extends Component {
 
             this.setState({ redirect: true });
         } catch (error) {
+            console.log(error);
             this.setCatch(error);
         } finally {
             this.setFinally();
@@ -119,7 +122,7 @@ class LoginComponent extends Component {
         }
     };
 
-    modalOk = (e) => {
+    setModal = () => {
         this.setState(oldState => ({
             modal: {
                 ...oldState.modal,
@@ -128,22 +131,18 @@ class LoginComponent extends Component {
         }));
     };
 
+    modalOk = (e) => {
+        this.setModal();
+    };
+
     modalCancel = (e) => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
+        this.setModal();
     };
 
     render() {
         const { spin, modal } = this.state;
-
         const modalWindow = ModalWithMessage(modal);
-
         const spinner = <Space size="middle"> <Spin tip="Signing you in..." size="large" /></Space>;
-
         const login =
             <>
                 {this.state.redirect && this.renderRedirect()}
@@ -155,9 +154,9 @@ class LoginComponent extends Component {
 
         return (
             <>
+                {modal.visible === true && modalWindow}
                 {spin === true && spinner}
                 {spin === false && login}
-                {modal.visible === true && modalWindow}
             </>
         )
     }

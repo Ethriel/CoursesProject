@@ -7,15 +7,14 @@ import getNestedCols from '../AdminComponent/Nested/getNestedCols';
 import getNestedData from '../AdminComponent/Nested/getNestedData';
 import H from '../common/HAntD';
 
-const UserCoursesContainer = props => {
-    const id = props.userId;
+const UserCoursesContainer = ({userId, ...props}) => {
     const [isLoading, setLoading] = useState(true);
     const [courses, setCourses] = useState([]);
     useEffect(() => {
         const signal = axios.CancelToken.source();
         async function fetchCourses() {
             try {
-                const response = await MakeRequestAsync(`UserCourses/get/${id}`, { msg: "hello" }, "get", signal.token);
+                const response = await MakeRequestAsync(`UserCourses/get/${userId}`, { msg: "hello" }, "get", signal.token);
                 if (response.status === 200) {
                     const coursesData = response.data.data;
                     const data = [];
@@ -27,7 +26,7 @@ const UserCoursesContainer = props => {
                     setCourses(data);
                 }
             } catch (error) {
-                console.log(error);
+                throw error;
             } finally {
                 setLoading(false);
             }
@@ -38,7 +37,7 @@ const UserCoursesContainer = props => {
         return function cleanup() {
             signal.cancel("CANCEL IN GET USER COURSES");
         }
-    }, []);
+    }, [userId]);
 
     const containerClasses = ["display-flex", "width-90", "center-a-div", "col-flex"];
     const columns = getNestedCols();

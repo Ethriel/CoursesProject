@@ -9,8 +9,8 @@ const NestedTable = (props) => {
     const [state, setState] = useState({ data: [] });
     const [loading, setLoading] = useState(true);
     const userId = props.userId;
-    const signal = axios.CancelToken.source();
     useEffect(() => {
+        const signal = axios.CancelToken.source();
         async function fetchData() {
             try {
                 // getting courses
@@ -35,7 +35,7 @@ const NestedTable = (props) => {
         return function cleanup() {
             signal.cancel("Cancel in nested table");
         }
-    }, []);
+    }, [userId]);
     const columns = getNestedCols();
     return <Table columns={columns} dataSource={state.data} pagination={false} loading={loading} />;
 };

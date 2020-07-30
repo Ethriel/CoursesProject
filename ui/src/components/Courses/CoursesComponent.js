@@ -13,7 +13,6 @@ import CoursesContent from './CoursesContent';
 import { Spin, Space } from 'antd';
 import { withRouter } from "react-router";
 import { connect } from 'react-redux';
-import { GET_ROLE } from '../../reducers/reducersActions';
 import { ADMIN, USER } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
 
@@ -163,12 +162,5 @@ class CoursesComponent extends Component {
 export default withRouter(connect(
     state => ({
         store: state
-    }),
-    dispatch => ({
-        onGetRole: () => {
-            dispatch({
-                type: GET_ROLE
-            })
-        }
     })
 )(CoursesComponent));

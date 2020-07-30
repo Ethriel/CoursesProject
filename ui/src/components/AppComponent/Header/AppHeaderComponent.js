@@ -30,14 +30,14 @@ const AppHeaderComponent = (props) => {
 
     const subItems = [];
 
-    subItems.push({ key: 1, text: "Home", to: main });
-    
-    subItems.push({ key: 3, text: "About us", to: aboutUs });
-    
+    subItems.push({ key: main, text: "Home", to: main });
+
+    subItems.push({ key: aboutUs, text: "About us", to: aboutUs });
+
     if (isUser) {
-        subItems.push({ key: 2, text: "Courses", to: courses });
+        subItems.push({ key: courses, text: "Courses", to: courses });
         if (role === ADMIN) {
-            subItems.push({ key: 4, text: "Admin", to: admin });
+            subItems.push({ key: admin, text: "Admin", to: admin });
         }
     }
 
@@ -56,9 +56,6 @@ const AppHeaderComponent = (props) => {
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
     const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
     const menuContainer = ["display-flex", "justify-center", "align-center", "width-90"];
-    // const logoTextContainer = ["display-flex", "align-center", "justify-center", "width-90", "max-width-350"];
-    // const logo = <img src={headerLogo} className="logo-img" alt="Logo" />
-    // const headerText = <H level={2} myText="Forge your future with us!" />;
 
     const profileClick = async (event) => {
         const key = event.key;
@@ -75,7 +72,6 @@ const AppHeaderComponent = (props) => {
 
                 // sign out user on server
                 await MakeRequestAsync("account/signout", requestData, "post", signal.token);
-
                 // set user role to undefined in redux store
                 dispatch({
                     type: SET_ROLE,
@@ -111,19 +107,14 @@ const AppHeaderComponent = (props) => {
         <>
             {modal.visible === true && modalWindow}
             <Container classes={headerContainer}>
-                {/* <Container classes={logoTextContainer}>
-                    {logo}
-                    {headerText}
-                </Container> */}
-                <Container classes={menuContainer}>
-                    <TopMenu 
-                    myMenuItems={subItems}
-                    isUser={isUser}
-                    menuClick={profileClick}
-                    className="header-menu-width" />
+                    <Container classes={menuContainer}>
+                        <TopMenu
+                            myMenuItems={subItems}
+                            isUser={isUser}
+                            menuClick={profileClick}
+                            className="header-menu-width" />
+                    </Container>
                 </Container>
-            </Container>
-
         </>
     );
 }

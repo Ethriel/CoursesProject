@@ -1,13 +1,15 @@
 import axios from 'axios';
 
-function MakeRequest(url, info, method, params = null) {
+const MakeRequest = (urlTail, info, method, cancelToken, parameters = null) => {
+    const requestUrl = "https://localhost:44382/api/".concat(urlTail);
     axios.defaults.withCredentials = true;
-    let config = {};
+    let axiosConfig = {};
     if (info === null) {
-        config = {
+        axiosConfig = {
             method: method,
-            params: params,
-            url: url,
+            params: parameters,
+            cancelToken: cancelToken,
+            url: requestUrl,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
                 "Content-Type": "application/json",
@@ -16,10 +18,11 @@ function MakeRequest(url, info, method, params = null) {
         };
     }
     else {
-        config = {
+        axiosConfig = {
             method: method,
             data: info,
-            url: url,
+            cancelToken: cancelToken,
+            url: requestUrl,
             headers: {
                 "Authorization": localStorage.getItem("bearer_header"),
                 "Content-Type": "application/json",
@@ -28,18 +31,16 @@ function MakeRequest(url, info, method, params = null) {
         };
     }
     try {
-        axios(config)
+        axios(axiosConfig)
             .then((response) => {
-                console.log("RESPONSE", response);
                 const data = response.data;
-                console.log("DATA", data);
                 return data;
             })
             .catch((reason) => {
                 return reason;
             })
     } catch (error) {
-        return error;
+        throw error;
     }
 };
 

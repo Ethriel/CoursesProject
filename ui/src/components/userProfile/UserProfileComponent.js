@@ -12,8 +12,7 @@ import GetModalPresentation from '../../helpers/GetModalPresentation';
 import ValidateEmail from '../../helpers/ValidateEmail';
 import { ProfileOutlined } from '@ant-design/icons';
 
-const UserProfileComponent = (props) => {
-    const userId = props.userId;
+const UserProfileComponent = ({userId, ...props}) => {
     const id = (userId === undefined || userId < 0) ? +localStorage.getItem("current_user_id") : userId;
 
     const modalOk = (e) => {
@@ -57,10 +56,11 @@ const UserProfileComponent = (props) => {
             signal.cancel("CANCEL IN GET USER");
         };
 
-    }, []);
+    }, [id]);
 
     const changeField = (field, value) => {
         setUser(old => ({ ...old, [field]: value }));
+
         if (field === "email") {
             try {
                 if (ValidateEmail(value)) {
@@ -91,7 +91,7 @@ const UserProfileComponent = (props) => {
             // if email was changed - make a request to verify new email
             if (emailState.changed === true) {
                 const email = localStorage.getItem("new_email");
-                const verifyResponse = await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
+                await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
 
                 setEmailState(old => ({ ...old, ...{ valid: true } }));
 
@@ -150,10 +150,6 @@ const UserProfileComponent = (props) => {
 
     const content =
         <>
-            {/* <Button type="primary" onClick={openDrawer}
-                style={{ width: 150, alignSelf: "flex-end" }}>
-                Open profile info
-            </Button> */}
             {openProfile}
             <Drawer title="Profile info"
                 width={400}

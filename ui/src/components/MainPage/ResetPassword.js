@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
-import { Form, Input, Button, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Form, Input, Button } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
 import SetModalData from '../../helpers/SetModalData';
@@ -14,10 +13,10 @@ const queryString = require('query-string');
 
 const ResetPassword = (props) => {
     const closeModal = () => {
+        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
         if (allGood === true) {
             props.history.push("/");
         }
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     }
     const modalOk = () => {
         closeModal();
