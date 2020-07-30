@@ -17,18 +17,18 @@ const CourseContainer = props => {
     const classNameContainer =
         [
             "display-flex", "col-flex", "center-flex",
-            "width-75", "center-a-div", "background-course-details"
+            "width-75", "center-a-div"
         ];
     const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
 
     return (
         <Container classes={classNameContainer}>
-            <H myText={course.title} level={3} />
+            <H myText={course.title} level={4} />
             <img
                 style={{ margin: "0 auto" }}
                 alt="No"
                 src={`https://localhost:44382/${course.cover}`} />
-            <Paragraph>
+            <Paragraph className="course-details-margin">
                 {course.description}
             </Paragraph>
             <Container classes={classNameConfirm}>

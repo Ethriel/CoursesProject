@@ -1,8 +1,7 @@
 import React from 'react';
-import '../../index.css';
-import ContainerComponent from './ContainerComponent';
+import ContainerComponent from '../../common/ContainerComponent';
 
-const HeaderComponent = props => {
+const FooterComponent = props => {
 
     const classes = props.myClasses;
     return(
@@ -12,4 +11,4 @@ const HeaderComponent = props => {
     );
 };
 
-export default HeaderComponent;
+export default FooterComponent;

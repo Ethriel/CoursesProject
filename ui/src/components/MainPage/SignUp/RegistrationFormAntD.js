@@ -1,41 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import '../../index.css';
-import '../../css/styles.css';
 import { Form, Input, Button, DatePicker } from 'antd';
-import '../../css/styles.css';
-import ButtonFaceBook from '../MainPage/ButtonFacebook';
-
-// const formItemLayout = {
-//   labelCol: {
-//     xs: {
-//       span: 24,
-//     },
-//     sm: {
-//       span: 8,
-//     },
-//   },
-//   wrapperCol: {
-//     xs: {
-//       span: 24,
-//     },
-//     sm: {
-//       span: 16,
-//     },
-//   },
-// };
-// const tailFormItemLayout = {
-//   wrapperCol: {
-//     xs: {
-//       span: 24,
-//       offset: 0,
-//     },
-//     sm: {
-//       span: 16,
-//       offset: 8,
-//     },
-//   },
-// };
+import ButtonFaceBook from '../Facebook/ButtonFacebook';
 
 const RegistrationForm = (props) => {
   const [form] = Form.useForm();

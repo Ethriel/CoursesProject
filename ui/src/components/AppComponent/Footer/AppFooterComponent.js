@@ -1,6 +1,5 @@
 import React from 'react';
-import FooterComponent from '../common/FooterComponent';
-import '../../index.css';
+import FooterComponent from './FooterComponent';
 import { FacebookFilled, GithubFilled } from '@ant-design/icons';
 
 const AppFooterComponent = () => {

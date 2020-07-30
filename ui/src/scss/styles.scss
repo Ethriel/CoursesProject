@@ -168,6 +168,11 @@ div.ant-typography,
     background-color: honeydew;
 }
 
+.course-details-margin {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
 .align-center {
     align-items: center;
 }
@@ -255,6 +260,7 @@ div.ant-typography,
 
 .sign-in-up-my {
     width: 100%;
+
     li {
         width: 50%;
         text-align: center;

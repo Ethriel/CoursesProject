@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Menu } from 'antd';
 import { UserAddOutlined, LoginOutlined } from '@ant-design/icons'
-import SignIn from './LoginComponent';
-import SignUp from './RegistrationComponent';
+import SignIn from './SignIn/LoginComponent';
+import SignUp from './SignUp/RegistrationComponent';
 import Container from '../common/ContainerComponent';
 
 const SwitchUserActions = (props) => {

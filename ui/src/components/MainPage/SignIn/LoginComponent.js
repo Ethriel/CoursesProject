@@ -1,22 +1,20 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import NormalLoginFormAntD from './NormalLoginFormAntD';
-import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import GetUserData from '../../helpers/GetUserData';
+import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
+import GetUserData from '../../../helpers/GetUserData';
 import axios from 'axios';
-import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
+import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
 import 'antd/dist/antd.css';
 import { Spin, Space } from 'antd';
-import '../../index.css';
-import '../../css/styles.css';
-import ModalWithMessage from '../common/ModalWithMessage';
-import SetModalData from '../../helpers/SetModalData';
-import GetFacebookData from './GetFacebookData';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
+import ModalWithMessage from '../../common/ModalWithMessage';
+import SetModalData from '../../../helpers/SetModalData';
+import GetFacebookData from '../Facebook/GetFacebookData';
+import GetModalPresentation from '../../../helpers/GetModalPresentation';
 import { connect } from 'react-redux';
-import { SET_ROLE } from '../../reducers/reducersActions';
-import { ADMIN } from '../common/roles';
-import { courses, admin } from '../../Routes/RoutersDirections';
+import { SET_ROLE } from '../../../reducers/reducersActions';
+import { ADMIN } from '../../common/roles';
+import { courses, admin } from '../../../Routes/RoutersDirections';
 
 class LoginComponent extends Component {
     signal = axios.CancelToken.source();

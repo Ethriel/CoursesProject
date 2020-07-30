@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pagination } from 'antd';
-import '../../css/styles.css';
 
 const PaginationComponent = props => {
     const pagination = props.pagination;

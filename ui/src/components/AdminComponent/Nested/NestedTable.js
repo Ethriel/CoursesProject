@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import getNestedCols from './getNestedCols';
 import getNestedData from './getNestedData';
 import axios from 'axios';
-import MakeRequestAsync from '../../helpers/MakeRequestAsync';
+import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 
 const NestedTable = (props) => {
     const [state, setState] = useState({ data: [] });

@@ -1,11 +1,10 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import '../../index.css';
 import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { withRouter } from "react-router";
-import { forgotPassword } from '../../Routes/RoutersDirections'
-import ButtonFaceBook from '../MainPage/ButtonFacebook';
+import { forgotPassword } from '../../../Routes/RoutersDirections';
+import ButtonFaceBook from '../Facebook/ButtonFacebook';
 
 const NormalLoginForm = (props) => {
     const confirHandler = props.myConfirHandler;

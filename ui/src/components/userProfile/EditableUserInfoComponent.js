@@ -4,7 +4,7 @@ import Container from '../common/ContainerComponent';
 
 const { Text, Paragraph } = Typography;
 
-function EditableUserInfoComponent(props) {
+const EditableUserInfoComponent = (props) => {
     const containerClasses = ["display-flex", "width-100", "space-between-flex"];
     const label = props.label;
     const text = props.text;

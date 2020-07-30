@@ -1,6 +1,5 @@
 import React from 'react'
 import 'antd/dist/antd.css';
-import '../../index.css';
 import { Menu } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { UserOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
@@ -17,9 +16,10 @@ const TopMenuComponent = (props) => {
     });
 
     const userMenu =
-        <SubMenu key={5} icon={<UserOutlined />}>
+        <SubMenu key={5} icon={<UserOutlined />} >
             <Menu.Item key={"profile"} icon={<ProfileOutlined />}
-                className="header-sub-my">
+                className="header-sub-my"
+            >
                 Profile
             </Menu.Item>
             <Menu.Item key={"signout"} icon={<LogoutOutlined />}
@@ -30,6 +30,7 @@ const TopMenuComponent = (props) => {
 
     return (
         <Menu mode={mode}
+            triggerSubMenuAction="click"
             onClick={props.menuClick}
             className={props.className}>
             {menuItems}

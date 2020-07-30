@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import RegistrationForm from './RegistrationFormAntD';
-import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import GetUserData from '../../helpers/GetUserData';
-import ButtonFaceBook from '../MainPage/ButtonFacebook';
+import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
+import GetUserData from '../../../helpers/GetUserData';
 import axios from 'axios';
-import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
-import SetModalData from '../../helpers/SetModalData';
+import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
+import SetModalData from '../../../helpers/SetModalData';
 import 'antd/dist/antd.css';
 import { Spin, Space } from 'antd';
-import '../../index.css';
-import '../../css/styles.css';
-import ModalWithMessage from '../common/ModalWithMessage';
-import GetFacebookData from './GetFacebookData';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
+import ModalWithMessage from '../../common/ModalWithMessage';
+import GetFacebookData from '../Facebook/GetFacebookData';
+import GetModalPresentation from '../../../helpers/GetModalPresentation';
 
 class RegistrationComponent extends Component {
     constructor(props) {
@@ -132,7 +129,6 @@ class RegistrationComponent extends Component {
             <>
                 <RegistrationForm onFinish={this.confirmHandler} 
                 facebookResponse={this.facebookCallback}/>
-                {/* <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookCallback} /> */}
             </>
         return (
             <>

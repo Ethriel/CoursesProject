@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tooltip } from 'antd';
-function getNestedCols() {
+const getNestedCols = () => {
     return [
         { title: "Id", dataIndex: "id", key: "id" , align: "center"},
         {

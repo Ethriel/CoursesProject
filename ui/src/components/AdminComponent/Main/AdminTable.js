@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
-import '../../index.css';
 import { Table, Input } from 'antd';
 import getTableCols from './getTableCols';
 import getTableData from './getTableData';
-import NestedTable from './NestedTable';
-import Container from '../common/ContainerComponent';
-import H from '../common/HAntD';
-import MakeRequestAsync from '../../helpers/MakeRequestAsync';
+import NestedTable from '../Nested/NestedTable';
+import Container from '../../common/ContainerComponent';
+import H from '../../common/HAntD';
+import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import SetModalData from '../../helpers/SetModalData';
-import ModalWithMessage from '../common/ModalWithMessage';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
+import SetModalData from '../../../helpers/SetModalData';
+import ModalWithMessage from '../../common/ModalWithMessage';
+import GetModalPresentation from '../../../helpers/GetModalPresentation';
 import { withRouter } from "react-router";
 import { useStore } from 'react-redux';
-import { forbidden } from '../../Routes/RoutersDirections';
+import { forbidden } from '../../../Routes/RoutersDirections';
 
 const { Search } = Input;
 const url = "Students/post/searchAndSort";

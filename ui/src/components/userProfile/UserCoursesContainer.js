@@ -3,8 +3,8 @@ import { Table } from 'antd';
 import axios from 'axios';
 import Container from '../common/ContainerComponent';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import getNestedCols from '../AdminComponent/getNestedCols';
-import getNestedData from '../AdminComponent/getNestedData';
+import getNestedCols from '../AdminComponent/Nested/getNestedCols';
+import getNestedData from '../AdminComponent/Nested/getNestedData';
 import H from '../common/HAntD';
 
 const UserCoursesContainer = props => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import '../../index.css';
-import AdminTable from "./AdminTable";
+import AdminTable from "./Main/AdminTable";
 
 const AdminComponent = () => {
 
