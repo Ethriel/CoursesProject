@@ -70,7 +70,10 @@ namespace ServicesAPI.Services.Implementations
 
             var amount = await allUsers.CountAsync();
 
-            searchAndSort.Pagination ??= new Pagination(amount);
+            var pagination = new Pagination();
+            pagination.SetDefaults(amount, pageSize: 5);
+
+            searchAndSort.Pagination ??= pagination;
 
             var skip = searchAndSort.Pagination
                                     .GetSkip();

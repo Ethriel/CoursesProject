@@ -139,7 +139,10 @@ namespace ServicesAPI.Services.Implementations
             var amount = await context.TrainingCourses
                                       .CountAsync();
 
-            coursesPagination.Pagination ??= new Pagination(amount);
+            var pagination = new Pagination();
+            pagination.SetDefaults(amount, pageSize: 3);
+
+            coursesPagination.Pagination ??= pagination;
 
             var skip = coursesPagination.Pagination
                                         .GetSkip();

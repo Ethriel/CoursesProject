@@ -3,7 +3,6 @@ import { Redirect } from 'react-router-dom';
 import NormalLoginFormAntD from './NormalLoginFormAntD';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import GetUserData from '../../helpers/GetUserData';
-import ButtonFaceBook from '../MainPage/ButtonFacebook';
 import axios from 'axios';
 import setDataToLocalStorage from '../../helpers/setDataToLocalStorage';
 import 'antd/dist/antd.css';
@@ -34,10 +33,12 @@ class LoginComponent extends Component {
                 modal: GetModalPresentation(this.modalOk, this.modalCancel)
             }
         };
-    }
+    };
+
     componentWillUnmount() {
         this.signal.cancel();
-    }
+    };
+    
     setCatch = error => {
         const modalData = SetModalData(error);
         this.setState(oldState => ({
@@ -94,9 +95,9 @@ class LoginComponent extends Component {
         }
     };
 
-    facebookResponseHandler = async (response) => {
+    facebookCallback = async (response) => {
+        this.setState({ spin: true });
         const cancelToken = this.signal.token;
-
         const userData = GetFacebookData(response);
 
         try {
@@ -151,7 +152,7 @@ class LoginComponent extends Component {
                 {this.state.redirect === false && <NormalLoginFormAntD
                     myConfirHandler={this.confirmHandler}
                     facebookClick={this.facebookClick}
-                    facebookResponse={this.facebookResponseHandler} />}
+                    facebookResponse={this.facebookCallback} />}
             </>;
 
         return (

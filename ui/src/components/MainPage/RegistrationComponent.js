@@ -98,7 +98,7 @@ class RegistrationComponent extends Component {
 
     facebookClick = () => { };
 
-    facebookResponseHandler = async (response) => {
+    facebookCallback = async (response) => {
         this.setState({ spin: true });
         const cancelToken = axios.CancelToken.source().token;
         const userData = GetFacebookData(response);
@@ -130,8 +130,9 @@ class RegistrationComponent extends Component {
         const modalWindow = ModalWithMessage(modal);
         const signUp =
             <>
-                <RegistrationForm onFinish={this.confirmHandler} />
-                <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookResponseHandler} />
+                <RegistrationForm onFinish={this.confirmHandler} 
+                facebookResponse={this.facebookCallback}/>
+                {/* <ButtonFaceBook facebookClick={this.facebookClick} facebookResponse={this.facebookCallback} /> */}
             </>
         return (
             <>

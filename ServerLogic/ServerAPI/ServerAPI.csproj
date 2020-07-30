@@ -5,6 +5,9 @@
     <UserSecretsId>e794ff54-2bf8-43cc-a7ce-d0bbeace7d0d</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Controllers\FillDatabase.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />

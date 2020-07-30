@@ -2,49 +2,44 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
 import '../../css/styles.css';
-import {
-  Form,
-  Input,
-  Button,
-  DatePicker
-} from 'antd';
+import { Form, Input, Button, DatePicker } from 'antd';
 import '../../css/styles.css';
+import ButtonFaceBook from '../MainPage/ButtonFacebook';
 
-
-
-const formItemLayout = {
-  labelCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 8,
-    },
-  },
-  wrapperCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 16,
-    },
-  },
-};
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
+// const formItemLayout = {
+//   labelCol: {
+//     xs: {
+//       span: 24,
+//     },
+//     sm: {
+//       span: 8,
+//     },
+//   },
+//   wrapperCol: {
+//     xs: {
+//       span: 24,
+//     },
+//     sm: {
+//       span: 16,
+//     },
+//   },
+// };
+// const tailFormItemLayout = {
+//   wrapperCol: {
+//     xs: {
+//       span: 24,
+//       offset: 0,
+//     },
+//     sm: {
+//       span: 16,
+//       offset: 8,
+//     },
+//   },
+// };
 
 const RegistrationForm = (props) => {
   const [form] = Form.useForm();
+  const facebookResponse = props.facebookResponse;
 
   return (
     <Form
@@ -52,12 +47,10 @@ const RegistrationForm = (props) => {
       name="register"
       onFinish={props.onFinish}
       size="small"
-
       scrollToFirstError
     >
       <Form.Item
         name={['user', 'name']}
-        // label="First name"
         className="ant-input-my-sign-up"
         rules={
           [
@@ -68,12 +61,11 @@ const RegistrationForm = (props) => {
           ]
         }>
         <Input placeholder="First name"
-        className="ant-input-my-sign-up"
+          className="ant-input-my-sign-up"
         />
       </Form.Item>
       <Form.Item
         name={['user', 'lastname']}
-        // label="Last name"
         className="ant-input-my-sign-up"
         rules={
           [
@@ -84,13 +76,12 @@ const RegistrationForm = (props) => {
           ]
         }>
         <Input placeholder="Last name"
-        className="ant-input-my-sign-up"
+          className="ant-input-my-sign-up"
         />
       </Form.Item>
 
       <Form.Item
         name="email"
-        // label="E-mail"
         className="ant-input-my-sign-up"
         rules={[
           {
@@ -104,14 +95,13 @@ const RegistrationForm = (props) => {
         ]}
       >
         <Input placeholder="Email"
-        className="ant-input-my-sign-up"
+          className="ant-input-my-sign-up"
         />
       </Form.Item>
 
       <Form.Item
         name="password"
         className="ant-input-my-sign-up"
-        // label="Password"
         rules={[
           {
             required: true,
@@ -121,14 +111,13 @@ const RegistrationForm = (props) => {
         hasFeedback
       >
         <Input.Password placeholder="Password"
-        className="ant-input-my-sign-up"
+          className="ant-input-my-sign-up"
         />
       </Form.Item>
 
       <Form.Item
         name="confirm"
         className="ant-input-my-sign-up"
-        // label="Confirm Password"
         dependencies={['password']}
         hasFeedback
         rules={[
@@ -141,20 +130,17 @@ const RegistrationForm = (props) => {
               if (!value || getFieldValue('password') === value) {
                 return Promise.resolve();
               }
-
               return Promise.reject('The two passwords that you entered do not match!');
             },
           }),
         ]}
       >
         <Input.Password placeholder="Confirm password"
-        className="ant-input-my-sign-up"
+          className="ant-input-my-sign-up"
         />
       </Form.Item>
       <Form.Item
         name="birthdate"
-        // label="Birth date"
-
         rules={
           [
             {
@@ -171,7 +157,7 @@ const RegistrationForm = (props) => {
         />
       </Form.Item>
 
-      <Form.Item {...tailFormItemLayout}>
+      <Form.Item >
         <Button
           type="primary"
           htmlType="submit"
@@ -181,6 +167,10 @@ const RegistrationForm = (props) => {
         >
           Sign up
         </Button>
+      </Form.Item>
+
+      <Form.Item>
+        <ButtonFaceBook facebookResponse={facebookResponse} />
       </Form.Item>
     </Form>
   );

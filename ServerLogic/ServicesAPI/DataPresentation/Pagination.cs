@@ -24,11 +24,11 @@ namespace ServicesAPI.DataPresentation
             PageSize = pageSize;
             Total = total;
         }
-        public void SetDefaults(int total)
+        public void SetDefaults(int total, int page = 1, int pageSize = 2)
         {
             Position = new string[] { "none", "bottomCenter" };
-            Page = 1;
-            PageSize = 2;
+            Page = page;
+            PageSize = pageSize;
             Total = total;
         }
         public int GetSkip()

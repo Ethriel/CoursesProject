@@ -9,11 +9,14 @@ const SwitchUserActions = (props) => {
     const [current, setCurrent] = useState("signin");
     const handleClick = event => {
         setCurrent(event.key);
-    }
+    };
+
     const switchActions =
         <Menu mode="horizontal"
             onClick={handleClick}
-            selectedKeys={[current]}>
+            selectedKeys={[current]}
+            className="sign-in-up-my"
+        >
             <Menu.Item
                 key="signin"
                 icon={<LoginOutlined />}>

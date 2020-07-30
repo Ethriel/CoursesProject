@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Infrastructure.DbContext;
+using Infrastructure.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServicesAPI.BackgroundJobs;
 using ServicesAPI.Services.Abstractions;
 using System;
 using System.Linq;
@@ -18,15 +22,25 @@ namespace ServerAPI.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IEmailService emailService;
+        private readonly RoleManager<SystemRole> roleManager;
+        private readonly UserManager<SystemUser> userManager;
+        private readonly CoursesSystemDbContext context;
+        private readonly IEmailNotifyJob emailNotifyJob;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService,
+            RoleManager<SystemRole> roleManager, UserManager<SystemUser> userManager,
+            CoursesSystemDbContext context, IEmailNotifyJob emailNotifyJob)
         {
             _logger = logger;
             this.emailService = emailService;
+            this.roleManager = roleManager;
+            this.userManager = userManager;
+            this.context = context;
+            this.emailNotifyJob = emailNotifyJob;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             var rng = new Random();
             var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
