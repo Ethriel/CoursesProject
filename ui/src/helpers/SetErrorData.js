@@ -1,6 +1,6 @@
 import IsAxiosError from './IsAxiosError';
 
-const SetModalData = (error) => {
+const SetErrorData = (error) => {
     let modalData = {
         message: "",
         errors: []
@@ -35,4 +35,4 @@ const SetModalData = (error) => {
     return modalData;
 };
 
-export default SetModalData;
+export default SetErrorData;

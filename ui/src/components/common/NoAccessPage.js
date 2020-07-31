@@ -6,37 +6,18 @@ import { Typography } from 'antd';
 import axios from 'axios';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import { ADMIN } from './roles';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
-import ModalWithMessage from '../common/ModalWithMessage';
-import SetModalData from '../../helpers/SetModalData';
 import { main, confirmEmailForm } from '../../Routes/RoutersDirections';
+import Notification from './Notification';
 
 const { Paragraph } = Typography;
 
 const NoAccessPage = ({ currentUser, histroy, ...props }) => {
-    const modalOk = (e) => {
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
-    };
-
-    const modalCancel = (e) => {
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
-    };
-
     const setCatch = error => {
-        const modalData = SetModalData(error);
-        setModal(oldState => ({
-            modal: {
-                ...oldState.modal,
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
+        Notification(error);
     };
     const [notUser, setNotUser] = useState(false);
     const [emailConfirmed, setEmailConfirmed] = useState(true);
     const [noAccess, setNoAccess] = useState(false);
-    const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
@@ -92,11 +73,8 @@ const NoAccessPage = ({ currentUser, histroy, ...props }) => {
             You don't have access to this page
     </Paragraph >;
 
-    const modalWindow = ModalWithMessage(modal);
-
     return (
         <>
-            {modal.visible === true && modalWindow}
             <H level={3} myText="Access denied" />
             {noAccess === true && noAccessMessage}
             {emailConfirmed === false && emailNotConfirmed}

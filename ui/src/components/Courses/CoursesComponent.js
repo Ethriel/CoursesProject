@@ -6,15 +6,13 @@ import H from '../common/HAntD';
 import LayoutAntD from '../common/LayoutAntD';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
-import ModalWithMessage from '../common/ModalWithMessage';
-import SetModalData from '../../helpers/SetModalData';
 import CoursesContent from './CoursesContent';
 import { Spin, Space } from 'antd';
 import { withRouter } from "react-router";
 import { connect } from 'react-redux';
 import { ADMIN, USER } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
+import Notification from '../common/Notification';
 
 class CoursesComponent extends Component {
 
@@ -26,7 +24,6 @@ class CoursesComponent extends Component {
             redirect: false,
             loading: true,
             course: 0,
-            modal: GetModalPresentation(this.modalOk, this.modalCancel)
         };
     }
 
@@ -56,7 +53,6 @@ class CoursesComponent extends Component {
     }
 
     handleChange = async (page, pageSize) => {
-
         const signal = axios.CancelToken.source()
         this.setState({ loading: true });
         const pagination = {
@@ -102,41 +98,15 @@ class CoursesComponent extends Component {
             const id = this.state.course;
             return <Redirect to={`/coursedetails/${id}`} push={true} />
         }
-    }
+    };
 
     setCatch(error) {
-        const modalData = SetModalData(error);
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
-    }
+        Notification(error);
+    };
 
-    modalOk = (e) => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    }
-
-    modalCancel = (e) => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    }
     render() {
         const header = <H myText="Select a training course" level={4} />;
-        const { pagination, loading, items, modal } = this.state;
-        const modalWindow = ModalWithMessage(modal);
+        const { pagination, loading, items } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Loading courses..." size="large" /></Space>;
 
         const content = <CoursesContent
@@ -154,7 +124,6 @@ class CoursesComponent extends Component {
             <>
                 {loading === true && spinner}
                 {loading === false && toRender}
-                {this.state.modal.visible === true && modalWindow}
             </>
         );
     };

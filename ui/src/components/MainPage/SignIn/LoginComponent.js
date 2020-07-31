@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+import { Spin, Space } from 'antd';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import 'antd/dist/antd.css';
 import NormalLoginFormAntD from './NormalLoginFormAntD';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import GetUserData from '../../../helpers/GetUserData';
-import axios from 'axios';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
-import 'antd/dist/antd.css';
-import { Spin, Space } from 'antd';
-import ModalWithMessage from '../../common/ModalWithMessage';
-import SetModalData from '../../../helpers/SetModalData';
 import GetFacebookData from '../Facebook/GetFacebookData';
-import GetModalPresentation from '../../../helpers/GetModalPresentation';
-import { connect } from 'react-redux';
+import Notification from '../../common/Notification';
 import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../../reducers/reducersActions';
 import { ADMIN } from '../../common/roles';
 import { courses, admin } from '../../../Routes/RoutersDirections';
@@ -27,8 +25,6 @@ class LoginComponent extends Component {
                 message: "",
                 errors: [],
                 visible: false,
-                modalOk: this.modalOk,
-                modal: GetModalPresentation(this.modalOk, this.modalCancel)
             }
         };
     };
@@ -38,21 +34,12 @@ class LoginComponent extends Component {
     };
 
     setCatch = error => {
-        const modalData = SetModalData(error);
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
+        Notification(error);
     };
 
     setFinally = () => {
         this.setState({ spin: false });
     };
-
 
     setEmailConfirmed = confirmed => {
         localStorage.setItem("current_user_email_confirmed", confirmed);
@@ -61,7 +48,6 @@ class LoginComponent extends Component {
 
     confirmHandler = async values => {
         this.setState({ spin: true });
-
         const userData = {
             email: values.username,
             password: values.password
@@ -123,7 +109,7 @@ class LoginComponent extends Component {
 
             this.changeRole(role);
 
-            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, true);
 
             this.setState({ redirect: true });
         } catch (error) {
@@ -133,26 +119,8 @@ class LoginComponent extends Component {
         }
     };
 
-    setModal = () => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    };
-
-    modalOk = (e) => {
-        this.setModal();
-    };
-
-    modalCancel = (e) => {
-        this.setModal();
-    };
-
     render() {
-        const { spin, modal } = this.state;
-        const modalWindow = ModalWithMessage(modal);
+        const { spin } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Signing you in..." size="large" /></Space>;
         const login =
             <>
@@ -165,7 +133,6 @@ class LoginComponent extends Component {
 
         return (
             <>
-                {modal.visible === true && modalWindow}
                 {spin === true && spinner}
                 {spin === false && login}
             </>

@@ -8,26 +8,16 @@ import { ProfileOutlined } from '@ant-design/icons';
 import UserInfoContainer from './UserInfoContainer';
 import MainContainer from '../common/ContainerComponent';
 import UserCoursesContainer from './UserCoursesContainer';
-import ModalWithMessage from '../common/ModalWithMessage';
-import SetModalData from '../../helpers/SetModalData';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
 import ValidateEmail from '../../helpers/ValidateEmail';
 import { USER, ADMIN } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
-// import SetLocalStorage from '../../helpers/setDataToLocalStorage';
+import Notification from '../common/Notification';
+import GetUserData from '../../helpers/GetUserData';
+import SetLocalStorage from '../../helpers/setDataToLocalStorage';
+import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../reducers/reducersActions';
 
 const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     const id = (userId === undefined || userId < 0) ? currentUser.id : userId;
-
-    const modalOk = (e) => {
-        setModalState(old => ({ ...old, ...{ visible: false } }));
-    };
-
-    const modalCancel = (e) => {
-        setModalState(old => ({ ...old, ...{ visible: false } }));
-    };
-
-    const [modalState, setModalState] = useState(GetModalPresentation(modalOk, modalCancel));
 
     const [isLoading, setIsloading] = useState(true);
     const [user, setUser] = useState({});
@@ -89,35 +79,45 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     }
 
     const submitClick = async () => {
-        const signal = axios.CancelToken.source();
         setIsloading(true);
+
+        const signal = axios.CancelToken.source();
+
         const data = {
             user: user,
             isEmailChanged: emailState.changed,
             anyFieldChanged: fieldChanged
         };
+
         try {
             // if email was changed - make a request to verify new email
             if (emailState.changed === true) {
                 const email = localStorage.getItem("new_email");
                 await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
 
+                Notification(undefined, undefined, "A confirm message was sent to your email. Follow the instructions", true);
+
                 setEmailState(old => ({ ...old, ...{ valid: true } }));
 
-                setModalState(old => ({
-                    ...old, ...{
-                        message: "Confirm your new email, please",
-                        errors: "A confirm message was sent to your email. Follow the instructions",
-                        visible: true
-                    }
-                }));
+                this.props.onEmailConfirmedChanged(false);
             }
 
             // if user data was changed - send an update request
             if (fieldChanged === true || emailState.changed === true) {
                 const response = await MakeRequestAsync("account/update", data, "post", signal.token);
                 const userData = response.data.data;
+                const token = response.data.token.key;
+                const role = data.user.roleName;
+
                 setUser(userData);
+
+                const newUser = GetUserData(userData);
+
+                const emailConfirmed = !emailState.changed;
+                this.props.onEmailConfirmedChanged(emailConfirmed);
+                this.props.onRoleChange(role);
+
+                SetLocalStorage(newUser.id, token, role, newUser.avatarPath, newUser.email, emailConfirmed);
             }
 
         } catch (error) {
@@ -125,17 +125,10 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
         } finally {
             setIsloading(false);
         }
-    }
+    };
 
     const setCatch = error => {
-        const modalData = SetModalData(error);
-        setModalState(old => ({
-            ...old, ...{
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
+        Notification(error);
     };
 
     const closeDrawer = () => {
@@ -154,8 +147,6 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
             onClick={openDrawer}
             type="primary"
         />
-
-    const modalWindow = ModalWithMessage(modalState);
 
     const content =
         <>
@@ -179,8 +170,6 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
         <MainContainer classes={mainContainerClasses}>
             {isLoading === true && spinner}
             {isLoading === false && content}
-            {emailState.valid === true && emailState.changed === true && modalState.visible === true && modalWindow}
-            {emailState.valid === false && modalState.visible === true && modalWindow}
         </MainContainer>
     );
 };
@@ -188,5 +177,13 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
 export default withRouter(connect(
     state => ({
         currentUser: state.userReducer
+    }),
+    dispatch => ({
+        onRoleChange: (role) => {
+            dispatch({ type: SET_ROLE, payload: role })
+        },
+        onEmailConfirmedChanged: (emailConfirmed) => {
+            dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
+        }
     })
 )(UserProfileComponent));

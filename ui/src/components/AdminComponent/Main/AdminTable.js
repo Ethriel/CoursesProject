@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import 'antd/dist/antd.css';
 import { Table, Input } from 'antd';
+import { withRouter } from "react-router";
+import { connect } from 'react-redux';
+import 'antd/dist/antd.css';
 import getTableCols from './getTableCols';
 import getTableData from './getTableData';
 import NestedTable from '../Nested/NestedTable';
@@ -8,35 +10,17 @@ import Container from '../../common/ContainerComponent';
 import H from '../../common/HAntD';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import SetModalData from '../../../helpers/SetModalData';
-import ModalWithMessage from '../../common/ModalWithMessage';
-import GetModalPresentation from '../../../helpers/GetModalPresentation';
-import { withRouter } from "react-router";
-import { connect } from 'react-redux';
-import { forbidden } from '../../../Routes/RoutersDirections';
+import Notification from '../../common/Notification';
 import { ADMIN } from '../../common/roles';
+import { forbidden } from '../../../Routes/RoutersDirections';
+
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
 
 const AdminTable = ({ userRole, history, ...props }) => {
 
-    const modalOk = (e) => {
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
-    };
-
-    const modalCancel = (e) => {
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
-    };
-
     const setCatch = (error) => {
-        const modalData = SetModalData(error);
-        setModal(oldModal => ({
-            ...oldModal, ...{
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
+        Notification(error);
     };
 
     const setFinally = () => {
@@ -46,9 +30,6 @@ const AdminTable = ({ userRole, history, ...props }) => {
     const [table, setTable] = useState({});
     const [loading, setLoading] = useState(true);
     const [paginationState, setPaginationState] = useState();
-    const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
-
-
 
     const getCols = useCallback(() => {
         const editClick = id => {
@@ -204,11 +185,9 @@ const AdminTable = ({ userRole, history, ...props }) => {
 
     const outerContainerClasses = ["display-flex", "col-flex"];
     const innerContainerClasses = ["width-30", "display-flex", "mb-25px"];
-    const modalWindow = ModalWithMessage(modal);
     
     return (
         <>
-            {modal.visible === true && modalWindow}
             <Container classes={outerContainerClasses}>
                 <H level={4} myText="Admin table" />
                 <Container classes={innerContainerClasses}>

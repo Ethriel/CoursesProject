@@ -1,170 +1,88 @@
-import React, { useState } from 'react';
+import React from 'react';
 import 'antd/dist/antd.css';
 import '../../index.css';
 import { Form, Input, Button } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import SetModalData from '../../helpers/SetModalData';
-import ModalWithMessage from '../common/ModalWithMessage';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
+import Notification from '../common/Notification';
 import { withRouter } from "react-router";
 
 const queryString = require('query-string');
 
 const ResetPassword = (props) => {
-    const closeModal = () => {
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
-        if (allGood === true) {
-            props.history.push("/");
-        }
-    }
-    const modalOk = () => {
-        closeModal();
-    };
-
-    const modalCancel = () => {
-        closeModal();
-    };
-
-    const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
-    const [allGood, setAllGood] = useState(false);
-
-    const setCatch = (error) => {
-        const modalData = SetModalData(error);
-        setModal(oldModal => ({
-            ...oldModal,
-            ...{
-                message: modalData.message,
-                errors: modalData.errors
-            }
-        }));
-    };
-
-    const setFinally = () => {
-        setModal(oldModal => ({
-            ...oldModal,
-            ...{
-                visible: true
-            }
-        }));
-    };
-
-
     const handleSubmit = async (values) => {
         const search = props.location.search;
         const parsed = queryString.parse(search);
-        console.log(parsed);
         const parsedToken = parsed.token;
         const parsedEmail = parsed.email;
+
         const resetPasswordData = {
             email: parsedEmail,
             token: parsedToken,
             password: values.password
         };
+
         const signal = axios.CancelToken.source();
+
         try {
             const response = await MakeRequestAsync("account/resetPassword", resetPasswordData, "post", signal.token);
             const data = response.data;
-            setModal(oldModal => ({
-                ...oldModal,
-                ...{
-                    message: data.message
-                }
-            }));
-            setAllGood(true);
 
+            Notification(undefined, undefined, data.message, true);
         } catch (error) {
-            setCatch(error);
-        } finally {
-            setFinally();
+            Notification(error);
         }
     };
-    const formItemLayout = {
-        labelCol: {
-            xs: {
-                span: 24,
-            },
-            sm: {
-                span: 8,
-            },
-        },
-        wrapperCol: {
-            xs: {
-                span: 24,
-            },
-            sm: {
-                span: 16,
-            },
-        },
-    };
-
-    const tailFormItemLayout = {
-        wrapperCol: {
-            xs: {
-                span: 24,
-                offset: 0,
-            },
-            sm: {
-                span: 16,
-                offset: 8,
-            },
-        },
-    };
-
     const [form] = Form.useForm();
 
-    const modalWindow = ModalWithMessage(modal);
-
     return (
-        <>
-            {modal.visible === true && modalWindow}
-            <Form
-                form={form}
-                {...formItemLayout}
-                name="forgot_password"
-                className="my-sign-up-form center-a-div"
-                onFinish={handleSubmit}>
-                <Form.Item
-                    name="password"
-                    label="New password"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your password!',
-                        }
-                    ]}
-                    hasFeedback>
-                    <Input.Password />
-                </Form.Item>
-                <Form.Item
-                    name="confirm"
-                    label="Confirm Password"
-                    dependencies={['password']}
-                    hasFeedback
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please confirm your password!',
-                        },
-                        ({ getFieldValue }) => ({
-                            validator(rule, value) {
-                                if (!value || getFieldValue('password') === value) {
-                                    return Promise.resolve();
-                                }
+        <Form
+            form={form}
+            name="reset_password"
+            className="center-a-div max-width-300"
+            onFinish={handleSubmit}>
+            <Form.Item
+                name="password"
+                className="ant-input-my-sign-up"
+                rules={[
+                    {
+                        required: true,
+                        message: 'Please input your new password!',
+                    }
+                ]}
+                hasFeedback>
+                <Input.Password placeholder="New password" className="ant-input-my-sign-up" />
+            </Form.Item>
+            <Form.Item
+                name="confirm"
+                className="ant-input-my-sign-up"
+                dependencies={['password']}
+                hasFeedback
+                rules={[
+                    {
+                        required: true,
+                        message: 'Please confirm your new password!',
+                    },
+                    ({ getFieldValue }) => ({
+                        validator(rule, value) {
+                            if (!value || getFieldValue('password') === value) {
+                                return Promise.resolve();
+                            }
 
-                                return Promise.reject('The two passwords that you entered do not match!');
-                            },
-                        }),
-                    ]}>
-                    <Input.Password />
-                </Form.Item>
-                <Form.Item {...tailFormItemLayout}>
-                    <Button type="primary" htmlType="submit" size="large">
-                        Submit
+                            return Promise.reject('The two passwords that you entered do not match!');
+                        },
+                    }),
+                ]}>
+                <Input.Password placeholder="Confirm new password" className="ant-input-my-sign-up" />
+            </Form.Item>
+            <Form.Item>
+                <Button type="primary" htmlType="submit" size="large"
+                    className="ant-btn-primary-my"
+                    style={{ width: '100%' }}>
+                    Submit
                     </Button>
-                </Form.Item>
-            </Form>
-        </>
+            </Form.Item>
+        </Form>
     )
 }
 

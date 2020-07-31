@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 import axios from 'axios';
@@ -6,12 +6,10 @@ import TopMenu from './TopMenuComponent';
 import Container from '../../common/ContainerComponent';
 import ClearLocalStorage from '../../../helpers/ClearLocalStorage';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
-import SetModalData from '../../../helpers/SetModalData';
-import GetModalPresentation from '../../../helpers/GetModalPresentation';
-import ModalWithMessage from '../../common/ModalWithMessage';
 import { main, courses, aboutUs, admin, userProfile } from '../../../Routes/RoutersDirections';
 import { SET_ROLE } from '../../../reducers/reducersActions';
 import { ADMIN, UNDEFINED, NULL } from '../../common/roles';
+import Notification from '../../common/Notification';
 
 const AppHeaderComponent = ({ currentUser, history, ...props }) => {
     const isUser = currentUser.role !== UNDEFINED && currentUser.role !== NULL;
@@ -29,19 +27,6 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
         }
     }
 
-    const closeModal = () => {
-        setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
-    };
-
-    const modalOk = () => {
-        closeModal();
-    };
-
-    const modalCancel = () => {
-        closeModal();
-    };
-
-    const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
     const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
     const menuContainer = ["display-flex", "justify-center", "align-center", "width-90"];
 
@@ -62,35 +47,22 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
                 await MakeRequestAsync("account/signout", requestData, "post", signal.token);
                 // set user role to undefined in redux store
                 props.onRoleChange(UNDEFINED);
-
                 // clear local storage
                 ClearLocalStorage();
-
                 // redirect to main page
                 history.push(main);
             } catch (error) {
-                const modalData = SetModalData(error);
-                setModal(oldModal => ({
-                    ...oldModal,
-                    ...{
-                        message: modalData.message,
-                        errors: modalData.errors,
-                        visible: true
-                    }
-                }));
+                Notification(error);
             }
         }
         else if (key === "profile") {
-            // redirect user's profile
+            // redirect to user's profile
             history.push(userProfile);
         }
-    }
-
-    const modalWindow = ModalWithMessage(modal);
+    };
 
     return (
         <>
-            {modal.visible === true && modalWindow}
             <Container classes={headerContainer}>
                 <Container classes={menuContainer}>
                     <TopMenu

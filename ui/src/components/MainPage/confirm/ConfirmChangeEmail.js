@@ -7,9 +7,8 @@ import axios from "axios";
 import { connect } from 'react-redux';
 import { USER, ADMIN } from '../../common/roles';
 import { forbidden } from '../../../Routes/RoutersDirections';
-import GetModalPresentation from '../../../helpers/GetModalPresentation';
-import ModalWithMessage from '../../common/ModalWithMessage';
-import SetModalData from '../../../helpers/SetModalData';
+import Notification from '../../common/Notification';
+
 const queryString = require('query-string');
 
 class ConfirmChangeEmail extends React.Component {
@@ -19,7 +18,6 @@ class ConfirmChangeEmail extends React.Component {
             confirmed: false,
             id: this.props.currentUser.id,
             email: localStorage.getItem("new_email"),
-            modal: GetModalPresentation(this.modalOk, this.modalCancel)
         }
     }
 
@@ -52,43 +50,16 @@ class ConfirmChangeEmail extends React.Component {
         }
     };
 
-    setModal = () => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    };
-
-    modalOk = (e) => {
-        this.setModal();
-    };
-
-    modalCancel = (e) => {
-        this.setModal();
-    };
-
     setCatch = (error) => {
-        const modalData = SetModalData(error);
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
+       Notification(error);
     };
 
     render() {
-        const { confirmed, modal } = this.state;
+        const { confirmed } = this.state;
         const info = <H level={4} myText="Email confirmed" />;
-        const modalWindow = ModalWithMessage(modal);
         const spinner = <Space size="middle"> <Spin tip="Confirming your email..." size="large" /></Space>;
         return (
             <>
-                {modal.visible === true && modalWindow}
                 {confirmed === false && spinner}
                 {confirmed === true && info}
             </>

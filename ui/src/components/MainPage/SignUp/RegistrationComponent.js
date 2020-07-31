@@ -1,46 +1,51 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
+import { Spin, Space } from 'antd';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import 'antd/dist/antd.css';
 import RegistrationForm from './RegistrationFormAntD';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import GetUserData from '../../../helpers/GetUserData';
-import axios from 'axios';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
-import SetModalData from '../../../helpers/SetModalData';
-import 'antd/dist/antd.css';
-import { Spin, Space } from 'antd';
-import ModalWithMessage from '../../common/ModalWithMessage';
 import GetFacebookData from '../Facebook/GetFacebookData';
-import GetModalPresentation from '../../../helpers/GetModalPresentation';
+import Notification from '../../common/Notification';
+import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../../reducers/reducersActions';
+import { courses } from '../../../Routes/RoutersDirections';
 
 class RegistrationComponent extends Component {
+    signal = axios.CancelToken.source();
+    isMounted = false;
     constructor(props) {
         super(props);
         this.state = {
             spin: false,
-            allGood: false,
-            modal: GetModalPresentation(this.modalOk, this.modalCancel)
+            redirect: false
         };
     }
 
-    setCatch = error => {
-        const modalData = SetModalData(error);
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                message: modalData.message,
-                errors: modalData.errors
-            }
-        }));
+    componentDidMount() {
+        this.isMounted = true;
     };
     
+    componentWillUnmount() {
+        this.isMounted = false;
+        this.signal.cancel();
+    };
+
+    setCatch = error => {
+        Notification(error);
+    };
+
     setFinally = () => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: true
-            },
-            spin: false
-        }));
+        this.setState({ spin: false });
     }
+
+    renderRedirect = () => {
+        return (
+            <Redirect to={courses} push={true} />
+        )
+    };
 
     confirmHandler = async values => {
         this.setState({ spin: true });
@@ -52,22 +57,26 @@ class RegistrationComponent extends Component {
             email: values.email,
             password: values.password
         };
+
         try {
-            const cancelToken = axios.CancelToken.source().token;
+            const cancelToken = this.signal.token;
+
             const response = await MakeRequestAsync("account/signup", userData, "post", cancelToken);
+
             const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
-            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
-            console.log("All good");
-            this.setState(oldState => ({
-                modal: {
-                    ...oldState.modal,
-                    message: "A confirm message was sent to your email. Follow the instructions",
-                },
-                allGood: true
-            }));
+
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
+
+            this.props.onRoleChange(role);
+
+            this.props.onEmailConfirmedChanged(false);
+
+            Notification(undefined, undefined, "A confirm message was sent to your email. Follow the instructions", true);
+
+            this.setState({ redirect: true });
         } catch (error) {
             this.setCatch(error);
         } finally {
@@ -75,42 +84,31 @@ class RegistrationComponent extends Component {
         }
     }
 
-    setModal = () => {
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    };
-
-    modalOk = (e) => {
-        this.setModal();
-    };
-
-    modalCancel = (e) => {
-        this.setModal();
-    };
-
     facebookCallback = async (response) => {
         this.setState({ spin: true });
-        const cancelToken = axios.CancelToken.source().token;
-        const userData = GetFacebookData(response);
+
+        const cancelToken = this.signal.token
+
+        const facebookUserData = GetFacebookData(response);
 
         try {
-            const reqResponse = await MakeRequestAsync("https://localhost:44382/account/signin-facebook", userData, "post", cancelToken);
+            const reqResponse = await MakeRequestAsync("account/signin-facebook", facebookUserData, "post", cancelToken);
+
             const data = reqResponse.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
+
             const user = GetUserData(data.user);
-            setDataToLocalStorage(user.id, token, role, user.email);
-            this.setState(oldState => ({
-                modal: {
-                    ...oldState.modal,
-                    message: "You can now use your Facebook account to enter the system",
-                },
-                allGood: true
-            }));
+
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, true);
+
+            this.props.onRoleChange(role);
+
+            this.props.onEmailConfirmedChanged(true);
+
+            Notification(undefined, undefined, "You can now use your Facebook account to enter the system", true);
+
+            this.setState({ redirect: true });
         } catch (error) {
             this.setCatch(error);
         } finally {
@@ -119,23 +117,32 @@ class RegistrationComponent extends Component {
     };
 
     render() {
-        const { spin, allGood, modal } = this.state;
+        const { spin, redirect } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Signing you up..." size="large" /></Space>;
-        const modalWindow = ModalWithMessage(modal);
         const signUp =
-            <>
-                <RegistrationForm onFinish={this.confirmHandler} 
-                facebookResponse={this.facebookCallback}/>
-            </>
+            <RegistrationForm onFinish={this.confirmHandler}
+                facebookResponse={this.facebookCallback} />;
+
         return (
             <>
                 {spin === true && spinner}
                 {spin === false && signUp}
-                {allGood === false && modal.visible === true && modalWindow}
-                {allGood === true && modal.visible === true && modalWindow}
+                {redirect && this.renderRedirect()}
             </>
         )
     }
 }
 
-export default RegistrationComponent;
+export default connect(
+    state => ({
+        currentUser: state.userReducer
+    }),
+    dispatch => ({
+        onRoleChange: (role) => {
+            dispatch({ type: SET_ROLE, payload: role })
+        },
+        onEmailConfirmedChanged: (emailConfirmed) => {
+            dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
+        }
+    })
+)(RegistrationComponent);

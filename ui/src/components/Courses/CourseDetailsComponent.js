@@ -4,13 +4,11 @@ import { connect } from 'react-redux';
 import { Spin, Space } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import moment from 'moment';
-import GetModalPresentation from '../../helpers/GetModalPresentation';
-import ModalWithMessage from '../common/ModalWithMessage';
 import CourseContainer from './CourseContainer';
 import axios from 'axios';
-import SetModalData from '../../helpers/SetModalData';
 import { USER, ADMIN } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
+import Notification from '../common/Notification';
 
 class CourseDetailsComponent extends Component {
     constructor(props) {
@@ -24,7 +22,6 @@ class CourseDetailsComponent extends Component {
             isLoading: true,
             plug: { title: "", cover: "", description: "" },
             selectedDate: "",
-            modal: GetModalPresentation(this.modalOk, this.modalCancel)
         }
     }
 
@@ -43,7 +40,6 @@ class CourseDetailsComponent extends Component {
         } finally {
             this.setFinally();
         }
-
     }
     checkCourse = async (token) => {
         const userId = this.props.currentUser.id;
@@ -61,13 +57,7 @@ class CourseDetailsComponent extends Component {
                 }
             }));
             if (isPresent === true) {
-                this.setState(old => ({
-                    modal: {
-                        ...old.modal,
-                        message: `You already have this course in your list. Start at ${studyDate}`,
-                        visible: true
-                    }
-                }));
+                Notification(undefined, `You already have this course in your list.`, `Start at ${studyDate}`);
             }
 
         } catch (error) {
@@ -75,11 +65,9 @@ class CourseDetailsComponent extends Component {
         } finally {
             this.setFinally();
         }
-
     }
     componentDidMount = async () => {
         const role = this.props.currentUser.role;
-        console.log(this.props.currentUser);
         if (role !== USER && role !== ADMIN) {
             this.props.history.push(forbidden);
         }
@@ -120,33 +108,8 @@ class CourseDetailsComponent extends Component {
         return current < start;
     };
 
-    setModal = () =>{
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                visible: false
-            }
-        }));
-    };
-    
-    modalOk = (e) => {
-        this.setModal();
-    };
-
-    modalCancel = (e) => {
-        this.setModal();
-    };
-
     setCatch = (error) => {
-        const modalData = SetModalData(error);
-        this.setState(oldState => ({
-            modal: {
-                ...oldState.modal,
-                message: modalData.message,
-                errors: modalData.errors,
-                visible: true
-            }
-        }));
+        Notification(error);
     };
 
     setFinally = () => {
@@ -154,16 +117,14 @@ class CourseDetailsComponent extends Component {
     };
 
     render() {
-        const { isLoading, course, selectedDate, modal, plug } = this.state;
+        const { isLoading, course, selectedDate, plug } = this.state;
         const isDateSelected = selectedDate !== "" && selectedDate !== null;
         const courseData = course.course === null ? plug : course.course;
         const isPresent = course.isPresent;
         const spinner = <Space size="middle"> <Spin tip="Getting course data..." size="large" /></Space>;
-        const modalWindow = ModalWithMessage(modal);
         return (
             <>
                 {isLoading === true && spinner}
-                {modal.visible === true && modalWindow}
                 {
                     isLoading === false &&
                     <CourseContainer
