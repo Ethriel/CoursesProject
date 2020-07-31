@@ -97,7 +97,7 @@ namespace ServicesAPI.Services.Implementations
                 }
                 else
                 {
-                    var message = "Email is not confirmed";
+                    var message = "Email is not confirmed. But you still can browse courses";
                     var errors = new string[] { $"Email {email} is not confirmed" };
                     result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
                 }

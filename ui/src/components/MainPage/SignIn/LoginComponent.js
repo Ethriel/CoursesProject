@@ -12,7 +12,7 @@ import SetModalData from '../../../helpers/SetModalData';
 import GetFacebookData from '../Facebook/GetFacebookData';
 import GetModalPresentation from '../../../helpers/GetModalPresentation';
 import { connect } from 'react-redux';
-import { SET_ROLE } from '../../../reducers/reducersActions';
+import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../../reducers/reducersActions';
 import { ADMIN } from '../../common/roles';
 import { courses, admin } from '../../../Routes/RoutersDirections';
 
@@ -39,7 +39,6 @@ class LoginComponent extends Component {
 
     setCatch = error => {
         const modalData = SetModalData(error);
-        console.log(modalData);
         this.setState(oldState => ({
             modal: {
                 ...oldState.modal,
@@ -54,9 +53,11 @@ class LoginComponent extends Component {
         this.setState({ spin: false });
     };
 
-    changeRole = role => {
-        this.props.onRoleChange(role);
-    };
+
+    setEmailConfirmed = confirmed => {
+        localStorage.setItem("current_user_email_confirmed", confirmed);
+        this.props.onEmailConfirmedChanged(confirmed);
+    }
 
     confirmHandler = async values => {
         this.setState({ spin: true });
@@ -75,13 +76,23 @@ class LoginComponent extends Component {
             const role = data.user.roleName;
             const user = GetUserData(data.user);
 
-            this.changeRole(role);
+            this.props.onRoleChange(role);
 
-            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email);
+            setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
+
+            await MakeRequestAsync("account/checkEmailConfirmed", { email: user.email }, "post", cancelToken);
+
+            this.setEmailConfirmed(true);
 
             this.setState({ redirect: true });
         } catch (error) {
-            console.log(error);
+            const errorResponse = error.response;
+            if (errorResponse) {
+                const message = errorResponse.data.message;
+                if (errorResponse.status === 400 && message.includes("Email is not confirmed")) {
+                    this.setEmailConfirmed(false);
+                }
+            }
             this.setCatch(error);
         } finally {
             this.setFinally();
@@ -89,7 +100,7 @@ class LoginComponent extends Component {
     };
 
     renderRedirect = () => {
-        const role = localStorage.getItem("current_user_role");
+        const role = this.props.currentUser.role;
         if (this.state.redirect) {
             const redirectDirection = role === ADMIN ? admin : courses;
             return <Redirect to={redirectDirection} push={true} />
@@ -164,16 +175,14 @@ class LoginComponent extends Component {
 
 export default connect(
     state => ({
-        store: state
+        currentUser: state.userReducer
     }),
     dispatch => ({
         onRoleChange: (role) => {
-            dispatch({
-                type: SET_ROLE,
-                payload: {
-                    role: role
-                }
-            })
+            dispatch({ type: SET_ROLE, payload: role })
+        },
+        onEmailConfirmedChanged: (emailConfirmed) => {
+            dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
         }
     })
 )(LoginComponent);

@@ -31,7 +31,7 @@ class CoursesComponent extends Component {
     }
 
     async componentDidMount() {
-        const role = this.props.store.userRoleReducer.role;
+        const role = this.props.currentUser.role;
         if (role !== USER && role !== ADMIN) {
             this.props.history.push(forbidden);
         }
@@ -161,6 +161,6 @@ class CoursesComponent extends Component {
 }
 export default withRouter(connect(
     state => ({
-        store: state
+        currentUser: state.userReducer
     })
 )(CoursesComponent));

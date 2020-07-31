@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import H from '../common/HAntD';
 import { withRouter, NavLink } from 'react-router-dom';
-import { useStore } from 'react-redux';
+import { connect } from 'react-redux';
 import { Typography } from 'antd';
 import axios from 'axios';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import { ADMIN } from './roles';
-import SetModalData from '../../helpers/SetModalData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import ModalWithMessage from '../common/ModalWithMessage';
+import SetModalData from '../../helpers/SetModalData';
 import { main, confirmEmailForm } from '../../Routes/RoutersDirections';
 
 const { Paragraph } = Typography;
-const NoAccessPage = () => {
+
+const NoAccessPage = ({ currentUser, histroy, ...props }) => {
     const modalOk = (e) => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
@@ -21,41 +22,47 @@ const NoAccessPage = () => {
         setModal(oldModal => ({ ...oldModal, ...{ visible: false } }));
     };
 
-    const setCatch = (error) => {
+    const setCatch = error => {
         const modalData = SetModalData(error);
-        setModal(oldModal => ({
-            ...oldModal, ...{
+        setModal(oldState => ({
+            modal: {
+                ...oldState.modal,
                 message: modalData.message,
                 errors: modalData.errors,
                 visible: true
             }
         }));
     };
-
     const [notUser, setNotUser] = useState(false);
     const [emailConfirmed, setEmailConfirmed] = useState(true);
     const [noAccess, setNoAccess] = useState(false);
     const [modal, setModal] = useState(GetModalPresentation(modalOk, modalCancel));
 
-    const store = useStore().getState();
-    const role = store.userRoleReducer.role;
-
     useEffect(() => {
         const signal = axios.CancelToken.source();
         const checkEmail = async (email) => {
             try {
-                await MakeRequestAsync("account/checkEmailConfirmed", {email: email}, "post", signal.token);
+                await MakeRequestAsync("account/checkEmailConfirmed", { email: email }, "post", signal.token);
             } catch (error) {
+                const response = error.response;
+                if (response) {
+                    if (response.status === 404) {
+                        setCatch(error);
+                    }
+                }
                 setEmailConfirmed(false);
-                //setCatch(error);
             }
-        }
-        const email = localStorage.getItem("current_user_email");
+        };
 
-        if (email) {
-            checkEmail(email);
-            if (role !== ADMIN) {
+        if (currentUser.email) {
+            checkEmail(currentUser.email);
+            if (currentUser.role !== ADMIN) {
                 setNoAccess(true);
+            }
+            else {
+                return function cleanup() {
+                    signal.cancel();
+                }
             }
         }
         else {
@@ -65,7 +72,7 @@ const NoAccessPage = () => {
         return function cleanup() {
             signal.cancel();
         }
-    }, []);
+    }, [currentUser.role, currentUser.email]);
 
     const confirmEmail = <NavLink to={confirmEmailForm}>Confirm</NavLink>;
     const emailNotConfirmed =
@@ -80,9 +87,9 @@ const NoAccessPage = () => {
             You are not signed in. {signIn} now. Not a member? {signUp} now
         </Paragraph>;
 
-
-    const noAccessMessage = <Paragraph>
-        You don't have access to this page
+    const noAccessMessage =
+        <Paragraph>
+            You don't have access to this page
     </Paragraph >;
 
     const modalWindow = ModalWithMessage(modal);
@@ -95,8 +102,11 @@ const NoAccessPage = () => {
             {emailConfirmed === false && emailNotConfirmed}
             {notUser === true && notAUser}
         </>
-
     );
 }
 
-export default withRouter(NoAccessPage);
+export default withRouter(connect(
+    state => ({
+        currentUser: state.userReducer
+    })
+)(NoAccessPage));

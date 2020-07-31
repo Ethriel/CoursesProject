@@ -43,7 +43,6 @@ const CourseContainer = props => {
                     myText="Select course"
                     disabled={disableButton}
                 />
-
             </Container>
         </Container>
     )

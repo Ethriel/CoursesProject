@@ -18,13 +18,13 @@ class ConfirmEmail extends React.Component {
         super(props);
         this.state = {
             confirmed: false,
-            id: localStorage.getItem("current_user_id"),
+            id: this.props.currentUser.id,
             modal: GetModalPresentation(this.modalOk, this.modalCancel)
         }
     }
 
     componentDidMount = async () => {
-        const role = this.props.store.userRoleReducer.role;
+        const role = this.props.currentUser.role;
         if (role !== USER && role !== ADMIN) {
             this.props.history.push(forbidden);
         }
@@ -99,6 +99,6 @@ class ConfirmEmail extends React.Component {
 
 export default withRouter(connect(
     state => ({
-        store: state
+        currentUser: state.userReducer
     })
 )(ConfirmEmail));

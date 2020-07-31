@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStore, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 import axios from 'axios';
 import TopMenu from './TopMenuComponent';
@@ -13,20 +13,8 @@ import { main, courses, aboutUs, admin, userProfile } from '../../../Routes/Rout
 import { SET_ROLE } from '../../../reducers/reducersActions';
 import { ADMIN, UNDEFINED, NULL } from '../../common/roles';
 
-const AppHeaderComponent = (props) => {
-    const store = useStore();
-    const dispatch = useDispatch();
-
-    // get user's role from redux store
-    const getRole = () => {
-        const state = store.getState();
-        const role = state.userRoleReducer.role;
-        return role;
-    }
-
-    const role = getRole();
-
-    const isUser = role !== UNDEFINED && role !== NULL;
+const AppHeaderComponent = ({ currentUser, history, ...props }) => {
+    const isUser = currentUser.role !== UNDEFINED && currentUser.role !== NULL;
 
     const subItems = [];
 
@@ -36,7 +24,7 @@ const AppHeaderComponent = (props) => {
 
     if (isUser) {
         subItems.push({ key: courses, text: "Courses", to: courses });
-        if (role === ADMIN) {
+        if (currentUser.role === ADMIN) {
             subItems.push({ key: admin, text: "Admin", to: admin });
         }
     }
@@ -65,7 +53,7 @@ const AppHeaderComponent = (props) => {
         }
         else if (key === "signout") {
             try {
-                const email = localStorage.getItem("current_user_email");
+                const email = currentUser.email;
                 const requestData = {
                     email: email
                 };
@@ -73,16 +61,13 @@ const AppHeaderComponent = (props) => {
                 // sign out user on server
                 await MakeRequestAsync("account/signout", requestData, "post", signal.token);
                 // set user role to undefined in redux store
-                dispatch({
-                    type: SET_ROLE,
-                    payload: { role: UNDEFINED }
-                });
+                props.onRoleChange(UNDEFINED);
 
                 // clear local storage
                 ClearLocalStorage();
 
                 // redirect to main page
-                props.history.push(main);
+                history.push(main);
             } catch (error) {
                 const modalData = SetModalData(error);
                 setModal(oldModal => ({
@@ -97,7 +82,7 @@ const AppHeaderComponent = (props) => {
         }
         else if (key === "profile") {
             // redirect user's profile
-            props.history.push(userProfile);
+            history.push(userProfile);
         }
     }
 
@@ -107,15 +92,24 @@ const AppHeaderComponent = (props) => {
         <>
             {modal.visible === true && modalWindow}
             <Container classes={headerContainer}>
-                    <Container classes={menuContainer}>
-                        <TopMenu
-                            myMenuItems={subItems}
-                            isUser={isUser}
-                            menuClick={profileClick}
-                            className="header-menu-width" />
-                    </Container>
+                <Container classes={menuContainer}>
+                    <TopMenu
+                        myMenuItems={subItems}
+                        isUser={isUser}
+                        menuClick={profileClick}
+                        className="header-menu-width" />
                 </Container>
+            </Container>
         </>
     );
 }
-export default withRouter(AppHeaderComponent);
+export default withRouter(connect(
+    state => ({
+        currentUser: state.userReducer
+    }),
+    dispatch => ({
+        onRoleChange: (role) => {
+            dispatch({ type: SET_ROLE, payload: role })
+        }
+    })
+)(AppHeaderComponent));

@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import { Button, Drawer, Spin, Space } from 'antd';
+import { ProfileOutlined } from '@ant-design/icons';
 import UserInfoContainer from './UserInfoContainer';
 import MainContainer from '../common/ContainerComponent';
 import UserCoursesContainer from './UserCoursesContainer';
-import SetLocalStorage from '../../helpers/setDataToLocalStorage';
 import ModalWithMessage from '../common/ModalWithMessage';
 import SetModalData from '../../helpers/SetModalData';
 import GetModalPresentation from '../../helpers/GetModalPresentation';
 import ValidateEmail from '../../helpers/ValidateEmail';
-import { ProfileOutlined } from '@ant-design/icons';
+import { USER, ADMIN } from '../common/roles';
+import { forbidden } from '../../Routes/RoutersDirections';
+// import SetLocalStorage from '../../helpers/setDataToLocalStorage';
 
-const UserProfileComponent = ({userId, ...props}) => {
-    const id = (userId === undefined || userId < 0) ? +localStorage.getItem("current_user_id") : userId;
+const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
+    const id = (userId === undefined || userId < 0) ? currentUser.id : userId;
 
     const modalOk = (e) => {
         setModalState(old => ({ ...old, ...{ visible: false } }));
@@ -49,14 +53,19 @@ const UserProfileComponent = ({userId, ...props}) => {
                 setIsloading(false);
             }
         };
-
-        fetchUser();
+        const role = currentUser.role;
+        if (role !== USER && role !== ADMIN) {
+            history.push(forbidden);
+        }
+        else {
+            fetchUser();
+        }
 
         return function cleanup() {
             signal.cancel("CANCEL IN GET USER");
         };
 
-    }, [id]);
+    }, [id, currentUser.role, history]);
 
     const changeField = (field, value) => {
         setUser(old => ({ ...old, [field]: value }));
@@ -176,4 +185,8 @@ const UserProfileComponent = ({userId, ...props}) => {
     );
 };
 
-export default UserProfileComponent;
+export default withRouter(connect(
+    state => ({
+        currentUser: state.userReducer
+    })
+)(UserProfileComponent));

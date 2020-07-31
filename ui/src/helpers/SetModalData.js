@@ -30,6 +30,7 @@ const SetModalData = (error) => {
     else {
         modalData.message = "Script error";
         modalData.errors.push(`${error.message}`);
+        modalData.errors.push(`${error.stack}`);
     }
     return modalData;
 };

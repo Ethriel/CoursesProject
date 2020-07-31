@@ -14,7 +14,7 @@ import GetModalPresentation from '../../../helpers/GetModalPresentation';
 import { withRouter } from "react-router";
 import { connect } from 'react-redux';
 import { forbidden } from '../../../Routes/RoutersDirections';
-
+import { ADMIN } from '../../common/roles';
 const { Search } = Input;
 const url = "Students/post/searchAndSort";
 
@@ -90,7 +90,7 @@ const AdminTable = ({ userRole, history, ...props }) => {
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
-        if (userRole !== "ADMIN") {
+        if (userRole !== ADMIN) {
             history.push(forbidden);
         }
         else {
@@ -194,7 +194,6 @@ const AdminTable = ({ userRole, history, ...props }) => {
             } finally {
                 setFinally();
             }
-
         }
         else {
             // if search criteria is empty - get all users
@@ -206,6 +205,7 @@ const AdminTable = ({ userRole, history, ...props }) => {
     const outerContainerClasses = ["display-flex", "col-flex"];
     const innerContainerClasses = ["width-30", "display-flex", "mb-25px"];
     const modalWindow = ModalWithMessage(modal);
+    
     return (
         <>
             {modal.visible === true && modalWindow}
@@ -235,6 +235,6 @@ const AdminTable = ({ userRole, history, ...props }) => {
 
 export default withRouter(connect(
     state => ({
-        userRole: state.userRoleReducer.role
+        userRole: state.userReducer.role
     })
 )(AdminTable));

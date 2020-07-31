@@ -46,7 +46,7 @@ class CourseDetailsComponent extends Component {
 
     }
     checkCourse = async (token) => {
-        const userId = localStorage.getItem("current_user_id");
+        const userId = this.props.currentUser.id;
         const courseId = this.state.course.id;
         try {
             const response = await MakeRequestAsync(`courses/check/${userId}/${courseId}`, { msg: "hello" }, "get", token);
@@ -78,7 +78,8 @@ class CourseDetailsComponent extends Component {
 
     }
     componentDidMount = async () => {
-        const role = this.props.store.userRoleReducer.role;
+        const role = this.props.currentUser.role;
+        console.log(this.props.currentUser);
         if (role !== USER && role !== ADMIN) {
             this.props.history.push(forbidden);
         }
@@ -91,7 +92,7 @@ class CourseDetailsComponent extends Component {
 
     handleConfirm = async () => {
         this.setState({ isLoading: true });
-        const userId = localStorage.getItem("current_user_id");
+        const userId = this.props.currentUser.id;
         const courseId = this.state.course.id;
         const date = this.state.selectedDate;
         const data = {
@@ -150,7 +151,7 @@ class CourseDetailsComponent extends Component {
 
     setFinally = () => {
         this.setState({ isLoading: false });
-    }
+    };
 
     render() {
         const { isLoading, course, selectedDate, modal, plug } = this.state;
@@ -181,6 +182,6 @@ class CourseDetailsComponent extends Component {
 
 export default withRouter(connect(
     state => ({
-        store: state
+        currentUser: state.userReducer
     })
 )(CourseDetailsComponent));
