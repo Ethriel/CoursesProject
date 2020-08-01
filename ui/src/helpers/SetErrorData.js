@@ -1,4 +1,8 @@
 import IsAxiosError from './IsAxiosError';
+import MakeRequestAsync from './MakeRequestAsync';
+import axios from 'axios';
+
+const logUrl = "Error/logJavascriptError";
 
 const SetErrorData = (error) => {
     let modalData = {
@@ -11,7 +15,7 @@ const SetErrorData = (error) => {
                 modalData.message = "Server error occured";
                 modalData.errors.push("Internal server error");
             }
-            else if(error.response.status === 401){
+            else if (error.response.status === 401) {
                 modalData.message = "No access";
                 modalData.errors.push("Unauthorised");
             }
@@ -29,8 +33,17 @@ const SetErrorData = (error) => {
     }
     else {
         modalData.message = "Script error";
-        modalData.errors.push(`${error.message}`);
-        modalData.errors.push(`${error.stack}`);
+        modalData.errors.push("Contact the administrator if needed");
+        // send an error to server to log it
+        const sendError = async () => {
+            const signal = axios.CancelToken.source();
+            const toLogError = {
+                message: error.message,
+                stack: error.stack
+            }
+            await MakeRequestAsync(logUrl, toLogError, "post", signal.token);
+        };
+        sendError();
     }
     return modalData;
 };

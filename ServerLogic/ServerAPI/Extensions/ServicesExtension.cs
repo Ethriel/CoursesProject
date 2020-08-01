@@ -92,6 +92,8 @@ namespace ServerAPI.Extensions
         }
         private static void AddServicesForControllers(IServiceCollection services)
         {
+            services.AddScoped<IServerService, ServerService>();
+
             services.AddScoped<ISendEmailService, SendEmailService>();
 
             services.AddScoped<IEmailNotifyJob, EmailNotifyJob>();
@@ -105,7 +107,6 @@ namespace ServerAPI.Extensions
             services.AddScoped<IStudentsService, StudentsService>();
 
             services.AddScoped<IUserCoursesService, UserCoursesService>();
-
         }
         private static void AddMapperWrapperServices(IServiceCollection services)
         {

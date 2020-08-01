@@ -26,7 +26,7 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
             subItems.push({ key: admin, text: "Admin", to: admin });
         }
     }
-
+    
     const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
     const menuContainer = ["display-flex", "justify-center", "align-center", "width-90"];
 

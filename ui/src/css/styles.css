@@ -292,6 +292,16 @@ div.ant-typography,
   padding: 0.5%;
 }
 
+.ant-card-my {
+  width: 300px;
+}
+
+.ant-card-my:hover {
+  transform: scale(1.05);
+  z-index: 100;
+  transition: all 0.3s;
+}
+
 .ant-card-meta-description {
   min-height: 155px;
 }

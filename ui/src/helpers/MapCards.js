@@ -12,13 +12,13 @@ const MapCards = (elements, onClickHandler) => {
                     src={`https://localhost:44382/${elem.cover}`} />
             </div>
         return <Card
+            className="ant-card-my"
             hoverable
             key={elem.id}
             cardid={elem.id}
             title={elem.title}
             type={"inner"}
             size={"small"}
-            style={{ width: 300 }}
             onClick={onClickHandler}
             cover={cover}>
             <Meta description={cutDescr(elem.description)} />

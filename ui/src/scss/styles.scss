@@ -353,6 +353,16 @@ div.ant-typography,
     padding: 0.5%;
 }
 
+.ant-card-my {
+    width: 300px;
+}
+
+.ant-card-my:hover {
+    transform: scale(1.05);
+    z-index: 100;
+    transition: all 0.3s;
+}
+
 .ant-card-meta-description {
     min-height: 155px;
 }
@@ -444,10 +454,6 @@ div.ant-typography,
         font-size: 1rem;
     }
 
-    // .ant-menu-item {
-    //     font-size: 0.9rem;
-    // }
-
     .header-menu-width {
         li {
             font-size: 1.1rem;
@@ -481,10 +487,6 @@ div.ant-typography,
     .ant-table {
         font-size: 1.3rem;
     }
-
-    // .ant-menu-item {
-    //     font-size: 1.2rem;
-    // }
 
     .header-menu-width {
         li {
