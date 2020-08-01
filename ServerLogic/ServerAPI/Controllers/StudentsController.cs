@@ -37,6 +37,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {

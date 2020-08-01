@@ -187,7 +187,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext)
+        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData)
         {
             var result = new ApiResult();
 
@@ -283,7 +283,7 @@ namespace ServicesAPI.Services.Implementations
 
             return result;
         }
-        public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData, HttpContext httpContext)
+        public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData)
         {
             var result = new ApiResult();
 

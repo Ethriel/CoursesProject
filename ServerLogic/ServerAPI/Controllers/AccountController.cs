@@ -26,7 +26,7 @@ namespace ServerAPI.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SystemUserDTO userData)
         {
-            var result = await accountService.SignUpAsync(userData, HttpContext);
+            var result = await accountService.SignUpAsync(userData);
 
             return this.GetActionResult(result, logger);
         }
@@ -38,6 +38,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("signout")]
         public async Task<IActionResult> SignOut(EmailWrapper emailWrapper)
         {
@@ -45,6 +46,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("signin-facebook")]
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUser facebookUser)
         {
@@ -52,13 +54,15 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("update")]
         public async Task<IActionResult> UpdateAccount([FromBody] AccountUpdateData accountUpdateData)
         {
-            var result = await accountService.UpdateAccountAsync(accountUpdateData, HttpContext);
+            var result = await accountService.UpdateAccountAsync(accountUpdateData);
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("confirmEmail")]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailData confirmEmailData)
         {
@@ -66,6 +70,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("checkEmailConfirmed")]
         public async Task<IActionResult> CheckEmailConfirmed([FromBody] EmailWrapper emailWrapper)
         {
@@ -73,6 +78,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("confirmEmailRequest")]
         public async Task<IActionResult> ConfirmEmailRequest([FromBody] EmailWrapper emailWrapper)
         {
@@ -80,6 +86,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("confirmChangeEmail")]
         public async Task<IActionResult> ChangeEmail([FromBody] ConfirmChangeEmailData confirmChangeEmail)
         {
@@ -87,6 +94,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpGet("verifyEmail/{email}")]
         public async Task<IActionResult> VerifyEmail(string email)
         {
@@ -94,6 +102,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("forgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] EmailWrapper emailWrapper)
         {
@@ -101,6 +110,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpPost("resetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordData resetPasswordData)
         {

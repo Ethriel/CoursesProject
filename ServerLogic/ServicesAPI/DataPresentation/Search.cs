@@ -6,7 +6,7 @@
         public Pagination Pagination { get; set; }
         public Search()
         {
-            //Pagination = new Pagination();
+
         }
         public Search(string searchCriteria, Pagination pagination)
         {

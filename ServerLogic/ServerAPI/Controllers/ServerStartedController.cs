@@ -12,6 +12,7 @@ namespace ServerAPI.Controllers
         {
             this.serverService = serverService;
         }
+
         public IActionResult Start()
         {
             ViewBag.Text = "Server is running";

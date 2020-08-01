@@ -3,6 +3,7 @@ using Hangfire;
 using Hangfire.SqlServer;
 using Infrastructure.DbContext;
 using Infrastructure.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -20,8 +21,6 @@ using ServicesAPI.Services.Implementations;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.Tasks;
 
 namespace ServerAPI.Extensions
@@ -36,7 +35,8 @@ namespace ServerAPI.Extensions
         public static void AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers()
-                    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+                    .AddNewtonsoftJson(options => options.SerializerSettings
+                                                         .ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
             AddHangfireService(services, configuration);
 
@@ -65,18 +65,18 @@ namespace ServerAPI.Extensions
         private static void AddHangfireService(IServiceCollection services, IConfiguration configuration)
         {
             services.AddHangfire(config => config
-                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                     .UseSimpleAssemblyNameTypeSerializer()
-                     .UseRecommendedSerializerSettings()
-                     .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection"),
-                     new SqlServerStorageOptions
-                     {
-                         CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                         SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                         QueuePollInterval = TimeSpan.Zero,
-                         UseRecommendedIsolationLevel = true,
-                         DisableGlobalLocks = true
-                     }));
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection"),
+                    new SqlServerStorageOptions
+                    {
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                        UseRecommendedIsolationLevel = true,
+                        DisableGlobalLocks = true
+                    }));
 
             services.AddHangfireServer();
         }
@@ -159,7 +159,7 @@ namespace ServerAPI.Extensions
                     },
                     OnRedirectToAccessDenied = (context) =>
                     {
-                        if (context.Request.Path.StartsWithSegments("/api") && context.Response.StatusCode == 200)
+                        if (context.Request.Path.StartsWithSegments("/api") && context.Response.StatusCode.Equals(200))
                         {
                             context.Response.StatusCode = 403;
                         }
@@ -174,11 +174,10 @@ namespace ServerAPI.Extensions
             services.AddCors(corsOptions =>
                 corsOptions.AddPolicy(configuration["CORS"],
                 policyBuilder =>
-                policyBuilder
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithOrigins(configuration["client"], configuration["api"])
-                .AllowCredentials()));
+                policyBuilder.AllowAnyHeader()
+                             .AllowAnyMethod()
+                             .WithOrigins(configuration["client"], configuration["api"])
+                             .AllowCredentials()));
         }
     }
 }

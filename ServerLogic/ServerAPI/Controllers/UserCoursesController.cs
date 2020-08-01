@@ -38,22 +38,6 @@ namespace ServerAPI.Controllers
             return this.GetActionResult(result, logger);
         }
 
-        [HttpGet("get/ammount")]
-        public async Task<IActionResult> GetAmmount()
-        {
-            var result = await userCoursesService.GetAmountAsync();
-
-            return this.GetActionResult(result, logger);
-        }
-
-        [HttpGet("get/forpage/{skip}/{take}")]
-        public async Task<IActionResult> GetForPage(int skip, int take)
-        {
-            var result = await userCoursesService.GetForPageAsync(skip, take);
-
-            return this.GetActionResult(result, logger);
-        }
-
         [HttpGet("get/{userId}")]
         public async Task<IActionResult> GetCoursesByUserId(int userId)
         {

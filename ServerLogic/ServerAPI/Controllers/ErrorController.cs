@@ -13,6 +13,7 @@ namespace ServerAPI.Controllers
         {
             this.serverService = serverService;
         }
+
         [HttpPost("logJavascriptError")]
         public IActionResult LogJavascriptError([FromBody] JavascriptError javascriptError)
         {

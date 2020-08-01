@@ -8,8 +8,6 @@ namespace ServicesAPI.Services.Abstractions
     {
         Task<ApiResult> AddCourseToUserAsync(SystemUsersTrainingCoursesDTO userCourseDTO);
         Task<ApiResult> GetAllAsync();
-        Task<ApiResult> GetAmountAsync();
-        Task<ApiResult> GetForPageAsync(int skip, int take);
         Task<ApiResult> GetByUserIdAsync(int id);
     }
 }

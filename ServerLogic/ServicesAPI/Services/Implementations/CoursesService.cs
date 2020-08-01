@@ -89,16 +89,6 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> GetAmountAsync()
-        {
-            var amount = await context.TrainingCourses
-                                      .CountAsync();
-
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning amount of courses: {amount}", amount);
-
-            return result;
-        }
-
         public async Task<ApiResult> GetById(int id)
         {
             var result = new ApiResult();
@@ -117,19 +107,6 @@ namespace ServicesAPI.Services.Implementations
                 var data = mapperWrapper.MapFromEntity(course);
                 result.SetApiResult(ApiResultStatus.Ok, $"Returning a course id = {course.Id}", data);
             }
-
-            return result;
-        }
-
-        public async Task<ApiResult> GetForPage(int skip, int take)
-        {
-            var courses = await context.TrainingCourses
-                                       .GetPortionOfQueryable(skip, take)
-                                       .ToArrayAsync();
-
-            var data = mapperWrapper.MapCollectionFromEntities(courses);
-
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of courses. Count = {courses.Length}", data);
 
             return result;
         }

@@ -29,9 +29,7 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> AddCourseToUserAsync(SystemUsersTrainingCoursesDTO userCourseDTO)
         {
             var result = new ApiResult();
-            var loggerMessage = "Adding course to user. Result:{0}";
-            var message = "{0} id = {1} was not found";
-            IEnumerable<string> errors = default;
+            
 
             var courseId = userCourseDTO.TrainingCourseId;
             var userId = userCourseDTO.SystemUserId;
@@ -43,37 +41,8 @@ namespace ServicesAPI.Services.Implementations
 
             var user = await context.SystemUsers
                                     .FindAsync(userId);
-            if (course == null)
-            {
-                message = string.Format(message, "Course", courseId);
-                loggerMessage = string.Format(loggerMessage, message);
-                errors = new string[] { message };
 
-                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage, message: message, errors: errors);
-            }
-            else if (user == null)
-            {
-                message = string.Format(message, "User", userId);
-                loggerMessage = string.Format(loggerMessage, message);
-                errors = new string[] { message };
-
-                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage, message: message, errors: errors);
-            }
-            else
-            {
-                userCourse.SystemUser = user;
-                userCourse.TrainingCourse = course;
-
-                loggerMessage = string.Format(loggerMessage, $"Course id = {courseId}, user id = {userId}");
-
-                result.SetApiResult(ApiResultStatus.Ok, loggerMessage);
-
-                context.SystemUsersTrainingCourses.Add(userCourse);
-
-                var saved = await context.SaveChangesAsync();
-
-                emailNotifyJob.CreateJobs(user, course, userCourse.StudyDate);
-            }
+            result = await GetAddCourseToUserResultAsync(user, course, userCourse, result);
 
             return result;
         }
@@ -85,16 +54,6 @@ namespace ServicesAPI.Services.Implementations
             var data = mapperWrapper.MapCollectionFromEntities(usersWithCourses);
 
             var result = new ApiResult(ApiResultStatus.Ok, $"Returning all users with courses to the client. Count = {usersWithCourses.Length}", data);
-
-            return result;
-        }
-
-        public async Task<ApiResult> GetAmountAsync()
-        {
-            var amount = await context.SystemUsersTrainingCourses
-                                      .CountAsync();
-
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning amount of users with courses: {amount}", amount);
 
             return result;
         }
@@ -112,15 +71,43 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> GetForPageAsync(int skip, int take)
+        private async Task<ApiResult> GetAddCourseToUserResultAsync(SystemUser user, TrainingCourse course, SystemUsersTrainingCourses userCourse, ApiResult result)
         {
-            var usersWithCourses = await context.SystemUsersTrainingCourses
-                                                .GetPortionOfQueryable(skip, take)
-                                                .ToArrayAsync();
+            var loggerMessage = "Adding course to user. Result:{0}";
+            var message = "{0} id = {1} was not found";
+            IEnumerable<string> errors = default;
 
-            var data = mapperWrapper.MapCollectionFromEntities(usersWithCourses);
+            if (course == null)
+            {
+                message = string.Format(message, "Course", course.Id);
+                loggerMessage = string.Format(loggerMessage, message);
+                errors = new string[] { message };
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of users and courses. Count = {usersWithCourses.Length}", data);
+                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage, message: message, errors: errors);
+            }
+            else if (user == null)
+            {
+                message = string.Format(message, "User", user.Id);
+                loggerMessage = string.Format(loggerMessage, message);
+                errors = new string[] { message };
+
+                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage, message: message, errors: errors);
+            }
+            else
+            {
+                userCourse.SystemUser = user;
+                userCourse.TrainingCourse = course;
+
+                loggerMessage = string.Format(loggerMessage, $"Course id = {course.Id}, user id = {user.Id}");
+
+                result.SetApiResult(ApiResultStatus.Ok, loggerMessage);
+
+                context.SystemUsersTrainingCourses.Add(userCourse);
+
+                var saved = await context.SaveChangesAsync();
+
+                emailNotifyJob.CreateJobs(user, course, userCourse.StudyDate);
+            }
 
             return result;
         }

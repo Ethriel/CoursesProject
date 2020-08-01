@@ -33,6 +33,7 @@ namespace ServicesAPI.Extensions
             var descend = "descend";
             var sortOrder = sort.SortOrder ?? descend;
             var sortField = sort.SortField ?? "id";
+
             switch (sortField)
             {
                 case "id":
@@ -61,6 +62,7 @@ namespace ServicesAPI.Extensions
                         break;
                     }
             }
+
             return result;
         }
         public static IQueryable<SystemUser> SearchStudents(this IQueryable<SystemUser> queryable, string criteria)

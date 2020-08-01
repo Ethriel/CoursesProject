@@ -34,6 +34,7 @@ const SetErrorData = (error) => {
     else {
         modalData.message = "Script error";
         modalData.errors.push("Contact the administrator if needed");
+        
         // send an error to server to log it
         const sendError = async () => {
             const signal = axios.CancelToken.source();

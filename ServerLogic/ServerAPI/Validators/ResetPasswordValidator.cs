@@ -7,7 +7,6 @@ namespace ServerAPI.Validators
     {
         public ResetPasswordValidator()
         {
-            var regex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
             RuleFor(x => x.Password)
                 .NotEmpty()
                 .NotNull()

@@ -22,7 +22,7 @@ namespace ServicesAPI.Helpers
             };
 
             var key = new SymmetricSecurityKey(code);
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["JwtExpireDays"]));
 
             var token = new JwtSecurityToken(
@@ -30,7 +30,7 @@ namespace ServicesAPI.Helpers
                 configuration["JwtIssuer"],
                 claims,
                 expires: expires,
-                signingCredentials: creds
+                signingCredentials: credentials
             );
 
             var tokenCode = tokenHandler.WriteToken(token);

@@ -22,14 +22,6 @@ namespace ServerAPI.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("get/amount")]
-        public async Task<IActionResult> GetAmount()
-        {
-            var result = await coursesService.GetAmountAsync();
-
-            return this.GetActionResult(result, logger);
-        }
-
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAll()
         {
@@ -37,14 +29,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
-        [HttpGet("get/forpage/{skip}/{take}")]
-        public async Task<IActionResult> GetForPage(int skip, int take)
-        {
-            var result = await coursesService.GetForPage(skip, take);
 
-            return this.GetActionResult(result, logger);
-
-        }
         [HttpPost("get/paged")]
         public async Task<IActionResult> GetPaged([FromBody] CoursesPagination coursesPagination)
         {
@@ -52,6 +37,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -59,6 +45,7 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
         [HttpGet("check/{userId}/{courseId}")]
         public async Task<IActionResult> CheckCourse(int userId, int courseId)
         {

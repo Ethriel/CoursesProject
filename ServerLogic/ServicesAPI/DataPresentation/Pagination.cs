@@ -33,12 +33,11 @@ namespace ServicesAPI.DataPresentation
         }
         public int GetSkip()
         {
-            return (this.Page * this.PageSize) - this.PageSize;
+            return (Page * PageSize) - PageSize;
         }
         public int GetTake()
         {
-            //return this.PageSize == 1 ? this.PageSize : this.Current * this.PageSize;
-            return this.PageSize;
+            return PageSize;
         }
     }
 }

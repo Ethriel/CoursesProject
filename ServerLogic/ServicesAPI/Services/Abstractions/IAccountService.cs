@@ -14,10 +14,10 @@ namespace ServicesAPI.Services.Abstractions
         public Task<ApiResult> ConfirmEmailRequestAsync(EmailWrapper emailWrapper);
         public Task<ApiResult> ConfirmChangeEmailAsync(ConfirmChangeEmailData confirmChangeEmails);
         public Task<ApiResult> SignInAsync(SystemUserDTO userData);
-        public Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext);
+        public Task<ApiResult> SignUpAsync(SystemUserDTO userData);
         public Task<ApiResult> SignOutAsync(EmailWrapper emailWrapper);
         public Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser);
-        public Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData, HttpContext httpContext);
+        public Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData);
         public Task<ApiResult> VerifyEmailAsync(string email);
         public Task<ApiResult> ResetPasswordAsync(ResetPasswordData resetPasswordData);
         public Task<ApiResult> ForgotPasswordAsync(EmailWrapper emailWrapper);
