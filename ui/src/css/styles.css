@@ -150,9 +150,15 @@ div.ant-typography,
   justify-content: center;
 }
 
+.ant-form-item-has-error {
+  margin-bottom: 25px;
+
+}
+
 .header-flex {
   align-items: initial;
 }
+
 .header-flex * {
   margin: 0.5%;
 }
@@ -174,6 +180,7 @@ div.ant-typography,
   display: flex;
   justify-content: space-around;
 }
+
 .header-menu-width li {
   width: 25%;
   text-align: center;
@@ -205,6 +212,7 @@ div.ant-typography,
 .sign-in-up-my {
   width: 100%;
 }
+
 .sign-in-up-my li {
   width: 50%;
   text-align: center;
@@ -268,7 +276,7 @@ div.ant-typography,
   text-transform: uppercase;
 }
 
-.ant-menu-submenu-popup > .ant-menu {
+.ant-menu-submenu-popup>.ant-menu {
   background-color: #f0f2f5;
 }
 
@@ -370,23 +378,23 @@ div.ant-typography,
   }
 
   h2.ant-typography,
-.ant-typography h2 {
+  .ant-typography h2 {
     font-size: 1.7rem;
     margin: 0;
   }
 
   h3.ant-typography,
-.ant-typography h3 {
+  .ant-typography h3 {
     font-size: 1.6rem;
   }
 
   h4.ant-typography,
-.ant-typography h4 {
+  .ant-typography h4 {
     font-size: 1.5rem;
   }
 
   div.ant-typography,
-.ant-typography p {
+  .ant-typography p {
     font-size: 1rem;
   }
 
@@ -398,25 +406,27 @@ div.ant-typography,
     font-size: 1.1rem;
   }
 }
+
 @media (min-width: 768px) and (max-width: 991.98px) {
+
   h2.ant-typography,
-.ant-typography h2 {
+  .ant-typography h2 {
     font-size: 2.5rem;
     margin: 0;
   }
 
   h3.ant-typography,
-.ant-typography h3 {
+  .ant-typography h3 {
     font-size: 2.4rem;
   }
 
   h4.ant-typography,
-.ant-typography h4 {
+  .ant-typography h4 {
     font-size: 2.2rem;
   }
 
   div.ant-typography,
-.ant-typography p {
+  .ant-typography p {
     font-size: 1.3rem;
   }
 

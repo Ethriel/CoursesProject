@@ -3,6 +3,7 @@ import Container from '../common/ContainerComponent';
 import H from '../common/HAntD';
 import ButtonComponent from '../common/ButtonComponent';
 import { Typography, DatePicker } from 'antd';
+import { connect } from 'react-redux';
 
 const { Paragraph } = Typography;
 
@@ -12,7 +13,11 @@ const CourseContainer = props => {
     const handleDateChange = props.handleDateChange;
     const disabledDate = props.disabledDate;
     const handleConfirm = props.handleConfirm;
-    const disableButton =  !isDateSelected;
+    let disableButton = !isDateSelected;
+    const isEmailConfirmed = props.currentUser.emailConfirmed;
+    if (!isEmailConfirmed) {
+        disableButton = true;
+    }
 
     const classNameContainer =
         [
@@ -36,7 +41,7 @@ const CourseContainer = props => {
                     format='DD/MM/YYYY'
                     onChange={handleDateChange}
                     disabledDate={disabledDate}
-                    disabled={props.isPresent === true} />
+                    disabled={props.isPresent === true || isEmailConfirmed === false} />
                 <ButtonComponent
                     size="medium"
                     myHandler={handleConfirm}
@@ -48,4 +53,8 @@ const CourseContainer = props => {
     )
 }
 
-export default CourseContainer;
+export default connect(
+    state => ({
+        currentUser: state.userReducer
+    })
+)(CourseContainer);

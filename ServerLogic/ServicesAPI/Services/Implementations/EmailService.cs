@@ -31,10 +31,11 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task SendResetPasswordData(string token, string email)
         {
+            //&email ={ email}
             var subject = "Reset password";
             var client = configuration["client"];
             var clientRoute = "resetPassword";
-            var callbackUrl = $"{client}/{clientRoute}?token={token}&email={email}";
+            var callbackUrl = $"{client}/{clientRoute}?token={token}";
             var message = GetResetPasswordMessage(callbackUrl);
 
             await sendEmail.SendEmailAsync(email, subject, message);

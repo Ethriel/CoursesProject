@@ -17,6 +17,7 @@ const RegistrationForm = (props) => {
     >
       <Form.Item
         name={['user', 'name']}
+        style={{marginBottom: 22}}
         className="ant-input-my-sign-up"
         rules={
           [
@@ -32,6 +33,7 @@ const RegistrationForm = (props) => {
       </Form.Item>
       <Form.Item
         name={['user', 'lastname']}
+        style={{marginBottom: 22}}
         className="ant-input-my-sign-up"
         rules={
           [
@@ -48,6 +50,7 @@ const RegistrationForm = (props) => {
 
       <Form.Item
         name="email"
+        style={{marginBottom: 22}}
         className="ant-input-my-sign-up"
         rules={[
           {
@@ -67,6 +70,7 @@ const RegistrationForm = (props) => {
 
       <Form.Item
         name="password"
+        style={{marginBottom: 22}}
         className="ant-input-my-sign-up"
         rules={[
           {
@@ -83,6 +87,7 @@ const RegistrationForm = (props) => {
 
       <Form.Item
         name="confirm"
+        style={{marginBottom: 22}}
         className="ant-input-my-sign-up"
         dependencies={['password']}
         hasFeedback
@@ -106,6 +111,7 @@ const RegistrationForm = (props) => {
         />
       </Form.Item>
       <Form.Item
+      style={{marginBottom: 22}}
         name="birthdate"
         rules={
           [

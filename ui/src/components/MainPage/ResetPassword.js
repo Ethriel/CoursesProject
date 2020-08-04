@@ -14,10 +14,10 @@ const ResetPassword = (props) => {
         const search = props.location.search;
         const parsed = queryString.parse(search);
         const parsedToken = parsed.token;
-        const parsedEmail = parsed.email;
+        const email = localStorage.getItem("forgot_password_email");
 
         const resetPasswordData = {
-            email: parsedEmail,
+            email: email,
             token: parsedToken,
             password: values.password
         };

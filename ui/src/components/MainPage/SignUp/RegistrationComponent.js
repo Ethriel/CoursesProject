@@ -10,12 +10,11 @@ import GetUserData from '../../../helpers/GetUserData';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
 import GetFacebookData from '../Facebook/GetFacebookData';
 import Notification from '../../common/Notification';
-import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../../reducers/reducersActions';
+import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID } from '../../../reducers/reducersActions';
 import { courses } from '../../../Routes/RoutersDirections';
 
 class RegistrationComponent extends Component {
     signal = axios.CancelToken.source();
-    isMounted = false;
     constructor(props) {
         super(props);
         this.state = {
@@ -23,13 +22,8 @@ class RegistrationComponent extends Component {
             redirect: false
         };
     }
-
-    componentDidMount() {
-        this.isMounted = true;
-    };
     
     componentWillUnmount() {
-        this.isMounted = false;
         this.signal.cancel();
     };
 
@@ -70,7 +64,12 @@ class RegistrationComponent extends Component {
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
 
+            this.props.onsetId(user.id);
+
             this.props.onRoleChange(role);
+
+            this.props.onSetEmail(user.email);
+
 
             this.props.onEmailConfirmedChanged(false);
 
@@ -143,6 +142,12 @@ export default connect(
         },
         onEmailConfirmedChanged: (emailConfirmed) => {
             dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
+        },
+        onSetEmail: (email) => {
+            dispatch({ type: SET_EMAIL, payload: email })
+        },
+        onsetId: (id) => {
+            dispatch({ type: SET_ID, payload: id })
         }
     })
 )(RegistrationComponent);

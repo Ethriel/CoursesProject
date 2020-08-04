@@ -9,6 +9,7 @@ import axios from 'axios';
 import { USER, ADMIN } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
 import Notification from '../common/Notification';
+import { SET_EMAIL_CONFIRMED } from '../../reducers/reducersActions';
 
 class CourseDetailsComponent extends Component {
     constructor(props) {
@@ -40,7 +41,8 @@ class CourseDetailsComponent extends Component {
         } finally {
             this.setFinally();
         }
-    }
+    };
+
     checkCourse = async (token) => {
         const userId = this.props.currentUser.id;
         const courseId = this.state.course.id;
@@ -65,7 +67,33 @@ class CourseDetailsComponent extends Component {
         } finally {
             this.setFinally();
         }
-    }
+    };
+
+    setEmailConfirmed = confirmed => {
+        localStorage.setItem("current_user_email_confirmed", confirmed);
+        this.props.onEmailConfirmedChanged(confirmed);
+    };
+
+    checkEmailConfirmed = async (token) => {
+        const email = this.props.currentUser.email;
+        try {
+            await MakeRequestAsync("account/checkEmailConfirmed", { email: email }, "post", token);
+
+            this.setEmailConfirmed(true);
+        } catch (error) {
+            const errorResponse = error.response;
+            if (errorResponse) {
+                const message = errorResponse.data.message;
+                if (errorResponse.status === 400 && message.includes("Email is not confirmed")) {
+                    this.setEmailConfirmed(false);
+                    Notification(undefined, "But you still can browse courses", "Your email is not confirmed");
+                } else {
+                    this.setCatch(error);
+                }
+            }
+        }
+    };
+
     componentDidMount = async () => {
         const role = this.props.currentUser.role;
         if (role !== USER && role !== ADMIN) {
@@ -75,8 +103,9 @@ class CourseDetailsComponent extends Component {
             const signal = axios.CancelToken.source();
             await this.checkCourse(signal.token);
             await this.getCourse(signal.token);
+            await this.checkEmailConfirmed(signal.token);
         }
-    }
+    };
 
     handleConfirm = async () => {
         this.setState({ isLoading: true });
@@ -144,5 +173,10 @@ class CourseDetailsComponent extends Component {
 export default withRouter(connect(
     state => ({
         currentUser: state.userReducer
+    }),
+    dispatch => ({
+        onEmailConfirmedChanged: (emailConfirmed) => {
+            dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
+        }
     })
 )(CourseDetailsComponent));

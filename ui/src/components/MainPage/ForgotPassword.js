@@ -9,6 +9,7 @@ import Notification from '../common/Notification';
 const ForgotPassword = () => {
     const handleSubmit = async (values) => {
         const signal = axios.CancelToken.source();
+        localStorage.setItem("forgot_password_email", values.email);
         try {
             const userData = {
                 email: values.email,

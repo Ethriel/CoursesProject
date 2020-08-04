@@ -10,7 +10,7 @@ import GetUserData from '../../../helpers/GetUserData';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
 import GetFacebookData from '../Facebook/GetFacebookData';
 import Notification from '../../common/Notification';
-import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../../reducers/reducersActions';
+import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID } from '../../../reducers/reducersActions';
 import { ADMIN } from '../../common/roles';
 import { courses, admin } from '../../../Routes/RoutersDirections';
 
@@ -62,7 +62,11 @@ class LoginComponent extends Component {
             const role = data.user.roleName;
             const user = GetUserData(data.user);
 
+            this.props.onsetId(user.id);
+
             this.props.onRoleChange(role);
+
+            this.props.onSetEmail(user.email);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
 
@@ -107,7 +111,11 @@ class LoginComponent extends Component {
 
             const user = GetUserData(data.user);
 
-            this.changeRole(role);
+            this.props.onsetId(user.id);
+
+            this.props.onRoleChange(role);
+
+            this.props.onSetEmail(user.email);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, true);
 
@@ -150,6 +158,12 @@ export default connect(
         },
         onEmailConfirmedChanged: (emailConfirmed) => {
             dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
+        },
+        onSetEmail: (email) => {
+            dispatch({ type: SET_EMAIL, payload: email })
+        },
+        onsetId: (id) => {
+            dispatch({ type: SET_ID, payload: id })
         }
     })
 )(LoginComponent);
