@@ -46,7 +46,7 @@ namespace ServerAPI.Extensions
 
             services.AddHttpClient();
 
-            services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<CoursesSystemDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("HomeConnection")));
 
             services.AddIdentity<SystemUser, SystemRole>()
                     .AddEntityFrameworkStores<CoursesSystemDbContext>()
