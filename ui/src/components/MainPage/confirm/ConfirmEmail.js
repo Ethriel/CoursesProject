@@ -22,6 +22,7 @@ class ConfirmEmail extends React.Component {
 
     componentDidMount = async () => {
         const role = this.props.currentUser.role;
+        console.log(role);
         if (role !== USER && role !== ADMIN) {
             this.props.history.push(forbidden);
         }
@@ -30,6 +31,7 @@ class ConfirmEmail extends React.Component {
             const search = location.search;
             const parsed = queryString.parse(search);
             const token = parsed.token;
+            console.log(token);
             try {
                 const signal = axios.CancelToken.source();
                 const requestData = {
@@ -37,7 +39,8 @@ class ConfirmEmail extends React.Component {
                     token: token
                 };
                 const response = await MakeRequestAsync("account/confirmEmail", requestData, "post", signal.token);
-                if (response.status === 204) {
+                console.log(response);
+                if (response.status === 200) {
                     this.setState({
                         confirmed: true
                     });

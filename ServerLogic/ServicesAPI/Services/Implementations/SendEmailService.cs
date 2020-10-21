@@ -16,7 +16,7 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var format = subject.Contains("Confirm") ? MimeKit.Text.TextFormat.Html : MimeKit.Text.TextFormat.Plain;
+            var format = MimeKit.Text.TextFormat.Html;
             var sender = configuration["Email:User"];
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("Courses administration", sender));
@@ -37,7 +37,7 @@ namespace ServicesAPI.Services.Implementations
         }
         public void SendEmail(string email, string subject, string message)
         {
-            var format = subject.Contains("Confirm") ? MimeKit.Text.TextFormat.Html : MimeKit.Text.TextFormat.Plain;
+            var format = MimeKit.Text.TextFormat.Html;
             var sender = configuration["Email:User"];
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("Courses administration", sender));

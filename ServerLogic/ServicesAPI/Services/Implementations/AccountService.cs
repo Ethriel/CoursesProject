@@ -584,6 +584,22 @@ namespace ServicesAPI.Services.Implementations
             return errors;
         }
 
+        public async Task AddRoles()
+        {
+            var user = new SystemRole
+            {
+                Name = "USEr",
+                NormalizedName = "User"
+            };
 
+            var admin = new SystemRole
+            {
+                Name = "ADMIN",
+                NormalizedName = "Admin"
+            };
+
+            var resUser = await roleManager.CreateAsync(user);
+            var adminUser = await roleManager.CreateAsync(admin);
+        }
     }
 }
