@@ -92,6 +92,8 @@ namespace ServerAPI.Extensions
         }
         private static void AddServicesForControllers(IServiceCollection services)
         {
+            services.AddScoped(typeof(ICRUDService<>), typeof(CRUDService<>));
+
             services.AddScoped<IServerService, ServerService>();
 
             services.AddScoped<ISendEmailService, SendEmailService>();
@@ -110,11 +112,13 @@ namespace ServerAPI.Extensions
         }
         private static void AddMapperWrapperServices(IServiceCollection services)
         {
-            services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
+            //services.AddScoped<IMapperWrapper<SystemUser, SystemUserDTO>, SystemUserMapperWrapper>();
 
-            services.AddScoped<IMapperWrapper<TrainingCourse, TrainingCourseDTO>, TrainingCoursesMapperWrapper>();
+            //services.AddScoped<IMapperWrapper<TrainingCourse, TrainingCourseDTO>, TrainingCoursesMapperWrapper>();
 
-            services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
+            //services.AddScoped<IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO>, SystemUsersTrainingCoursesMapperWrapper>();
+
+            services.AddScoped(typeof(IMapperWrapper<,>), typeof(MapperWrapper<,>));
         }
         private static void AddAuthenticationServices(IServiceCollection services, IConfiguration configuration)
         {

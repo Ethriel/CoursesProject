@@ -35,6 +35,7 @@ namespace ServicesAPI.Services.Implementations
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IEmailService emailService;
+        private readonly ICRUDService<SystemUser> CRUDService;
 
         public AccountService(CoursesSystemDbContext context, SignInManager<SystemUser> signInManager,
             RoleManager<SystemRole> roleManager,
@@ -43,7 +44,8 @@ namespace ServicesAPI.Services.Implementations
             SecurityTokenHandler tokenHandler,
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper,
             IHttpClientFactory httpClientFactory,
-            IEmailService emailService)
+            IEmailService emailService,
+            ICRUDService<SystemUser> CRUDService)
         {
             this.context = context;
             this.signInManager = signInManager;
@@ -54,6 +56,7 @@ namespace ServicesAPI.Services.Implementations
             this.mapperWrapper = mapperWrapper;
             this.httpClientFactory = httpClientFactory;
             this.emailService = emailService;
+            this.CRUDService = CRUDService;
         }
 
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
@@ -309,9 +312,11 @@ namespace ServicesAPI.Services.Implementations
                 {
                     var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
 
-                    user = UpdateHelper<SystemUser>.Update(context.Model, user, newUser);
+                    //user = UpdateHelper<SystemUser>.Update(context.Model, user, newUser);
 
-                    await context.SaveChangesAsync();
+                    user = await CRUDService.UpdateAsync(user, newUser);
+
+                    //await context.SaveChangesAsync();
                 }
 
                 var data = mapperWrapper.MapFromEntity(user);
@@ -588,7 +593,7 @@ namespace ServicesAPI.Services.Implementations
         {
             var user = new SystemRole
             {
-                Name = "USEr",
+                Name = "USER",
                 NormalizedName = "User"
             };
 

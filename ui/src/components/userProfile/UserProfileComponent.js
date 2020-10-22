@@ -99,14 +99,14 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
 
                 setEmailState(old => ({ ...old, ...{ valid: true } }));
 
-                this.props.onEmailConfirmedChanged(false);
+                props.onEmailConfirmedChanged(false);
             }
 
             // if user data was changed - send an update request
             if (fieldChanged === true || emailState.changed === true) {
                 const response = await MakeRequestAsync("account/update", data, "post", signal.token);
                 const userData = response.data.data;
-                const token = response.data.token.key;
+                const token = localStorage.getItem('access_token');
                 const role = data.user.roleName;
 
                 setUser(userData);
@@ -114,8 +114,8 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
                 const newUser = GetUserData(userData);
 
                 const emailConfirmed = !emailState.changed;
-                this.props.onEmailConfirmedChanged(emailConfirmed);
-                this.props.onRoleChange(role);
+                props.onEmailConfirmedChanged(emailConfirmed);
+                props.onRoleChange(role);
 
                 SetLocalStorage(newUser.id, token, role, newUser.avatarPath, newUser.email, emailConfirmed);
             }
