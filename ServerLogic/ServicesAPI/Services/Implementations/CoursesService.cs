@@ -16,11 +16,13 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper;
+        private readonly IExtendedDataService<TrainingCourse> dataService;
 
-        public CoursesService(CoursesSystemDbContext context, IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper)
+        public CoursesService(CoursesSystemDbContext context, IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper, IExtendedDataService<TrainingCourse> dataService)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
+            this.dataService = dataService;
         }
 
         public async Task<ApiResult> CheckCourseAsync(int userId, int courseId)
@@ -79,8 +81,8 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> GetAllCoursesAsync()
         {
             var result = new ApiResult();
-            var courses = await context.TrainingCourses
-                                       .ToArrayAsync();
+            var courses = await dataService.Read()
+                                           .ToArrayAsync();
 
             var data = mapperWrapper.MapCollectionFromEntities(courses);
 

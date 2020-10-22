@@ -35,7 +35,7 @@ namespace ServicesAPI.Services.Implementations
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IEmailService emailService;
-        private readonly ICRUDService<SystemUser> CRUDService;
+        private readonly IExtendedDataService<SystemUser> dataService;
 
         public AccountService(CoursesSystemDbContext context, SignInManager<SystemUser> signInManager,
             RoleManager<SystemRole> roleManager,
@@ -45,7 +45,7 @@ namespace ServicesAPI.Services.Implementations
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper,
             IHttpClientFactory httpClientFactory,
             IEmailService emailService,
-            ICRUDService<SystemUser> CRUDService)
+            IExtendedDataService<SystemUser> dataService)
         {
             this.context = context;
             this.signInManager = signInManager;
@@ -56,7 +56,7 @@ namespace ServicesAPI.Services.Implementations
             this.mapperWrapper = mapperWrapper;
             this.httpClientFactory = httpClientFactory;
             this.emailService = emailService;
-            this.CRUDService = CRUDService;
+            this.dataService = dataService;
         }
 
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
@@ -160,7 +160,7 @@ namespace ServicesAPI.Services.Implementations
             if (user == null)
             {
                 var message = "Sign in has failed";
-                var errors = new string[] { $"Email {user.Email} is incorrect" };
+                var errors = new string[] { $"Email {userData.Email} is incorrect" };
                 result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
             }
             else
@@ -314,7 +314,7 @@ namespace ServicesAPI.Services.Implementations
 
                     //user = UpdateHelper<SystemUser>.Update(context.Model, user, newUser);
 
-                    user = await CRUDService.UpdateAsync(user, newUser);
+                    user = await dataService.UpdateAsync(user, newUser);
 
                     //await context.SaveChangesAsync();
                 }

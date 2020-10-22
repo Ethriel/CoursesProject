@@ -1,4 +1,5 @@
 ﻿using Infrastructure.DbContext;
+using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using ServicesAPI.Services.Abstractions;
 using System.Linq;
@@ -6,44 +7,46 @@ using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Implementations
 {
-    public class CRUDService<TEntity> : ICRUDService<TEntity> where TEntity : class
+    public abstract class DataService<TEntity> : IDataService<TEntity>
+        where TEntity : class
     {
-        private readonly CoursesSystemDbContext context;
-        private readonly DbSet<TEntity> set;
-
-        public CRUDService(CoursesSystemDbContext context)
+        public DbSet<TEntity> Set { get; set; }
+        public DataService(CoursesSystemDbContext context)
         {
-            this.context = context;
-            set = context.Set<TEntity>();
+            Set = context.Set<TEntity>();
+            Context = context;
         }
+
+        public CoursesSystemDbContext Context { get; }
+
         public async Task CreateAsync(TEntity entity)
         {
-            set.Add(entity);
+            Set.Add(entity);
             await ConfirmChangesAsync();
         }
 
         public async Task DeleteAsync(TEntity entity)
         {
-            set.Remove(entity);
+            Set.Remove(entity);
             await ConfirmChangesAsync();
         }
 
         public IQueryable<TEntity> Read()
         {
-            var entities = set.AsQueryable();
+            var entities = Set.AsQueryable();
             return entities;
         }
 
         public async Task<TEntity> UpdateAsync(TEntity old, TEntity @new)
         {
-            context.Entry(old).CurrentValues.SetValues(@new);
+            old = UpdateHelper<TEntity>.Update(Context.Model, old, @new);
             await ConfirmChangesAsync();
             return old;
         }
 
         private async Task<int> ConfirmChangesAsync()
         {
-            return await context.SaveChangesAsync();
+            return await Context.SaveChangesAsync();
         }
     }
 }

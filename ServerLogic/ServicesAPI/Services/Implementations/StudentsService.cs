@@ -7,7 +7,6 @@ using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,11 +17,13 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
+        private readonly IExtendedDataService<SystemUser> dataService;
 
-        public StudentsService(CoursesSystemDbContext context, IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper)
+        public StudentsService(CoursesSystemDbContext context, IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper, IExtendedDataService<SystemUser> dataService)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
+            this.dataService = dataService;
         }
 
         public async Task<ApiResult> GetAllStudentsAsync()
@@ -42,15 +43,15 @@ namespace ServicesAPI.Services.Implementations
         {
             var result = new ApiResult();
 
-            IEnumerable<string> errors = default;
+            var errors = default(IEnumerable<string>);
 
-            var user = await context.SystemUsers.FindAsync(id);
+            var user = await dataService.GetByIdAsync(id);
 
             if (user == null)
             {
                 var message = $"User id = {id} was not found";
                 errors = new string[] { message };
-                result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
+                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage: message, message: message, errors: errors);
             }
             else
             {
@@ -63,7 +64,7 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort)
         {
-            IQueryable<SystemUser> systemUsers = default;
+            var systemUsers = default(IQueryable<SystemUser>);
 
             var allUsers = context.SystemUsers
                                   .GetOnlyUsers();

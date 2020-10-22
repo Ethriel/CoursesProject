@@ -92,7 +92,9 @@ namespace ServerAPI.Extensions
         }
         private static void AddServicesForControllers(IServiceCollection services)
         {
-            services.AddScoped(typeof(ICRUDService<>), typeof(CRUDService<>));
+            //services.AddScoped(typeof(IDataService<>), typeof(DataService<>));
+
+            services.AddScoped(typeof(IExtendedDataService<>), typeof(ExtendedDataService<>));
 
             services.AddScoped<IServerService, ServerService>();
 
