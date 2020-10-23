@@ -18,9 +18,9 @@ namespace ServerAPI.Extensions
 
             app.UseCors(configuration["CORS"]);
 
-            app.UseRouting();
-
             app.UseAuthentication();
+
+            app.UseRouting();
 
             app.UseAuthorization();
 

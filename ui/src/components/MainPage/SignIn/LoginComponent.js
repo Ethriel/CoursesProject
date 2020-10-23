@@ -90,6 +90,7 @@ class LoginComponent extends Component {
     };
 
     renderRedirect = () => {
+        console.log(this.props.currentUser);
         const role = this.props.currentUser.role;
         if (this.state.redirect) {
             const redirectDirection = role === ADMIN ? admin : courses;

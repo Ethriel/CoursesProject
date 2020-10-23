@@ -21,14 +21,24 @@ namespace ServicesAPI.Services.Implementations
             return await Set.FindAsync(id);
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await Set.CountAsync();
+        }
+
         public IQueryable<TEntity> GetEntitiesByCondition(Expression<Func<TEntity, bool>> expression)
         {
             return Set.Where(expression);
         }
 
-        public async Task<TEntity> GetEntityByCondition(Expression<Func<TEntity, bool>> expression)
+        public async Task<TEntity> GetEntityByConditionAsync(Expression<Func<TEntity, bool>> expression)
         {
             return await Set.FirstOrDefaultAsync(expression);
+        }
+
+        public IQueryable<TEntity> GetPortion(int skip, int take)
+        {
+            return Set.Skip(skip).Take(take);
         }
     }
 }

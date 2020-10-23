@@ -4,13 +4,14 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 
 namespace ServicesAPI.Helpers
 {
     public static class JWTHelper
     {
-        public static string GenerateJwtToken(SystemUser user, IConfiguration configuration, SecurityTokenHandler tokenHandler, byte[] code)
+        public static string GenerateJwtToken(SystemUser user, IConfiguration configuration, SecurityTokenHandler tokenHandler, byte[] code, IEnumerable<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -20,6 +21,10 @@ namespace ServicesAPI.Helpers
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            var rolesClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
+
+            claims.AddRange(rolesClaims);
 
             var key = new SymmetricSecurityKey(code);
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ServerAPI.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("api/[controller]")]
     public class StudentsController : Controller

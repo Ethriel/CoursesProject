@@ -19,15 +19,11 @@ namespace Infrastructure.Helpers
             // get the original type
             var type = UnProxy(model, newEntity.GetType());
 
-            // get all properties
-            var properties = type.GetProperties();
-
             // get only needed properties
-            var filteredProperties = properties.Where(x => x.DeclaringType
-                                                            .Namespace
-                                                            .Equals("Infrastructure.Models"));
-            object oldValue = null;
-            object newValue = null;
+            var filteredProperties = type.GetProperties()
+                                         .Where(x => x.DeclaringType.Namespace.Equals("Infrastructure.Models"));
+            var oldValue = default(object);
+            var newValue = default(object);
 
             var propName = "";
             foreach (var property in filteredProperties)
@@ -39,9 +35,9 @@ namespace Infrastructure.Helpers
                 newValue = type.GetProperty(propName)
                                .GetValue(newEntity);
 
-                if (oldValue != null && newValue != null)
+                if (newValue != null)
                 {
-                    if (!oldValue.Equals(newValue) && !(oldValue is ICollection))
+                    if (!(oldValue is ICollection))
                     {
                         property.SetValue(oldEntity, newValue);
                     }

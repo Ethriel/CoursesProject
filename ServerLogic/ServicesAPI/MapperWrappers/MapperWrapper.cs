@@ -15,22 +15,22 @@ namespace ServicesAPI.MapperWrappers
         {
             this.mapper = mapper;
         }
-        public IEnumerable<TEntity> MapCollectionFromDTOs(IEnumerable<TDTO> dtos)
+        public IEnumerable<TEntity> MapEntities(IEnumerable<TDTO> dtos)
         {
             return mapper.Map<IEnumerable<TDTO>, IEnumerable<TEntity>>(dtos);
         }
 
-        public IEnumerable<TDTO> MapCollectionFromEntities(IEnumerable<TEntity> entities)
+        public IEnumerable<TDTO> MapModels(IEnumerable<TEntity> entities)
         {
             return mapper.Map<IEnumerable<TEntity>, IEnumerable<TDTO>>(entities);
         }
 
-        public TEntity MapFromDTO(TDTO dto)
+        public TEntity MapEntity(TDTO dto)
         {
             return mapper.Map<TDTO, TEntity>(dto);
         }
 
-        public TDTO MapFromEntity(TEntity entity)
+        public TDTO MapModel(TEntity entity)
         {
             return mapper.Map<TEntity, TDTO>(entity);
         }

@@ -18,24 +18,24 @@ namespace ServicesAPI.MapperWrappers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        public TEntity MapFromDTO(TDTO dto);
+        public TEntity MapEntity(TDTO dto);
         /// <summary>
         /// Map a dto from <paramref name="entity"/>
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public TDTO MapFromEntity(TEntity entity);
+        public TDTO MapModel(TEntity entity);
         /// <summary>
         /// Map an IEnumerable(<typeparamref name="TEntity"/>) from <paramref name="dtos"/>
         /// </summary>
         /// <param name="dtos"></param>
         /// <returns></returns>
-        public IEnumerable<TEntity> MapCollectionFromDTOs(IEnumerable<TDTO> dtos);
+        public IEnumerable<TEntity> MapEntities(IEnumerable<TDTO> dtos);
         /// <summary>
         /// Map an IEnumerable(<typeparamref name="TDTO"/>) from <paramref name="entities"/>
         /// </summary>
         /// <param name="entities"></param>
         /// <returns></returns>
-        public IEnumerable<TDTO> MapCollectionFromEntities(IEnumerable<TEntity> entities);
+        public IEnumerable<TDTO> MapModels(IEnumerable<TEntity> entities);
     }
 }

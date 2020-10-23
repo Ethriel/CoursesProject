@@ -35,7 +35,7 @@ namespace ServicesAPI.Services.Implementations
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IEmailService emailService;
-        private readonly IExtendedDataService<SystemUser> dataService;
+        private readonly IExtendedDataService<SystemUser> userService;
 
         public AccountService(CoursesSystemDbContext context, SignInManager<SystemUser> signInManager,
             RoleManager<SystemRole> roleManager,
@@ -45,7 +45,7 @@ namespace ServicesAPI.Services.Implementations
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper,
             IHttpClientFactory httpClientFactory,
             IEmailService emailService,
-            IExtendedDataService<SystemUser> dataService)
+            IExtendedDataService<SystemUser> userService)
         {
             this.context = context;
             this.signInManager = signInManager;
@@ -56,7 +56,7 @@ namespace ServicesAPI.Services.Implementations
             this.mapperWrapper = mapperWrapper;
             this.httpClientFactory = httpClientFactory;
             this.emailService = emailService;
-            this.dataService = dataService;
+            this.userService = userService;
         }
 
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
@@ -65,8 +65,8 @@ namespace ServicesAPI.Services.Implementations
 
             var userId = confirmEmailData.Id;
 
-            var user = await context.SystemUsers
-                                    .FindAsync(userId);
+            var user = await userService.GetByIdAsync(userId);
+
             if (user == null)
             {
                 result.SetApiResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
@@ -135,8 +135,7 @@ namespace ServicesAPI.Services.Implementations
 
             var userId = confirmChangeEmail.Id;
 
-            var user = await context.SystemUsers
-                                    .FindAsync(userId);
+            var user = await userService.GetByIdAsync(userId);
 
             if (user == null)
             {
@@ -171,7 +170,7 @@ namespace ServicesAPI.Services.Implementations
                 if (signInResult.Succeeded)
                 {
                     // if OK - get user data and return OK
-                    var data = GetAccountData(user);
+                    var data = await GetAccountData(user);
                     result.SetApiResult(ApiResultStatus.Ok, $"User email {user.Email} has signed in", data);
 
                 }
@@ -277,7 +276,7 @@ namespace ServicesAPI.Services.Implementations
                 else
                 {
                     // if user with such email exists in database - gather account data and return OK
-                    var data = GetAccountData(user);
+                    var data = await GetAccountData(user);
                     result.SetApiResult(ApiResultStatus.Ok,
                                         $"User {facebookUser.Email} has successfully signed in with Facebook",
                                         data);
@@ -292,8 +291,7 @@ namespace ServicesAPI.Services.Implementations
 
             var id = accountUpdateData.User.Id;
 
-            var user = await context.SystemUsers
-                                    .FindAsync(id);
+            var user = await userService.GetByIdAsync(id);
 
             if (user == null)
             {
@@ -310,16 +308,16 @@ namespace ServicesAPI.Services.Implementations
 
                 if (accountUpdateData.AnyFieldChanged)
                 {
-                    var newUser = mapperWrapper.MapFromDTO(accountUpdateData.User);
+                    var newUser = mapperWrapper.MapEntity(accountUpdateData.User);
 
                     //user = UpdateHelper<SystemUser>.Update(context.Model, user, newUser);
 
-                    user = await dataService.UpdateAsync(user, newUser);
+                    user = await userService.UpdateAsync(user, newUser);
 
                     //await context.SaveChangesAsync();
                 }
 
-                var data = mapperWrapper.MapFromEntity(user);
+                var data = await GetAccountData(user);
 
                 result.SetApiResult(ApiResultStatus.Ok, data: data);
             }
@@ -424,7 +422,7 @@ namespace ServicesAPI.Services.Implementations
         }
         private async Task<SystemUser> MapNewUserFromDTO(SystemUserDTO userData)
         {
-            var user = mapperWrapper.MapFromDTO(userData);
+            var user = mapperWrapper.MapEntity(userData);
 
             user.UserName = userData.Email;
             user.RegisteredDate = DateTime.Now;
@@ -447,7 +445,7 @@ namespace ServicesAPI.Services.Implementations
                 // send confirm request on user's email
                 await SendEmailConfirmAsync(user);
 
-                var data = GetAccountData(user);
+                var data = await GetAccountData(user);
                 result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
             }
             else
@@ -540,7 +538,7 @@ namespace ServicesAPI.Services.Implementations
                 systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
 
                 // if creation was successful - set data and OK
-                var data = GetAccountData(systemUser);
+                var data = await GetAccountData(systemUser);
                 result.SetApiResult(ApiResultStatus.Ok, $"User {systemUser.Email} has signed up with Facebook", data);
             }
             else
@@ -574,12 +572,13 @@ namespace ServicesAPI.Services.Implementations
 
             return systemUser;
         }
-        private AccountData GetAccountData(SystemUser user)
+        private async Task<AccountData> GetAccountData(SystemUser user)
         {
             var code = Encoding.UTF8.GetBytes(configuration["JwtKey"]);
-            var token = JWTHelper.GenerateJwtToken(user, configuration, tokenHandler, code);
+            var roles = await userManager.GetRolesAsync(user);
+            var token = JWTHelper.GenerateJwtToken(user, configuration, tokenHandler, code, roles);
             var expire = Convert.ToDouble(configuration["JwtExpireDays"]);
-            var userDTO = mapperWrapper.MapFromEntity(user);
+            var userDTO = mapperWrapper.MapModel(user);
             var data = new AccountData(userDTO, new TokenData(token, expire));
             return data;
         }

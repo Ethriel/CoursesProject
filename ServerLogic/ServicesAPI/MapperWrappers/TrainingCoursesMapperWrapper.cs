@@ -13,22 +13,22 @@ namespace ServicesAPI.MapperWrappers
         {
             this.mapper = mapper;
         }
-        public IEnumerable<TrainingCourse> MapCollectionFromDTOs(IEnumerable<TrainingCourseDTO> dtos)
+        public IEnumerable<TrainingCourse> MapEntities(IEnumerable<TrainingCourseDTO> dtos)
         {
             return mapper.Map<IEnumerable<TrainingCourseDTO>, IEnumerable<TrainingCourse>>(dtos);
         }
 
-        public IEnumerable<TrainingCourseDTO> MapCollectionFromEntities(IEnumerable<TrainingCourse> entities)
+        public IEnumerable<TrainingCourseDTO> MapModels(IEnumerable<TrainingCourse> entities)
         {
             return mapper.Map<IEnumerable<TrainingCourse>, IEnumerable<TrainingCourseDTO>>(entities);
         }
 
-        public TrainingCourse MapFromDTO(TrainingCourseDTO dto)
+        public TrainingCourse MapEntity(TrainingCourseDTO dto)
         {
             return mapper.Map<TrainingCourseDTO, TrainingCourse>(dto);
         }
 
-        public TrainingCourseDTO MapFromEntity(TrainingCourse entity)
+        public TrainingCourseDTO MapModel(TrainingCourse entity)
         {
             return mapper.Map<TrainingCourse, TrainingCourseDTO>(entity);
         }

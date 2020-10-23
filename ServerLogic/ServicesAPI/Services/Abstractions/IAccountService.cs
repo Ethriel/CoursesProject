@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using ServicesAPI.DataPresentation.AccountManagement;
+﻿using ServicesAPI.DataPresentation.AccountManagement;
 using ServicesAPI.DTO;
 using ServicesAPI.Facebook;
 using ServicesAPI.Responses;

@@ -34,7 +34,7 @@ namespace ServicesAPI.Services.Implementations
             var courseId = userCourseDTO.TrainingCourseId;
             var userId = userCourseDTO.SystemUserId;
 
-            var userCourse = mapperWrapper.MapFromDTO(userCourseDTO);
+            var userCourse = mapperWrapper.MapEntity(userCourseDTO);
 
             var course = await context.TrainingCourses
                                       .FindAsync(courseId);
@@ -51,7 +51,7 @@ namespace ServicesAPI.Services.Implementations
             var usersWithCourses = await context.SystemUsersTrainingCourses
                                                 .ToArrayAsync();
 
-            var data = mapperWrapper.MapCollectionFromEntities(usersWithCourses);
+            var data = mapperWrapper.MapModels(usersWithCourses);
 
             var result = new ApiResult(ApiResultStatus.Ok, $"Returning all users with courses to the client. Count = {usersWithCourses.Length}", data);
 
@@ -64,7 +64,7 @@ namespace ServicesAPI.Services.Implementations
                                            .GetCoursesByUserId(id)
                                            .ToArrayAsync();
 
-            var data = mapperWrapper.MapCollectionFromEntities(userCourses);
+            var data = mapperWrapper.MapModels(userCourses);
 
             var result = new ApiResult(ApiResultStatus.Ok, $"Returning courses of user id = {id}", data);
 

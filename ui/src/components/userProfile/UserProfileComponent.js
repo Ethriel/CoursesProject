@@ -36,6 +36,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
             try {
                 const response = await MakeRequestAsync(`Students/get/${id}`, { msg: "hello" }, "get", signal.token);
                 const userData = response.data.data;
+
                 setUser(userData);
             } catch (error) {
                 setCatch(error);
@@ -82,33 +83,34 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
         setIsloading(true);
 
         const signal = axios.CancelToken.source();
-
         const data = {
             user: user,
             isEmailChanged: emailState.changed,
             anyFieldChanged: fieldChanged
         };
-
+        
         try {
             // if email was changed - make a request to verify new email
             if (emailState.changed === true) {
                 const email = localStorage.getItem("new_email");
                 await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
-
+                
                 Notification(undefined, undefined, "A confirm message was sent to your email. Follow the instructions", true);
-
+                
                 setEmailState(old => ({ ...old, ...{ valid: true } }));
-
+                
                 props.onEmailConfirmedChanged(false);
             }
-
+            
             // if user data was changed - send an update request
             if (fieldChanged === true || emailState.changed === true) {
                 const response = await MakeRequestAsync("account/update", data, "post", signal.token);
-                const userData = response.data.data;
-                const token = localStorage.getItem('access_token');
+                const respData = response.data.data;
+                const userData = respData.user;
+                console.log(respData);
+                const token = respData.token.key;
                 const role = data.user.roleName;
-
+                
                 setUser(userData);
 
                 const newUser = GetUserData(userData);

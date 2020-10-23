@@ -50,6 +50,7 @@ namespace ServerAPI.Extensions
 
             services.AddIdentity<SystemUser, SystemRole>()
                     .AddEntityFrameworkStores<CoursesSystemDbContext>()
+                    .AddRoles<SystemRole>()
                     .AddDefaultTokenProviders();
 
             services.Configure<SecurityStampValidatorOptions>(options =>

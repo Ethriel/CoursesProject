@@ -17,13 +17,16 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
-        private readonly IExtendedDataService<SystemUser> dataService;
+        private readonly IExtendedDataService<SystemUser> userService;
 
-        public StudentsService(CoursesSystemDbContext context, IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper, IExtendedDataService<SystemUser> dataService)
+        public StudentsService(CoursesSystemDbContext context,
+                              IMapperWrapper<SystemUser,
+                              SystemUserDTO> mapperWrapper,
+                              IExtendedDataService<SystemUser> userService)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
-            this.dataService = dataService;
+            this.userService = userService;
         }
 
         public async Task<ApiResult> GetAllStudentsAsync()
@@ -32,7 +35,7 @@ namespace ServicesAPI.Services.Implementations
                                         .GetOnlyUsers()
                                         .ToArrayAsync();
 
-            var data = mapperWrapper.MapCollectionFromEntities(students);
+            var data = mapperWrapper.MapModels(students);
 
             var result = new ApiResult(ApiResultStatus.Ok, $"Returning all students. Count = {students.Length}", data);
 
@@ -45,7 +48,7 @@ namespace ServicesAPI.Services.Implementations
 
             var errors = default(IEnumerable<string>);
 
-            var user = await dataService.GetByIdAsync(id);
+            var user = await userService.GetByIdAsync(id);
 
             if (user == null)
             {
@@ -55,7 +58,7 @@ namespace ServicesAPI.Services.Implementations
             }
             else
             {
-                var data = mapperWrapper.MapFromEntity(user);
+                var data = mapperWrapper.MapModel(user);
                 result.SetApiResult(ApiResultStatus.Ok, $"Returning user id = {id}", data);
             }
 
@@ -95,7 +98,7 @@ namespace ServicesAPI.Services.Implementations
             var students = await systemUsers.GetPortionOfQueryable(skip, take)
                                             .ToArrayAsync();
 
-            var users = mapperWrapper.MapCollectionFromEntities(students);
+            var users = mapperWrapper.MapModels(students);
 
             var data = new { pagination = searchAndSort.Pagination, users = users };
 

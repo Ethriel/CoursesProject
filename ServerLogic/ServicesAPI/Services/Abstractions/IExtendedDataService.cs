@@ -10,6 +10,8 @@ namespace ServicesAPI.Services.Abstractions
     {
         Task<TEntity> GetByIdAsync(object id);
         IQueryable<TEntity> GetEntitiesByCondition(Expression<Func<TEntity, bool>> expression);
-        Task<TEntity> GetEntityByCondition(Expression<Func<TEntity, bool>> expression);
+        Task<TEntity> GetEntityByConditionAsync(Expression<Func<TEntity, bool>> expression);
+        IQueryable<TEntity> GetPortion(int skip, int take);
+        Task<int> GetCountAsync();
     }
 }
