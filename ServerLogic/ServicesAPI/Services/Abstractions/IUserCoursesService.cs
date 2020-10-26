@@ -9,5 +9,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> AddCourseToUserAsync(SystemUsersTrainingCoursesDTO userCourseDTO);
         Task<ApiResult> GetAllAsync();
         Task<ApiResult> GetByUserIdAsync(int id);
+        Task<ApiResult> Unsubscribe(int userId, int courseId);
     }
 }

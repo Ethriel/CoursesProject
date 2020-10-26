@@ -17,14 +17,17 @@ namespace ServicesAPI.Services.Implementations
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper;
         private readonly IEmailNotifyJob emailNotifyJob;
+        private readonly ICourseJobUserHandler courseJobUser;
 
         public UserCoursesService(CoursesSystemDbContext context,
                                   IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper,
-                                  IEmailNotifyJob emailNotifyJob)
+                                  IEmailNotifyJob emailNotifyJob,
+                                  ICourseJobUserHandler courseJobUser)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
             this.emailNotifyJob = emailNotifyJob;
+            this.courseJobUser = courseJobUser;
         }
         public async Task<ApiResult> AddCourseToUserAsync(SystemUsersTrainingCoursesDTO userCourseDTO)
         {
@@ -71,6 +74,11 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
+        public async Task<ApiResult> Unsubscribe(int userId, int courseId)
+        {
+            return await courseJobUser.DeleteAsync(courseId, userId);
+        }
+
         private async Task<ApiResult> GetAddCourseToUserResultAsync(SystemUser user, TrainingCourse course, SystemUsersTrainingCourses userCourse, ApiResult result)
         {
             var loggerMessage = "Adding course to user. Result:{0}";
@@ -106,7 +114,12 @@ namespace ServicesAPI.Services.Implementations
 
                 var saved = await context.SaveChangesAsync();
 
-                emailNotifyJob.CreateJobs(user, course, userCourse.StudyDate);
+                var jobs = emailNotifyJob.CreateJobs(user, course, userCourse.StudyDate);
+
+                foreach (var job in jobs)
+                {
+                    await courseJobUser.AddAsync(job, course.Id, user.Id);
+                }
             }
 
             return result;

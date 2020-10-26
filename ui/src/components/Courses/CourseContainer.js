@@ -2,7 +2,7 @@ import React from 'react';
 import Container from '../common/ContainerComponent';
 import H from '../common/HAntD';
 import ButtonComponent from '../common/ButtonComponent';
-import { Typography, DatePicker } from 'antd';
+import { Typography, DatePicker, Button } from 'antd';
 import { connect } from 'react-redux';
 
 const { Paragraph } = Typography;
@@ -13,6 +13,7 @@ const CourseContainer = props => {
     const handleDateChange = props.handleDateChange;
     const disabledDate = props.disabledDate;
     const handleConfirm = props.handleConfirm;
+    const handleUnsubscribe = props.handleUnsubscribe;
     let disableButton = !isDateSelected;
     const isEmailConfirmed = props.currentUser.emailConfirmed;
     if (!isEmailConfirmed) {
@@ -25,7 +26,6 @@ const CourseContainer = props => {
             "width-75", "center-a-div"
         ];
     const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
-
     return (
         <Container classes={classNameContainer}>
             <H myText={course.title} level={4} />
@@ -48,6 +48,15 @@ const CourseContainer = props => {
                     myText="Select course"
                     disabled={disableButton}
                 />
+                <Button
+                    type="primary"
+                    size="medium"
+                    danger={true}
+                    onClick={handleUnsubscribe}
+                    disabled={!(props.isPresent === true && isEmailConfirmed === true)}
+                >
+                    Unsubscribe
+                </Button>
             </Container>
         </Container>
     )

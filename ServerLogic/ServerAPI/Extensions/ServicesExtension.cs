@@ -97,6 +97,8 @@ namespace ServerAPI.Extensions
 
             services.AddScoped(typeof(IExtendedDataService<>), typeof(ExtendedDataService<>));
 
+            services.AddScoped<ICourseJobUserHandler, CourseJobUserHandler>();
+
             services.AddScoped<IServerService, ServerService>();
 
             services.AddScoped<ISendEmailService, SendEmailService>();

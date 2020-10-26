@@ -13,6 +13,7 @@ namespace Infrastructure.DbContext
         public virtual DbSet<SystemRole> SystemRoles { get; set; }
         public virtual DbSet<TrainingCourse> TrainingCourses { get; set; }
         public virtual DbSet<SystemUsersTrainingCourses> SystemUsersTrainingCourses { get; set; }
+        public virtual DbSet<CourseJobUser> CourseJobUsers { get; set; }
 
         #endregion
         public CoursesSystemDbContext(DbContextOptions options) : base(options)
@@ -35,21 +36,21 @@ namespace Infrastructure.DbContext
 
             // configure composite primary key
             builder.Entity<SystemUsersTrainingCourses>()
-                .HasKey(sutc => new { sutc.SystemUserId, sutc.TrainingCourseId });
+                   .HasKey(sutc => new { sutc.SystemUserId, sutc.TrainingCourseId });
 
             builder.Entity<SystemUsersTrainingCourses>()
-                .HasOne(sutc => sutc.SystemUser)
-                .WithMany(su => su.SystemUsersTrainingCourses)
-                .HasForeignKey(sutc => sutc.SystemUserId);
+                   .HasOne(sutc => sutc.SystemUser)
+                   .WithMany(su => su.SystemUsersTrainingCourses)
+                   .HasForeignKey(sutc => sutc.SystemUserId);
 
             builder.Entity<SystemUsersTrainingCourses>()
-                .HasOne(sutc => sutc.TrainingCourse)
-                .WithMany(tc => tc.SystemUsersTrainingCourses)
-                .HasForeignKey(sutc => sutc.TrainingCourseId);
+                   .HasOne(sutc => sutc.TrainingCourse)
+                   .WithMany(tc => tc.SystemUsersTrainingCourses)
+                   .HasForeignKey(sutc => sutc.TrainingCourseId);
 
             builder.Entity<SystemRole>()
-                .HasMany(x => x.SystemUsers)
-                .WithOne(x => x.SystemRole);
+                   .HasMany(x => x.SystemUsers)
+                   .WithOne(x => x.SystemRole);
         }
     }
 }

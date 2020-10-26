@@ -45,5 +45,13 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
+        [HttpPost("unsubscribe")]
+        public async Task<IActionResult> Unsubscribe([FromBody] UnsubscribeCourseDTO unsubscribeCourse)
+        {
+            var result = await userCoursesService.Unsubscribe(unsubscribeCourse.UserId, unsubscribeCourse.CourseId);
+
+            return this.GetActionResult(result, logger);
+        }
     }
 }

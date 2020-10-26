@@ -11,13 +11,12 @@ namespace ServicesAPI.Services.Implementations
         where TEntity : class
     {
         public DbSet<TEntity> Set { get; set; }
+        public CoursesSystemDbContext Context { get; }
         public DataService(CoursesSystemDbContext context)
         {
             Set = context.Set<TEntity>();
             Context = context;
         }
-
-        public CoursesSystemDbContext Context { get; }
 
         public async Task CreateAsync(TEntity entity)
         {

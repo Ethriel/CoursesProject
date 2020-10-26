@@ -1,10 +1,11 @@
 ﻿using Infrastructure.Models;
 using System;
+using System.Collections.Generic;
 
 namespace ServicesAPI.BackgroundJobs
 {
     public interface IEmailNotifyJob
     {
-        void CreateJobs(SystemUser user, TrainingCourse course, DateTime studyDate);
+        ICollection<string> CreateJobs(SystemUser user, TrainingCourse course, DateTime studyDate);
     }
 }
