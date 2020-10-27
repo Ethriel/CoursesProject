@@ -61,7 +61,7 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
 
             var userId = confirmEmailData.Id;
 
@@ -69,7 +69,7 @@ namespace ServicesAPI.Services.Implementations
 
             if (user == null)
             {
-                result.SetApiResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
+                result = new ApiErrorResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
             }
             else
             {
@@ -80,7 +80,7 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task<ApiResult> CheckEmailConfirmedAsync(EmailWrapper emailWrapper)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
 
             var email = emailWrapper.Email;
 
@@ -89,20 +89,22 @@ namespace ServicesAPI.Services.Implementations
             if (user == null)
             {
                 var message = "User not found";
-                var errors = new string[] { $"User {email} not found" };
-                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                var loggerMessage = $"User {email} not found";
+                var errors = new string[] { loggerMessage };
+                result = new ApiErrorResult(ApiResultStatus.NotFound, loggerMessage: loggerMessage, message: message, errors: errors);
             }
             else
             {
                 if (user.EmailConfirmed)
                 {
-                    result.SetApiResult(ApiResultStatus.Ok);
+                    result = new ApiOkResult(ApiResultStatus.Ok);
                 }
                 else
                 {
-                    var message = "Email is not confirmed. But you still can browse courses";
-                    var errors = new string[] { $"Email {email} is not confirmed" };
-                    result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                    var message = "Email is not confirmed";
+                    var loggerMessage = $"Email { email} is not confirmed. But you still can browse courses";
+                    var errors = new string[] { loggerMessage };
+                    result = new ApiErrorResult(ApiResultStatus.BadRequest, loggerMessage, message: message, errors: errors);
                 }
             }
 
