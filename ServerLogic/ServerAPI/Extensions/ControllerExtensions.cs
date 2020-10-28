@@ -13,11 +13,11 @@ namespace ServerAPI.Extensions
                 case ApiResultStatus.Ok:
                     return controller.Ok(result);
                 case ApiResultStatus.NotFound:
-                    logger.LogWarning(result.LoggerMessage);
+                    logger.LogWarning((result as ApiErrorResult).LoggerMessage);
                     return controller.NotFound(result);
                 case ApiResultStatus.BadRequest:
                 default:
-                    logger.LogWarning(result.LoggerMessage);
+                    logger.LogWarning((result as ApiErrorResult).LoggerMessage);
                     return controller.BadRequest(result);
             }
         }

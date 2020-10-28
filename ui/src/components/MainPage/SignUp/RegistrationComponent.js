@@ -12,6 +12,7 @@ import GetFacebookData from '../Facebook/GetFacebookData';
 import Notification from '../../common/Notification';
 import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID } from '../../../reducers/reducersActions';
 import { courses } from '../../../Routes/RoutersDirections';
+import getFormattedDate from '../../../helpers/get-formatted-date';
 
 class RegistrationComponent extends Component {
     signal = axios.CancelToken.source();
@@ -47,7 +48,7 @@ class RegistrationComponent extends Component {
         const userData = {
             firstName: values.user.name,
             lastName: values.user.lastname,
-            birthDate: values.birthdate._i,
+            birthDate: getFormattedDate(values.birthdate._d),
             email: values.email,
             password: values.password
         };
@@ -65,12 +66,8 @@ class RegistrationComponent extends Component {
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
 
             this.props.onsetId(user.id);
-
             this.props.onRoleChange(role);
-
             this.props.onSetEmail(user.email);
-
-
             this.props.onEmailConfirmedChanged(false);
 
             Notification(undefined, undefined, "A confirm message was sent to your email. Follow the instructions", true);
@@ -102,7 +99,6 @@ class RegistrationComponent extends Component {
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, true);
 
             this.props.onRoleChange(role);
-
             this.props.onEmailConfirmedChanged(true);
 
             Notification(undefined, undefined, "You can now use your Facebook account to enter the system", true);

@@ -17,35 +17,39 @@ namespace ServicesAPI.Services.Implementations
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper;
         private readonly IEmailNotifyJob emailNotifyJob;
-        private readonly ICourseJobUserHandler courseJobUser;
+        private readonly ICourseJobUserHandler coursesJobsUsers;
+        private readonly IExtendedDataService<TrainingCourse> courses;
+        private readonly IExtendedDataService<SystemUser> users;
+        private readonly IExtendedDataService<SystemUsersTrainingCourses> usersCourses;
 
         public UserCoursesService(CoursesSystemDbContext context,
                                   IMapperWrapper<SystemUsersTrainingCourses, SystemUsersTrainingCoursesDTO> mapperWrapper,
                                   IEmailNotifyJob emailNotifyJob,
-                                  ICourseJobUserHandler courseJobUser)
+                                  ICourseJobUserHandler coursesJobsUsers,
+                                  IExtendedDataService<TrainingCourse> courses,
+                                  IExtendedDataService<SystemUser> users,
+                                  IExtendedDataService<SystemUsersTrainingCourses> usersCourses)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
             this.emailNotifyJob = emailNotifyJob;
-            this.courseJobUser = courseJobUser;
+            this.coursesJobsUsers = coursesJobsUsers;
+            this.courses = courses;
+            this.users = users;
+            this.usersCourses = usersCourses;
         }
         public async Task<ApiResult> AddCourseToUserAsync(SystemUsersTrainingCoursesDTO userCourseDTO)
         {
-            var result = new ApiResult();
-            
-
             var courseId = userCourseDTO.TrainingCourseId;
             var userId = userCourseDTO.SystemUserId;
 
             var userCourse = mapperWrapper.MapEntity(userCourseDTO);
 
-            var course = await context.TrainingCourses
-                                      .FindAsync(courseId);
+            var course = await courses.GetByIdAsync(courseId);
 
-            var user = await context.SystemUsers
-                                    .FindAsync(userId);
+            var user = await users.GetByIdAsync(userId);
 
-            result = await GetAddCourseToUserResultAsync(user, course, userCourse, result);
+            var result = await GetAddCourseToUserResultAsync(user, course, userCourse);
 
             return result;
         }
@@ -56,34 +60,35 @@ namespace ServicesAPI.Services.Implementations
 
             var data = mapperWrapper.MapModels(usersWithCourses);
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning all users with courses to the client. Count = {usersWithCourses.Length}", data);
+            var result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
 
         public async Task<ApiResult> GetByUserIdAsync(int id)
         {
-            var userCourses = await context.SystemUsersTrainingCourses
-                                           .GetCoursesByUserId(id)
-                                           .ToArrayAsync();
+            var userCourses = await usersCourses.GetEntitiesByCondition(x => x.SystemUserId.Equals(id))
+                                                .Include(x => x.TrainingCourse)
+                                                .ToArrayAsync();
 
             var data = mapperWrapper.MapModels(userCourses);
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning courses of user id = {id}", data);
+            var result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
 
         public async Task<ApiResult> Unsubscribe(int userId, int courseId)
         {
-            return await courseJobUser.DeleteAsync(courseId, userId);
+            return await coursesJobsUsers.DeleteAsync(courseId, userId);
         }
 
-        private async Task<ApiResult> GetAddCourseToUserResultAsync(SystemUser user, TrainingCourse course, SystemUsersTrainingCourses userCourse, ApiResult result)
+        private async Task<ApiResult> GetAddCourseToUserResultAsync(SystemUser user, TrainingCourse course, SystemUsersTrainingCourses userCourse)
         {
+            var result = default(ApiResult);
             var loggerMessage = "Adding course to user. Result:{0}";
             var message = "{0} id = {1} was not found";
-            IEnumerable<string> errors = default;
+            var errors = default(IEnumerable<string>);
 
             if (course == null)
             {
@@ -91,7 +96,7 @@ namespace ServicesAPI.Services.Implementations
                 loggerMessage = string.Format(loggerMessage, message);
                 errors = new string[] { message };
 
-                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else if (user == null)
             {
@@ -99,26 +104,24 @@ namespace ServicesAPI.Services.Implementations
                 loggerMessage = string.Format(loggerMessage, message);
                 errors = new string[] { message };
 
-                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
                 userCourse.SystemUser = user;
                 userCourse.TrainingCourse = course;
 
-                loggerMessage = string.Format(loggerMessage, $"Course id = {course.Id}, user id = {user.Id}");
-
-                result.SetApiResult(ApiResultStatus.Ok, loggerMessage);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok);
 
                 context.SystemUsersTrainingCourses.Add(userCourse);
 
-                var saved = await context.SaveChangesAsync();
+                await usersCourses.CreateAsync(userCourse);
 
                 var jobs = emailNotifyJob.CreateJobs(user, course, userCourse.StudyDate);
 
                 foreach (var job in jobs)
                 {
-                    await courseJobUser.AddAsync(job, course.Id, user.Id);
+                    await coursesJobsUsers.AddAsync(job, course.Id, user.Id);
                 }
             }
 

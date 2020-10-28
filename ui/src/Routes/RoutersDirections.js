@@ -11,3 +11,4 @@ export const confirmEmail = "/confirmEmail";
 export const confirmEmailForm = "/confirmEmailForm";
 export const confirmChangeEmail = "/confirmChangeEmail";
 export const resetPassword = "/resetPassword";
+export const addCourse = "/add-course";

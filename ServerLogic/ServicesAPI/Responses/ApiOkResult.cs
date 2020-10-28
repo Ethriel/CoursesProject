@@ -9,14 +9,16 @@
 
         }
 
-        public ApiOkResult(ApiResultStatus apiResultStatus, object data = null)
+        public ApiOkResult(ApiResultStatus apiResultStatus, string message = null, object data = null)
         {
-            SetOkResult(apiResultStatus, data);
+            SetOkResult(apiResultStatus, message, data);
         }
-        public void SetOkResult(ApiResultStatus apiResultStatus, object data = null)
+
+        public void SetOkResult(ApiResultStatus apiResultStatus, string message = null, object data = null)
         {
             ApiResultStatus = apiResultStatus;
             Data = data;
+            Message = message;
         }
     }
 }

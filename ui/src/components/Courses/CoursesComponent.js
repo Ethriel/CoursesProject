@@ -7,7 +7,7 @@ import LayoutAntD from '../common/LayoutAntD';
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 import CoursesContent from './CoursesContent';
-import { Spin, Space } from 'antd';
+import { Spin, Space, Button } from 'antd';
 import { withRouter } from "react-router";
 import { connect } from 'react-redux';
 import { ADMIN, USER } from '../common/roles';
@@ -104,10 +104,24 @@ class CoursesComponent extends Component {
         Notification(error);
     };
 
+    addcourse = () => {
+        this.props.history.push("/add-course");
+    }
+
     render() {
         const header = <H myText="Select a training course" level={4} />;
         const { pagination, loading, items } = this.state;
         const spinner = <Space size="middle"> <Spin tip="Loading courses..." size="large" /></Space>;
+        const role = this.props.currentUser.role;
+        const isAdmin = role === ADMIN;
+        console.log("IS ADMIN = ", isAdmin);
+        const addCourseBtn =
+            <Button
+                type="primary"
+                size="medium"
+                onClick={this.addcourse}>
+                Add course
+                    </Button>
 
         const content = <CoursesContent
             pagination={pagination}
@@ -117,6 +131,7 @@ class CoursesComponent extends Component {
         const toRender =
             <>
                 {this.state.redirect && this.handleRedirect()}
+                {isAdmin && addCourseBtn}
                 {this.state.redirect === false && <LayoutAntD myHeader={header} myContent={content} />}
             </>;
 

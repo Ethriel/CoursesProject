@@ -26,13 +26,14 @@ const CourseContainer = props => {
             "width-75", "center-a-div"
         ];
     const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
+    const src = course.cover.contains('http') ? `https://localhost:44382/${course.cover}` : course.cover;
     return (
         <Container classes={classNameContainer}>
             <H myText={course.title} level={4} />
             <img
                 style={{ margin: "0 auto" }}
                 alt="No"
-                src={`https://localhost:44382/${course.cover}`} />
+                src={src} />
             <Paragraph className="course-details-margin">
                 {course.description}
             </Paragraph>

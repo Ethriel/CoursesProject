@@ -5,14 +5,14 @@ import {
     main, courses, coursesDetails, aboutUs, admin,
     editStudent, forbidden, userProfile, forgotPassword,
     confirmEmail, confirmChangeEmail, resetPassword,
-    confirmEmailForm
+    confirmEmailForm, addCourse
 } from './RoutersDirections';
 
 import {
     MainPage, Courses, AboutUs, Admin, CourseDetails,
     UserProfile, ConfirmEmail, ConfirmEmailForm, ConfirmChangeEmail,
     ForgotPassword, ResetPassword, EditStudent,
-    NoAccessPage
+    NoAccessPage, AddCourse
 } from './RouteComponents';
 
 const Routes = () => (
@@ -20,6 +20,7 @@ const Routes = () => (
         <Route exact path={main} component={MainPage} />
         <Route exact path={forbidden} component={NoAccessPage} />
         <Route exact path={courses} component={Courses} />
+        <Route exact path={addCourse} component={AddCourse} />
         <Route path={coursesDetails} component={CourseDetails} />
         <Route exact path={aboutUs} component={AboutUs} />
         <Route exact path={admin} component={Admin} />

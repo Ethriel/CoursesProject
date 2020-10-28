@@ -1,7 +1,5 @@
 ﻿using Infrastructure.DbContext;
-using Infrastructure.Helpers;
 using Infrastructure.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +24,6 @@ namespace ServicesAPI.Services.Implementations
 {
     public class AccountService : IAccountService
     {
-        private readonly CoursesSystemDbContext context;
         private readonly SignInManager<SystemUser> signInManager;
         private readonly RoleManager<SystemRole> roleManager;
         private readonly UserManager<SystemUser> userManager;
@@ -35,9 +32,9 @@ namespace ServicesAPI.Services.Implementations
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IEmailService emailService;
-        private readonly IExtendedDataService<SystemUser> userService;
+        private readonly IExtendedDataService<SystemUser> users;
 
-        public AccountService(CoursesSystemDbContext context, SignInManager<SystemUser> signInManager,
+        public AccountService(SignInManager<SystemUser> signInManager,
             RoleManager<SystemRole> roleManager,
             UserManager<SystemUser> userManager,
             IConfiguration configuration,
@@ -45,9 +42,8 @@ namespace ServicesAPI.Services.Implementations
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper,
             IHttpClientFactory httpClientFactory,
             IEmailService emailService,
-            IExtendedDataService<SystemUser> userService)
+            IExtendedDataService<SystemUser> users)
         {
-            this.context = context;
             this.signInManager = signInManager;
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -56,24 +52,22 @@ namespace ServicesAPI.Services.Implementations
             this.mapperWrapper = mapperWrapper;
             this.httpClientFactory = httpClientFactory;
             this.emailService = emailService;
-            this.userService = userService;
+            this.users = users;
         }
 
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
         {
             var result = default(ApiResult);
-
             var userId = confirmEmailData.Id;
-
-            var user = await userService.GetByIdAsync(userId);
+            var user = await users.GetByIdAsync(userId);
 
             if (user == null)
             {
-                result = new ApiErrorResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
             }
             else
             {
-                result = await GetConfirmEmailResultAsync(user, confirmEmailData.Token, result);
+                result = await GetConfirmEmailResultAsync(user, confirmEmailData.Token);
             }
 
             return result;
@@ -81,9 +75,7 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> CheckEmailConfirmedAsync(EmailWrapper emailWrapper)
         {
             var result = default(ApiResult);
-
             var email = emailWrapper.Email;
-
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
@@ -91,20 +83,20 @@ namespace ServicesAPI.Services.Implementations
                 var message = "User not found";
                 var loggerMessage = $"User {email} not found";
                 var errors = new string[] { loggerMessage };
-                result = new ApiErrorResult(ApiResultStatus.NotFound, loggerMessage: loggerMessage, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
                 if (user.EmailConfirmed)
                 {
-                    result = new ApiOkResult(ApiResultStatus.Ok);
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok);
                 }
                 else
                 {
                     var message = "Email is not confirmed";
                     var loggerMessage = $"Email { email} is not confirmed. But you still can browse courses";
                     var errors = new string[] { loggerMessage };
-                    result = new ApiErrorResult(ApiResultStatus.BadRequest, loggerMessage, message: message, errors: errors);
+                    result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
                 }
             }
 
@@ -113,39 +105,38 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> ConfirmEmailRequestAsync(EmailWrapper emailWrapper)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
             var email = emailWrapper.Email;
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
                 var message = "User not found";
-                var errors = new string[] { $"User {email} not found" };
-                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                var loggerMessage = $"User {email} not found";
+                var errors = new string[] { loggerMessage };
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
                 await SendEmailConfirmAsync(user);
-                result.SetApiResult(ApiResultStatus.Ok, message: "A confirm message was sent to your email. Follow the instructions");
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, message: "A confirm message was sent to your email. Follow the instructions");
             }
 
             return result;
         }
         public async Task<ApiResult> ConfirmChangeEmailAsync(ConfirmChangeEmailData confirmChangeEmail)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var userId = confirmChangeEmail.Id;
-
-            var user = await userService.GetByIdAsync(userId);
+            var user = await users.GetByIdAsync(userId);
 
             if (user == null)
             {
-                result.SetApiResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, $"User with id = {userId} was not found", message: "User not found");
             }
             else
             {
-                result = await GetChangeEmailResultAsync(user, confirmChangeEmail.Email, confirmChangeEmail.Token, result);
+                result = await GetChangeEmailResultAsync(user, confirmChangeEmail.Email, confirmChangeEmail.Token);
             }
 
             return result;
@@ -153,16 +144,16 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> SignInAsync(SystemUserDTO userData)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             // find user
             var user = await userManager.FindByEmailAsync(userData.Email);
 
             if (user == null)
             {
                 var message = "Sign in has failed";
+                var loggerMessage = $"Sign in has failed for {userData.Email}";
                 var errors = new string[] { $"Email {userData.Email} is incorrect" };
-                result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
@@ -173,7 +164,7 @@ namespace ServicesAPI.Services.Implementations
                 {
                     // if OK - get user data and return OK
                     var data = await GetAccountData(user);
-                    result.SetApiResult(ApiResultStatus.Ok, $"User email {user.Email} has signed in", data);
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
                 }
                 else
@@ -181,7 +172,7 @@ namespace ServicesAPI.Services.Implementations
                     // if not - set message, set errors and return Bad Request
                     var message = "Sign in has failed";
                     var errors = new string[] { "Password is incorrect" };
-                    result.SetApiResult(ApiResultStatus.BadRequest,
+                    result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest,
                                         $"User email {user.Email} has failed to sign in with password",
                                         message: message,
                                         errors: errors);
@@ -193,43 +184,39 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> SignUpAsync(SystemUserDTO userData)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var findUser = await userManager.FindByEmailAsync(userData.Email);
 
             if (findUser != null)
             {
                 var message = "Sign up has failed";
+                var loggerMessage = $"New user {userData.Email} has tried to sign up. User with this email already exists in the database";
                 var errors = new string[] { $"User {userData.Email} is already registered. Try to sign in" };
-                result.SetApiResult(ApiResultStatus.BadRequest,
-                                    $"New user {userData.Email} has tried to sign up. User with this email already exists in the database",
-                                    message: message,
-                                    errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
             else
             {
                 var user = await MapNewUserFromDTO(userData);
 
                 // try to create user
-                result = await TryCreateUser(user, userData.Password, result);
+                result = await TryCreateUser(user, userData.Password);
             }
 
             return result;
         }
         public async Task<ApiResult> SignOutAsync(EmailWrapper emailWrapper)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var email = emailWrapper.Email;
-
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
                 var message = "User not found";
-                var errors = new string[] { $"User {email} not found" };
+                var loggerMessage = $"User {email} not found";
+                var errors = new string[] { };
 
-                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
@@ -238,13 +225,14 @@ namespace ServicesAPI.Services.Implementations
                 if (stampResult.Succeeded)
                 {
                     await signInManager.SignOutAsync();
-                    result.SetApiResult(ApiResultStatus.Ok);
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok);
                 }
                 else
                 {
                     var message = "Sign out error";
+                    var loggerMessage = $"{message} for user {email}";
                     var errors = GetIdentityErrors(stampResult.Errors);
-                    result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                    result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
                 }
 
             }
@@ -253,14 +241,13 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var isTokenValid = await CheckFacebookAccessToken(facebookUser);
 
             // if token is not valid - set message
             if (!isTokenValid)
             {
-                result.SetApiResult(ApiResultStatus.BadRequest,
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest,
                                     $"Invalid Facebook token for user {facebookUser.Email}",
                                     message: "Facebook access token is invalid. Please, try again");
             }
@@ -273,15 +260,13 @@ namespace ServicesAPI.Services.Implementations
                 if (user == null)
                 {
                     // if not - try create one
-                    result = await TryCreateSystemUserFromFacebook(facebookUser, result);
+                    result = await TryCreateSystemUserFromFacebook(facebookUser);
                 }
                 else
                 {
                     // if user with such email exists in database - gather account data and return OK
                     var data = await GetAccountData(user);
-                    result.SetApiResult(ApiResultStatus.Ok,
-                                        $"User {facebookUser.Email} has successfully signed in with Facebook",
-                                        data);
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
                 }
             }
 
@@ -289,17 +274,16 @@ namespace ServicesAPI.Services.Implementations
         }
         public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var id = accountUpdateData.User.Id;
-
-            var user = await userService.GetByIdAsync(id);
+            var user = await users.GetByIdAsync(id);
 
             if (user == null)
             {
                 var message = "User was not found";
+                var loggerMessage = $"User id = {id} was not found";
                 var errors = new string[] { message };
-                result.SetApiResult(ApiResultStatus.NotFound, $"User id = {id} was not found", message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
@@ -314,41 +298,40 @@ namespace ServicesAPI.Services.Implementations
 
                     //user = UpdateHelper<SystemUser>.Update(context.Model, user, newUser);
 
-                    user = await userService.UpdateAsync(user, newUser);
+                    user = await users.UpdateAsync(user, newUser);
 
                     //await context.SaveChangesAsync();
                 }
 
                 var data = await GetAccountData(user);
 
-                result.SetApiResult(ApiResultStatus.Ok, data: data);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
 
             return result;
         }
         public async Task<ApiResult> VerifyEmailAsync(string email)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var user = await userManager.FindByEmailAsync(email);
 
             if (user != null)
             {
                 var message = "Email change has failed";
-                var errors = new string[] { $"User {email} is already registered" };
-                result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                var loggerMessage = $"User {email} is already registered";
+                var errors = new string[] { loggerMessage };
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
             else
             {
-                result.SetApiResult(ApiResultStatus.Ok, data: new { varified = true });
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: new { varified = true });
             }
 
             return result;
         }
         public async Task<ApiResult> ResetPasswordAsync(ResetPasswordData resetPasswordData)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var email = resetPasswordData.Email;
             var token = resetPasswordData.Token;
             var password = resetPasswordData.Password;
@@ -358,9 +341,10 @@ namespace ServicesAPI.Services.Implementations
             if (user == null)
             {
                 var message = "User not found";
-                var errors = new string[] { $"User {email} not found" };
+                var loggerMessage = $"User {email} not found";
+                var errors = new string[] { };
 
-                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
@@ -370,14 +354,15 @@ namespace ServicesAPI.Services.Implementations
                 {
                     var message = "Password was reseted. Use your new password to sign in";
 
-                    result.SetApiResult(ApiResultStatus.Ok, message: message);
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok, message: message);
                 }
                 else
                 {
                     var message = "Password reset error";
+                    var loggerMessage = $"{message} for {email}";
                     var errors = GetIdentityErrors(resetResult.Errors);
 
-                    result.SetApiResult(ApiResultStatus.BadRequest, message: message, errors: errors);
+                    result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
                 }
             }
 
@@ -386,18 +371,17 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> ForgotPasswordAsync(EmailWrapper emailWrapper)
         {
-            var result = new ApiResult();
-
+            var result = default(ApiResult);
             var email = emailWrapper.Email;
-
             var user = await userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
                 var message = "User not found";
-                var errors = new string[] { $"User {email} not found" };
+                var loggerMessage = $"User {email} not found";
+                var errors = new string[] { loggerMessage };
 
-                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
@@ -409,7 +393,7 @@ namespace ServicesAPI.Services.Implementations
 
                 var message = "A confirm token was sent to your email. Follow the instructions";
 
-                result.SetApiResult(ApiResultStatus.Ok, message: message);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, message: message);
             }
 
             return result;
@@ -417,26 +401,24 @@ namespace ServicesAPI.Services.Implementations
         private async Task SendConfirmUpdateEmailMessageAsync(SystemUser user, string email)
         {
             var token = await userManager.GenerateChangeEmailTokenAsync(user, email);
-
             token = token.Replace("+", "%2B");
-
             await emailService.SendConfirmChangeEmailAsync(token, email);
         }
         private async Task<SystemUser> MapNewUserFromDTO(SystemUserDTO userData)
         {
             var user = mapperWrapper.MapEntity(userData);
+            var role = await roleManager.FindByNameAsync("USER");
 
             user.UserName = userData.Email;
             user.RegisteredDate = DateTime.Now;
-
-            var role = await roleManager.FindByNameAsync("USER");
             user.SystemRole = role;
             user.CalculateAge();
 
             return user;
         }
-        private async Task<ApiResult> TryCreateUser(SystemUser user, string password, ApiResult result)
+        private async Task<ApiResult> TryCreateUser(SystemUser user, string password)
         {
+            var result = default(ApiResult);
             var creationResult = await userManager.CreateAsync(user, password);
 
             if (creationResult.Succeeded)
@@ -448,16 +430,15 @@ namespace ServicesAPI.Services.Implementations
                 await SendEmailConfirmAsync(user);
 
                 var data = await GetAccountData(user);
-                result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} signed up", data);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
             else
             {
                 // if not - set message, set errors and return Bad Request
+                var message = "Sign up failed";
                 var errors = GetIdentityErrors(creationResult.Errors);
-                result.SetApiResult(ApiResultStatus.BadRequest,
-                                    $"New user {user.Email} has failed to sign up. Errors: {errors}",
-                                    message: "Sign up failed",
-                                    errors: errors);
+                var loggerMessage = $"New user {user.Email} has failed to sign up. Errors: {errors}";
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
 
             return result;
@@ -465,55 +446,55 @@ namespace ServicesAPI.Services.Implementations
         private async Task SendEmailConfirmAsync(SystemUser user)
         {
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
             token = token.Replace("+", "%2B");
-
             await emailService.SendConfirmMessageAsync(token, user.Email);
         }
-        private async Task<ApiResult> GetConfirmEmailResultAsync(SystemUser user, string token, ApiResult result)
+        private async Task<ApiResult> GetConfirmEmailResultAsync(SystemUser user, string token)
         {
+            var result = default(ApiResult);
             var confirmResult = await userManager.ConfirmEmailAsync(user, token);
 
             if (confirmResult.Succeeded)
             {
-                result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} confirmed email", message: "Email confirmed");
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, message: "Email confirmed");
             }
             else
             {
+                var message = "Email confirmation has failed";
                 var errors = GetIdentityErrors(confirmResult.Errors);
-                result.SetApiResult(ApiResultStatus.BadRequest,
-                                    $"User {user.Email} failed to confirm email. Errors: {errors}",
-                                    message: "Email confirmation has failed",
-                                    errors: errors);
+                var loggerMessage = $"User {user.Email} failed to confirm email. Errors: {errors}";
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
+
             return result;
         }
-        private async Task<ApiResult> GetChangeEmailResultAsync(SystemUser user, string email, string token, ApiResult result)
+        private async Task<ApiResult> GetChangeEmailResultAsync(SystemUser user, string email, string token)
         {
+            var result = default(ApiResult);
             var confirmResult = await userManager.ChangeEmailAsync(user, email, token);
 
             if (confirmResult.Succeeded)
             {
-                result.SetApiResult(ApiResultStatus.Ok, $"User {user.Email} has changed email", message: "Email was changed");
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, message: "Email was changed");
             }
             else
             {
+                var message = "Email change has failed";
                 var errors = GetIdentityErrors(confirmResult.Errors);
-                result.SetApiResult(ApiResultStatus.BadRequest,
-                                    $"User {user.Email} has failed to change email. Errors: {errors}",
-                                    message: "Email change has failed",
-                                    errors: errors);
+                var loggerMessage = $"User {user.Email} has failed to change email. Errors: {errors}";
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
+
             return result;
         }
         private async Task<bool> CheckFacebookAccessToken(FacebookUser facebookUser)
         {
             // an URL to validate facebook access token
-            const string FACEBOOK_VALIDATION_URL = "https://graph.facebook.com/debug_token?input_token={0}&access_token={1}|{2}";
+            var facebookBaseURL = "https://graph.facebook.com/debug_token?input_token={0}&access_token={1}|{2}";
 
             var addId = configuration["Authentication:Facebook:AppId"];
             var secret = configuration["Authentication:Facebook:AppSecret"];
-            var formattedUrl = string.Format(FACEBOOK_VALIDATION_URL, facebookUser.AccessToken, addId, secret);
+            var formattedUrl = string.Format(facebookBaseURL, facebookUser.AccessToken, addId, secret);
 
             // send a request to valiedate facebook token
             var validationResult = await httpClientFactory.CreateClient()
@@ -528,10 +509,10 @@ namespace ServicesAPI.Services.Implementations
 
             return isTokenValid;
         }
-        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser, ApiResult result)
+        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser)
         {
+            var result = default(ApiResult);
             var systemUser = await GetSystemUserFromFacebook(facebookUser);
-
             var creationResult = await userManager.CreateAsync(systemUser);
 
             if (creationResult.Succeeded)
@@ -541,16 +522,15 @@ namespace ServicesAPI.Services.Implementations
 
                 // if creation was successful - set data and OK
                 var data = await GetAccountData(systemUser);
-                result.SetApiResult(ApiResultStatus.Ok, $"User {systemUser.Email} has signed up with Facebook", data);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
             else
             {
                 // if not - get errors and return Bad Request
+                var message = "Sign up with Facebook has failed";
                 var errors = GetIdentityErrors(creationResult.Errors);
-                result.SetApiResult(ApiResultStatus.BadRequest,
-                                    $"Creation of user {systemUser.Email} has failed after using Facebook. Errors: {errors}",
-                                    message: "Sign up with Facebook has failed",
-                                    errors: errors);
+                var loggerMessage = $"Creation of user {systemUser.Email} has failed after using Facebook. Errors: {errors}";
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
 
             return result;
@@ -558,6 +538,7 @@ namespace ServicesAPI.Services.Implementations
         private async Task<SystemUser> GetSystemUserFromFacebook(FacebookUser facebookUser)
         {
             var role = await roleManager.FindByNameAsync("USER");
+
             var systemUser = new SystemUser
             {
                 FirstName = facebookUser.FirstName,

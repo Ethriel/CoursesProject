@@ -28,16 +28,17 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> CheckCourseAsync(int userId, int courseId)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
 
             // find user
             var user = await userService.GetByIdAsync(userId);
 
             if (user == null)
             {
-                var message = "Unable to fetch course data";
-                var errors = new string[] { "User not found" };
-                result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                var message = "User not found";
+                var loggerMessage = "Unable to fetch course data";
+                var errors = new string[] { message };
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
@@ -46,9 +47,10 @@ namespace ServicesAPI.Services.Implementations
 
                 if (course == null)
                 {
-                    var message = "Unable to fetch course data";
+                    var message = "Course not found";
+                    var loggerMessage = "Unable to fetch course data";
                     var errors = new string[] { "Course not found" };
-                    result.SetApiResult(ApiResultStatus.NotFound, message: message, errors: errors);
+                    result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
                 }
                 else
                 {
@@ -71,7 +73,7 @@ namespace ServicesAPI.Services.Implementations
                                                          .ToShortDateString();
                     }
 
-                    result.SetApiResult(ApiResultStatus.Ok, data: courseData);
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: courseData);
                 }
             }
 
@@ -80,7 +82,7 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> CreateCourseAsync(TrainingCourseDTO courseDTO)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
             var course = await courseService.GetEntityByConditionAsync(x => x.Title.Equals(courseDTO.Title));
 
             if (course != null)
@@ -88,12 +90,12 @@ namespace ServicesAPI.Services.Implementations
                 var message = "Course creation has failed";
                 var loggerMessage = $"Course with title {courseDTO.Title} already exists";
                 var errors = new string[] { loggerMessage };
-                result.SetApiResult(ApiResultStatus.BadRequest, loggerMessage, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
             else
             {
                 course = mapperWrapper.MapEntity(courseDTO);
-                result.SetApiResult(ApiResultStatus.Ok, "Course created");
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Course created");
             }
 
             return result;
@@ -101,20 +103,20 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> GetAllCoursesAsync()
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
             var courses = await courseService.Read()
                                              .ToArrayAsync();
 
             var data = mapperWrapper.MapModels(courses);
 
-            result.SetApiResult(ApiResultStatus.Ok, $"Returning all coureses to the client. Count = {courses.Length}", data);
+            result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
 
         public async Task<ApiResult> GetById(int id)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
 
             var course = await courseService.GetByIdAsync(id);
 
@@ -122,12 +124,12 @@ namespace ServicesAPI.Services.Implementations
             {
                 var message = "Course not found";
                 var errors = new string[] { $"Course with id = {id} was not found" };
-                result.SetApiResult(ApiResultStatus.NotFound, message, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, message, message, errors);
             }
             else
             {
                 var data = mapperWrapper.MapModel(course);
-                result.SetApiResult(ApiResultStatus.Ok, $"Returning a course id = {course.Id}", data);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
 
             return result;
@@ -155,14 +157,14 @@ namespace ServicesAPI.Services.Implementations
 
             var data = new { pagination = coursesPagination.Pagination, courses = courses };
 
-            var result = new ApiResult(ApiResultStatus.Ok, data: data);
+            var result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
 
         public async Task<ApiResult> UpdateCourseAsync(TrainingCourseDTO courseDTO)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
             var course = await courseService.GetByIdAsync(courseDTO.Id);
 
             if (course == null)
@@ -170,14 +172,14 @@ namespace ServicesAPI.Services.Implementations
                 var message = "Course was not found";
                 var loggerMessage = $"Course with title {courseDTO.Title} was not found";
                 var errors = new string[] { loggerMessage };
-                result.SetApiResult(ApiResultStatus.BadRequest, loggerMessage, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
             else
             {
                 var newCourse = mapperWrapper.MapEntity(courseDTO);
                 course = await courseService.UpdateAsync(course, newCourse);
                 var model = mapperWrapper.MapModel(course);
-                result.SetApiResult(ApiResultStatus.Ok, $"Course id = {course.Id} was updated", data: model);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: model);
             }
 
             return result;

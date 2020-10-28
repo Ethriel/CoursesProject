@@ -10,4 +10,5 @@ export { default as ConfirmChangeEmail } from '../components/MainPage/confirm/Co
 export { default as ForgotPassword } from '../components/MainPage/ForgotPassword';
 export { default as ResetPassword } from '../components/MainPage/ResetPassword';
 export { default as EditStudent } from '../components/AdminComponent/EditStudent';
+export { default as AddCourse } from '../components/Courses/add-course';
 export { default as NoAccessPage } from '../components/common/NoAccessPage';

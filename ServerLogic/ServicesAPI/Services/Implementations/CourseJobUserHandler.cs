@@ -40,7 +40,7 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> DeleteAsync(int courseId, int userId)
         {
-            var result = new ApiResult();
+            var result = default(ApiResult);
             var message = "Unsabscribe has failed";
             var errors = new string[] { $"{message}. Contact administrator, please" };
             var loggerMessage = $"{message}. CourseId = {courseId}, UserId = {userId}";
@@ -50,29 +50,32 @@ namespace ServicesAPI.Services.Implementations
 
             if (!courseJobs.Any())
             {
-                result.SetApiResult(ApiResultStatus.BadRequest, loggerMessage, message: message, errors: errors);
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
             }
             else
             {
+                var removeJobResult = false;
                 foreach (var courseJob in courseJobs)
                 {
-                    var removeJobResult = backgroundJobClient.Delete(courseJob.JobId);
+                    removeJobResult = backgroundJobClient.Delete(courseJob.JobId);
 
                     if (removeJobResult)
                     {
                         await courseJobUser.DeleteAsync(courseJob);
-                        result.SetApiResult(ApiResultStatus.Ok, $"Deleted job: {courseJob.JobId}, CourseId = {courseId}, UserId = {userId}");
                     }
                     else
                     {
-                        result.SetApiResult(ApiResultStatus.BadRequest, loggerMessage, message: message, errors: errors);
+                        result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, loggerMessage, message, errors);
                         return result;
                     }
                 }
 
+
                 var userCourse = await usersCourses.GetEntityByConditionAsync(x => x.SystemUserId.Equals(userId) && x.TrainingCourseId.Equals(courseId));
 
                 await usersCourses.DeleteAsync(userCourse);
+
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok);
             }
 
             return result;

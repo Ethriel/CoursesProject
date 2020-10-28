@@ -7,7 +7,6 @@ using ServicesAPI.Extensions;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,16 +16,16 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
-        private readonly IExtendedDataService<SystemUser> userService;
+        private readonly IExtendedDataService<SystemUser> users;
 
         public StudentsService(CoursesSystemDbContext context,
                               IMapperWrapper<SystemUser,
                               SystemUserDTO> mapperWrapper,
-                              IExtendedDataService<SystemUser> userService)
+                              IExtendedDataService<SystemUser> users)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
-            this.userService = userService;
+            this.users = users;
         }
 
         public async Task<ApiResult> GetAllStudentsAsync()
@@ -37,29 +36,27 @@ namespace ServicesAPI.Services.Implementations
 
             var data = mapperWrapper.MapModels(students);
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning all students. Count = {students.Length}", data);
+            var result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
 
         public async Task<ApiResult> GetUserByIdAsync(int id)
         {
-            var result = new ApiResult();
-
-            var errors = default(IEnumerable<string>);
-
-            var user = await userService.GetByIdAsync(id);
+            var result = default(ApiResult);
+            var user = await users.GetByIdAsync(id);
 
             if (user == null)
             {
-                var message = $"User id = {id} was not found";
-                errors = new string[] { message };
-                result.SetApiResult(ApiResultStatus.NotFound, loggerMessage: message, message: message, errors: errors);
+                var message = "User was not found";
+                var loggerMessage = $"User id = {id} was not found";
+                var errors = new string[] { message };
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
             }
             else
             {
                 var data = mapperWrapper.MapModel(user);
-                result.SetApiResult(ApiResultStatus.Ok, $"Returning user id = {id}", data);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
 
             return result;
@@ -102,7 +99,7 @@ namespace ServicesAPI.Services.Implementations
 
             var data = new { pagination = searchAndSort.Pagination, users = users };
 
-            var result = new ApiResult(ApiResultStatus.Ok, $"Returning a portion of students.", data);
+            var result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
