@@ -13,17 +13,17 @@ namespace ServicesAPI.Services.Implementations
     public class CoursesService : ICoursesService
     {
         private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper;
-        private readonly IExtendedDataService<TrainingCourse> courseService;
-        private readonly IExtendedDataService<SystemUser> userService;
+        private readonly IExtendedDataService<TrainingCourse> courses;
+        private readonly IExtendedDataService<SystemUser> users;
 
         public CoursesService(IMapperWrapper<TrainingCourse,
                               TrainingCourseDTO> mapperWrapper,
-                              IExtendedDataService<TrainingCourse> courseService,
-                              IExtendedDataService<SystemUser> userService)
+                              IExtendedDataService<TrainingCourse> courses,
+                              IExtendedDataService<SystemUser> users)
         {
             this.mapperWrapper = mapperWrapper;
-            this.courseService = courseService;
-            this.userService = userService;
+            this.courses = courses;
+            this.users = users;
         }
 
         public async Task<ApiResult> CheckCourseAsync(int userId, int courseId)
@@ -31,7 +31,7 @@ namespace ServicesAPI.Services.Implementations
             var result = default(ApiResult);
 
             // find user
-            var user = await userService.GetByIdAsync(userId);
+            var user = await users.GetByIdAsync(userId);
 
             if (user == null)
             {
@@ -43,7 +43,7 @@ namespace ServicesAPI.Services.Implementations
             else
             {
                 // find course
-                var course = await courseService.GetByIdAsync(courseId);
+                var course = await courses.GetByIdAsync(courseId);
 
                 if (course == null)
                 {
@@ -83,7 +83,7 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> CreateCourseAsync(TrainingCourseDTO courseDTO)
         {
             var result = default(ApiResult);
-            var course = await courseService.GetEntityByConditionAsync(x => x.Title.Equals(courseDTO.Title));
+            var course = await courses.GetEntityByConditionAsync(x => x.Title.Equals(courseDTO.Title));
 
             if (course != null)
             {
@@ -95,6 +95,7 @@ namespace ServicesAPI.Services.Implementations
             else
             {
                 course = mapperWrapper.MapEntity(courseDTO);
+                await courses.CreateAsync(course);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Course created");
             }
 
@@ -104,10 +105,10 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> GetAllCoursesAsync()
         {
             var result = default(ApiResult);
-            var courses = await courseService.Read()
-                                             .ToArrayAsync();
+            var coursesData = await courses.Read()
+                                           .ToArrayAsync();
 
-            var data = mapperWrapper.MapModels(courses);
+            var data = mapperWrapper.MapModels(coursesData);
 
             result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
@@ -118,7 +119,7 @@ namespace ServicesAPI.Services.Implementations
         {
             var result = default(ApiResult);
 
-            var course = await courseService.GetByIdAsync(id);
+            var course = await courses.GetByIdAsync(id);
 
             if (course == null)
             {
@@ -137,7 +138,7 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> GetPagedAsync(CoursesPagination coursesPagination)
         {
-            var amount = await courseService.GetCountAsync();
+            var amount = await this.courses.GetCountAsync();
 
             var pagination = new Pagination();
             pagination.SetDefaults(amount, pageSize: 3);
@@ -150,12 +151,12 @@ namespace ServicesAPI.Services.Implementations
             var take = coursesPagination.Pagination
                                         .GetTake();
 
-            var coursesData = await courseService.GetPortion(skip, take)
-                                                 .ToArrayAsync();
+            var coursesData = await courses.GetPortion(skip, take)
+                                           .ToArrayAsync();
 
-            var courses = mapperWrapper.MapModels(coursesData);
+            var models = mapperWrapper.MapModels(coursesData);
 
-            var data = new { pagination = coursesPagination.Pagination, courses = courses };
+            var data = new { pagination = coursesPagination.Pagination, courses = models };
 
             var result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
@@ -165,7 +166,7 @@ namespace ServicesAPI.Services.Implementations
         public async Task<ApiResult> UpdateCourseAsync(TrainingCourseDTO courseDTO)
         {
             var result = default(ApiResult);
-            var course = await courseService.GetByIdAsync(courseDTO.Id);
+            var course = await courses.GetByIdAsync(courseDTO.Id);
 
             if (course == null)
             {
@@ -177,7 +178,7 @@ namespace ServicesAPI.Services.Implementations
             else
             {
                 var newCourse = mapperWrapper.MapEntity(courseDTO);
-                course = await courseService.UpdateAsync(course, newCourse);
+                course = await courses.UpdateAsync(course, newCourse);
                 var model = mapperWrapper.MapModel(course);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: model);
             }

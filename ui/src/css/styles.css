@@ -231,8 +231,10 @@ div.ant-typography,
 }
 
 .img-card-my {
-  width: 100%;
+  width: 95%;
   height: auto;
+  margin: 0 auto;
+  max-height: 169px;
 }
 
 .ant-menu {

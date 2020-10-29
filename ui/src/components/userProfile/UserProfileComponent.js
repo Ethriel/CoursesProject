@@ -33,12 +33,17 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
         const signal = axios.CancelToken.source();
 
         async function fetchUser() {
+            
             try {
-                const response = await MakeRequestAsync(`Students/get/${id}`, { msg: "hello" }, "get", signal.token);
+                const response = await MakeRequestAsync(`Courses/get/user/${id}`, { msg: "hello" }, "get", signal.token);
                 const userData = response.data.data;
 
                 setUser(userData);
             } catch (error) {
+                console.log(error.response);
+                for(let i in error){
+                    console.log(i);
+                }
                 setCatch(error);
             } finally {
                 setIsloading(false);

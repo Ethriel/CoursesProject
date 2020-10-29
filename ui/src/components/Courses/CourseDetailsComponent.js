@@ -126,23 +126,6 @@ class CourseDetailsComponent extends Component {
         }
     }
 
-    handleUnsubscribe = async () => {
-        const userId = this.props.currentUser.id;
-        const courseId = this.state.course.id;
-        const data = {
-            courseId: courseId,
-            userId: userId
-        };
-
-        try {
-            await MakeRequestAsync("UserCourses/unsubscribe", data, "post");
-        } catch (error) {
-            this.setCatch(error);
-        } finally {
-            this.setFinally();
-        }
-    }
-
     handleDateChange = (value, dateString) => {
         this.setState({
             selectedDate: dateString
@@ -179,8 +162,7 @@ class CourseDetailsComponent extends Component {
                         isDateSelected={isDateSelected}
                         handleDateChange={this.handleDateChange}
                         disabledDate={this.disabledDate}
-                        handleConfirm={this.handleConfirm}
-                        handleUnsubscribe={this.handleUnsubscribe}
+                        userId={this.props.currentUser.id}
                     />
                 }
             </>

@@ -114,7 +114,6 @@ class CoursesComponent extends Component {
         const spinner = <Space size="middle"> <Spin tip="Loading courses..." size="large" /></Space>;
         const role = this.props.currentUser.role;
         const isAdmin = role === ADMIN;
-        console.log("IS ADMIN = ", isAdmin);
         const addCourseBtn =
             <Button
                 type="primary"

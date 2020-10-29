@@ -5,9 +5,10 @@ import GetNotificationDescription from '../../helpers/GetNotificationDescription
 const Notification = (error = undefined, warning = undefined, message = undefined, isInfo = false) => {
     if (error) {
         const errorData = SetErorrData(error);
+        const description = GetNotificationDescription(errorData.errors);
         notification.error({
             message: errorData.message,
-            description: GetNotificationDescription(errorData.errors)
+            description: description
         });
     }
     if (warning && message) {

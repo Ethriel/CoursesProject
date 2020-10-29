@@ -4,12 +4,13 @@ const { Meta } = Card;
 
 const MapCards = (elements, onClickHandler) => {
     const cards = elements.map((elem) => {
+        let src = elem.cover.includes('http') ? elem.cover : `https://localhost:44382/${elem.cover}`;
         const cover =
             <div className="img-container-my">
                 <img className="img-card-my"
                     style={{ margin: "0 auto" }}
                     alt="No"
-                    src={`https://localhost:44382/${elem.cover}`} />
+                    src={src} />
             </div>
         return <Card
             className="ant-card-my"

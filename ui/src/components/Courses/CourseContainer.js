@@ -1,24 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Container from '../common/ContainerComponent';
 import H from '../common/HAntD';
 import ButtonComponent from '../common/ButtonComponent';
 import { Typography, DatePicker, Button } from 'antd';
 import { connect } from 'react-redux';
+import MakeRequestAsync from '../../helpers/MakeRequestAsync';
+import Notification from '../common/Notification';
 
 const { Paragraph } = Typography;
 
-const CourseContainer = props => {
-    const course = props.course;
-    const isDateSelected = props.isDateSelected;
-    const handleDateChange = props.handleDateChange;
-    const disabledDate = props.disabledDate;
+const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDate, course, ...props }) => {
     const handleConfirm = props.handleConfirm;
-    const handleUnsubscribe = props.handleUnsubscribe;
     let disableButton = !isDateSelected;
     const isEmailConfirmed = props.currentUser.emailConfirmed;
+
     if (!isEmailConfirmed) {
         disableButton = true;
     }
+
+    const [disableUnsub, setDisableUnsub] = useState(!(props.isPresent === true && isEmailConfirmed === true));
 
     const classNameContainer =
         [
@@ -26,7 +26,28 @@ const CourseContainer = props => {
             "width-75", "center-a-div"
         ];
     const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
-    const src = course.cover.contains('http') ? `https://localhost:44382/${course.cover}` : course.cover;
+    const src = course.cover.includes('http') ? course.cover : `https://localhost:44382/${course.cover}`;
+
+    const setCatch = (error) => {
+        Notification(error);
+    };
+
+    const handleUnsubscribe = async () => {
+        const data = {
+            courseId: course.id,
+            userId: userId
+        };
+
+        try {
+            await MakeRequestAsync("UserCourses/unsubscribe", data, "post");
+            setDisableUnsub(false);
+        } catch (error) {
+            setCatch(error);
+        } finally {
+
+        }
+    }
+
     return (
         <Container classes={classNameContainer}>
             <H myText={course.title} level={4} />
@@ -54,7 +75,7 @@ const CourseContainer = props => {
                     size="medium"
                     danger={true}
                     onClick={handleUnsubscribe}
-                    disabled={!(props.isPresent === true && isEmailConfirmed === true)}
+                    disabled={disableUnsub}
                 >
                     Unsubscribe
                 </Button>
