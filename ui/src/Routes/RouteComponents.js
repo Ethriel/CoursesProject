@@ -11,4 +11,5 @@ export { default as ForgotPassword } from '../components/MainPage/ForgotPassword
 export { default as ResetPassword } from '../components/MainPage/ResetPassword';
 export { default as EditStudent } from '../components/AdminComponent/EditStudent';
 export { default as AddCourse } from '../components/Courses/add-course';
+export {default as UpdateCourse} from '../components/Courses/update-course';
 export { default as NoAccessPage } from '../components/common/NoAccessPage';

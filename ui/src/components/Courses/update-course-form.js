@@ -3,7 +3,7 @@ import { Button, DatePicker, Input, Form, Spin, Space } from 'antd';
 import 'antd/dist/antd.css';
 import ContainerComponent from '../common/ContainerComponent';
 
-const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
+const UpdateCourseForm = ({ onFinish, loading, course, ...props }) => {
     const layout = {
         labelCol: {
             span: 8,
@@ -21,8 +21,10 @@ const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
 
     const [form] = Form.useForm();
 
-    if (reset) {
-        form.resetFields();
+    const initialValues = {
+        title: course.title,
+        description: course.description,
+        cover: course.cover
     }
 
     const spinner = <Space size="middle"> <Spin tip="Processing..." size="large" /></Space>;
@@ -32,6 +34,7 @@ const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
             {loading && spinner}
             {!loading &&
                 <Form
+                initialValues={initialValues}
                     size="middle"
                     {...layout}
                     form={form}
@@ -73,22 +76,9 @@ const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
                             },
                         ]}
                     >
-                        <Input />
+                        <Input/>
                     </Form.Item>
 
-                    <Form.Item
-                        name="startDate"
-                        label="Start date"
-                        rules={
-                            [
-                                {
-                                    type: 'object',
-                                    required: true,
-                                    message: "Select date, please"
-                                }
-                            ]
-                        }>
-                    </Form.Item>
                     <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="submit">
                             Submit
@@ -101,4 +91,4 @@ const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
     )
 };
 
-export default AddCourseForm;
+export default UpdateCourseForm;

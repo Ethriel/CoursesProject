@@ -5,7 +5,7 @@ import {
     main, courses, coursesDetails, aboutUs, admin,
     editStudent, forbidden, userProfile, forgotPassword,
     confirmEmail, confirmChangeEmail, resetPassword,
-    confirmEmailForm, addCourse
+    confirmEmailForm, addCourse, updateCourse
 } from './RoutersDirections';
 
 import {
@@ -14,6 +14,7 @@ import {
     ForgotPassword, ResetPassword, EditStudent,
     NoAccessPage, AddCourse
 } from './RouteComponents';
+import UpdateCourse from '../components/Courses/update-course';
 
 const Routes = () => (
     <Switch>
@@ -21,6 +22,7 @@ const Routes = () => (
         <Route exact path={forbidden} component={NoAccessPage} />
         <Route exact path={courses} component={Courses} />
         <Route exact path={addCourse} component={AddCourse} />
+        <Route exact path={updateCourse} component={UpdateCourse} />
         <Route path={coursesDetails} component={CourseDetails} />
         <Route exact path={aboutUs} component={AboutUs} />
         <Route exact path={admin} component={Admin} />

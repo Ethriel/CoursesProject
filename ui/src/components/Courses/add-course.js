@@ -10,12 +10,10 @@ const AddCourseComponent = ({...props}) => {
     const [reset, setReset] = useState(false);
     const submit = async values => {
         const { title, description, cover } = values;
-        const startDate = getFormattedDate(values.startDate._d);
         const course = {
             title: title,
             description: description,
-            cover: cover,
-            startDate: startDate
+            cover: cover
         };
 
         try {

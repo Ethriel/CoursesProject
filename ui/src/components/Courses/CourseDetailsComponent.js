@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Spin, Space } from 'antd';
+import { Spin, Space, Button } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import moment from 'moment';
 import CourseContainer from './CourseContainer';
@@ -23,6 +23,7 @@ class CourseDetailsComponent extends Component {
             isLoading: true,
             plug: { title: "", cover: "", description: "" },
             selectedDate: "",
+            redirect: false
         }
     }
 
@@ -132,6 +133,18 @@ class CourseDetailsComponent extends Component {
         });
     };
 
+    updateClick = () => {
+        this.setState({
+            redirect: true
+        })
+    }
+
+    updateRedirect = () => {
+        return (
+            <Redirect to={`/update-course/${this.state.course.id}`} push={true} />
+        )
+    }
+
     disabledDate = current => {
         const start = moment();
         return current < start;
@@ -146,11 +159,19 @@ class CourseDetailsComponent extends Component {
     };
 
     render() {
-        const { isLoading, course, selectedDate, plug } = this.state;
+        const { isLoading, course, selectedDate, plug, redirect } = this.state;
+        const role = this.props.currentUser.role;
+        const isAdmin = role === ADMIN;
         const isDateSelected = selectedDate !== "" && selectedDate !== null;
         const courseData = course.course === null ? plug : course.course;
         const isPresent = course.isPresent;
         const spinner = <Space size="middle"> <Spin tip="Getting course data..." size="large" /></Space>;
+        const updateBtn =
+            <Button
+                type="primary"
+                size="medium"
+                danger={true}
+                onClick={this.updateClick}>Update</Button>
         return (
             <>
                 {isLoading === true && spinner}
@@ -164,7 +185,10 @@ class CourseDetailsComponent extends Component {
                         disabledDate={this.disabledDate}
                         userId={this.props.currentUser.id}
                     />
+
                 }
+                {isAdmin && updateBtn}
+                {redirect && this.updateRedirect()}
             </>
         )
     };

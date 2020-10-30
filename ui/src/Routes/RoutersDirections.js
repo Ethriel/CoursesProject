@@ -12,3 +12,4 @@ export const confirmEmailForm = "/confirmEmailForm";
 export const confirmChangeEmail = "/confirmChangeEmail";
 export const resetPassword = "/resetPassword";
 export const addCourse = "/add-course";
+export const updateCourse = "/update-course/:id";
