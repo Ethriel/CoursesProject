@@ -9,7 +9,9 @@ import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import GetUserData from '../../../helpers/GetUserData';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
 import GetFacebookData from '../Facebook/GetFacebookData';
-import Notification from '../../common/Notification';
+import NotificationError from '../../common/notifications/notification-error';
+import NotificationOk from '../../common/notifications/notification-ok';
+import NotificationWarning from '../../common/notifications/notification-warning';
 import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID } from '../../../reducers/reducersActions';
 import { ADMIN } from '../../common/roles';
 import { courses, admin } from '../../../Routes/RoutersDirections';
@@ -34,7 +36,7 @@ class LoginComponent extends Component {
     };
 
     setCatch = error => {
-        Notification(error);
+        NotificationError(error);
     };
 
     setFinally = () => {
@@ -57,17 +59,15 @@ class LoginComponent extends Component {
             const cancelToken = this.signal.token;
 
             const response = await MakeRequestAsync("account/signin", userData, "post", cancelToken);
+
             const data = response.data.data;
             const token = data.token.key;
             const role = data.user.roleName;
             const user = GetUserData(data.user);
 
             this.props.onsetId(user.id);
-
             this.props.onRoleChange(role);
-
             this.props.onSetEmail(user.email);
-
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
 
             await MakeRequestAsync("account/checkEmailConfirmed", { email: user.email }, "post", cancelToken);
@@ -112,9 +112,7 @@ class LoginComponent extends Component {
             const user = GetUserData(data.user);
 
             this.props.onsetId(user.id);
-
             this.props.onRoleChange(role);
-
             this.props.onSetEmail(user.email);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, true);

@@ -4,7 +4,9 @@ import '../../index.css';
 import { Form, Input, Button } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
+import NotificationOk from '../common/notifications/notification-ok';
+
 import { withRouter } from "react-router";
 
 const queryString = require('query-string');
@@ -28,9 +30,9 @@ const ResetPassword = (props) => {
             const response = await MakeRequestAsync("account/resetPassword", resetPasswordData, "post", signal.token);
             const data = response.data;
 
-            Notification(undefined, undefined, data.message, true);
+            NotificationOk(data.message);
         } catch (error) {
-            Notification(error);
+            NotificationError(error);
         }
     };
     const [form] = Form.useForm();

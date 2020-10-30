@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AddCourseForm from './add-course-form';
-import getFormattedDate from '../../helpers/get-formatted-date';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
+import NotificationOk from '../common/notifications/notification-ok';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
 
@@ -20,13 +20,13 @@ const AddCourseComponent = ({...props}) => {
             setLoading(true);
 
             const signal = axios.CancelToken.source();
-            const response = await MakeRequestAsync("Courses/add", course, "post", signal.token);
+            await MakeRequestAsync("Courses/add", course, "post", signal.token);
 
             setReset(true);
 
-            Notification(undefined, undefined, "Course was added!", true);
+            NotificationOk("Course was added!");
         } catch (error) {
-            Notification(error);
+            NotificationError(error);
         }
         finally{
             setLoading(false);

@@ -11,7 +11,8 @@ import UserCoursesContainer from './UserCoursesContainer';
 import ValidateEmail from '../../helpers/ValidateEmail';
 import { USER, ADMIN } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
+import NotificationOk from '../common/notifications/notification-ok';
 import GetUserData from '../../helpers/GetUserData';
 import SetLocalStorage from '../../helpers/setDataToLocalStorage';
 import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../reducers/reducersActions';
@@ -40,10 +41,6 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
 
                 setUser(userData);
             } catch (error) {
-                console.log(error.response);
-                for(let i in error){
-                    console.log(i);
-                }
                 setCatch(error);
             } finally {
                 setIsloading(false);
@@ -100,7 +97,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
                 const email = localStorage.getItem("new_email");
                 await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
                 
-                Notification(undefined, undefined, "A confirm message was sent to your email. Follow the instructions", true);
+                NotificationOk("A confirm message was sent to your email. Follow the instructions");
                 
                 setEmailState(old => ({ ...old, ...{ valid: true } }));
                 
@@ -135,7 +132,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     };
 
     const setCatch = error => {
-        Notification(error);
+        NotificationError(error);
     };
 
     const closeDrawer = () => {

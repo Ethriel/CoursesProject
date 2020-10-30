@@ -5,7 +5,7 @@ import ButtonComponent from '../common/ButtonComponent';
 import { Typography, DatePicker, Button } from 'antd';
 import { connect } from 'react-redux';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
 
 const { Paragraph } = Typography;
 
@@ -29,7 +29,7 @@ const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDat
     const src = course.cover.includes('http') ? course.cover : `https://localhost:44382/${course.cover}`;
 
     const setCatch = (error) => {
-        Notification(error);
+        NotificationError(error);
     };
 
     const handleUnsubscribe = async () => {
@@ -43,8 +43,6 @@ const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDat
             setDisableUnsub(false);
         } catch (error) {
             setCatch(error);
-        } finally {
-
         }
     }
 

@@ -8,7 +8,8 @@ import CourseContainer from './CourseContainer';
 import axios from 'axios';
 import { USER, ADMIN } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
+import NotificationWarning from '../common/notifications/notification-warning';
 import { SET_EMAIL_CONFIRMED } from '../../reducers/reducersActions';
 
 class CourseDetailsComponent extends Component {
@@ -60,7 +61,7 @@ class CourseDetailsComponent extends Component {
                 }
             }));
             if (isPresent === true) {
-                Notification(undefined, `You already have this course in your list.`, `Start at ${studyDate}`);
+                NotificationWarning(`You already have this course in your list.`, `Start at ${studyDate}`);
             }
 
         } catch (error) {
@@ -87,7 +88,7 @@ class CourseDetailsComponent extends Component {
                 const message = errorResponse.data.message;
                 if (errorResponse.status === 400 && message.includes("Email is not confirmed")) {
                     this.setEmailConfirmed(false);
-                    Notification(undefined, "But you still can browse courses", "Your email is not confirmed");
+                    NotificationWarning("But you still can browse courses", "Your email is not confirmed");
                 } else {
                     this.setCatch(error);
                 }
@@ -151,7 +152,7 @@ class CourseDetailsComponent extends Component {
     };
 
     setCatch = (error) => {
-        Notification(error);
+        NotificationError(error);
     };
 
     setFinally = () => {

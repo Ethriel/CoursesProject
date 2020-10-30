@@ -9,7 +9,8 @@ import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import GetUserData from '../../../helpers/GetUserData';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
 import GetFacebookData from '../Facebook/GetFacebookData';
-import Notification from '../../common/Notification';
+import NotificationError from '../../common/notifications/notification-error';
+import NotificationOk from '../../common/notifications/notification-ok';
 import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID } from '../../../reducers/reducersActions';
 import { courses } from '../../../Routes/RoutersDirections';
 import getFormattedDate from '../../../helpers/get-formatted-date';
@@ -29,7 +30,7 @@ class RegistrationComponent extends Component {
     };
 
     setCatch = error => {
-        Notification(error);
+        NotificationError(error);
     };
 
     setFinally = () => {
@@ -70,7 +71,7 @@ class RegistrationComponent extends Component {
             this.props.onSetEmail(user.email);
             this.props.onEmailConfirmedChanged(false);
 
-            Notification(undefined, undefined, "A confirm message was sent to your email. Follow the instructions", true);
+            NotificationOk("A confirm message was sent to your email. Follow the instructions");
 
             this.setState({ redirect: true });
         } catch (error) {
@@ -101,7 +102,7 @@ class RegistrationComponent extends Component {
             this.props.onRoleChange(role);
             this.props.onEmailConfirmedChanged(true);
 
-            Notification(undefined, undefined, "You can now use your Facebook account to enter the system", true);
+            NotificationOk("You can now use your Facebook account to enter the system");
 
             this.setState({ redirect: true });
         } catch (error) {

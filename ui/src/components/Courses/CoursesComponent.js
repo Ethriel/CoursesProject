@@ -12,7 +12,7 @@ import { withRouter } from "react-router";
 import { connect } from 'react-redux';
 import { ADMIN, USER } from '../common/roles';
 import { forbidden } from '../../Routes/RoutersDirections';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
 
 class CoursesComponent extends Component {
 
@@ -101,7 +101,7 @@ class CoursesComponent extends Component {
     };
 
     setCatch(error) {
-        Notification(error);
+        NotificationError(error);
     };
 
     addcourse = () => {

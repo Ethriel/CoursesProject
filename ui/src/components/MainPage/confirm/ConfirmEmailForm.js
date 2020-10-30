@@ -3,12 +3,13 @@ import 'antd/dist/antd.css';
 import { Form, Input, Button } from 'antd';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import Notification from '../../common/Notification';
+import NotificationError from '../../common/notifications/notification-error';
+import NotificationOk from '../../common/notifications/notification-ok';
 
 const ConfirmEmailForm = () => {
 
     const setCatch = (error) => {
-        Notification(error);
+        NotificationError(error);
     };
 
     const handleSubmit = async (values) => {
@@ -22,7 +23,7 @@ const ConfirmEmailForm = () => {
             const data = response.data;
             const message = data.message;
 
-            Notification(undefined, undefined, message, true);
+            NotificationOk(message, true);
         } catch (error) {
             setCatch(error);
         }

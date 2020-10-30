@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import getFormattedDate from '../../helpers/get-formatted-date';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import UpdateCourseForm from './update-course-form';
 import axios from 'axios';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
+import NotificationOk from '../common/notifications/notification-ok';
 
 const UpdateCourse = (props) => {
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
-    const [reset, setReset] = useState(false);
     const [course, setCourse] = useState({});
     const courseId = props.match.params.id;
+
+    const setCatch = error => {
+        NotificationError(error);
+    }
 
     useEffect(() => {
         const signal = axios.CancelToken.source();
@@ -24,7 +27,7 @@ const UpdateCourse = (props) => {
                 setCourse(courseData);
                 setLoaded(true);
             } catch (error) {
-                Notification(error);
+                setCatch(error);
             } finally {
                 setLoading(false);
             }
@@ -50,13 +53,14 @@ const UpdateCourse = (props) => {
             setLoading(true);
             
             const signal = axios.CancelToken.source();
-            const response = await MakeRequestAsync("Courses/update", courseData, "post", signal.token);
+            await MakeRequestAsync("Courses/update", courseData, "post", signal.token);
+
             setCourse(courseData);
             setLoaded(true);
-
-            Notification(undefined, undefined, "Course was updated!", true);
+            
+            NotificationOk("Course was updated!");
         } catch (error) {
-            Notification(error);
+            setCatch(error);
         }
         finally {
             setLoading(false);
@@ -64,7 +68,7 @@ const UpdateCourse = (props) => {
     }
     return (
         <>
-            { loaded === true && <UpdateCourseForm onFinish={submit} loading={loading} reset={reset} course={course} />}
+            { loaded === true && <UpdateCourseForm onFinish={submit} loading={loading} course={course} />}
         </>
 
     )

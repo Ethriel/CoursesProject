@@ -7,7 +7,7 @@ import axios from "axios";
 import { connect } from 'react-redux';
 import { USER, ADMIN } from '../../common/roles';
 import { forbidden } from '../../../Routes/RoutersDirections';
-import Notification from '../../common/Notification';
+import NotificationError from '../../common/notifications/notification-error';
 
 const queryString = require('query-string');
 
@@ -52,7 +52,7 @@ class ConfirmEmail extends React.Component {
     };
 
     setCatch = (error) => {
-        Notification(error);
+        NotificationError(error);
     };
     render() {
         const { confirmed } = this.state;

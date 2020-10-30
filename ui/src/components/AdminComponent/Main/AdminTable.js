@@ -10,7 +10,7 @@ import Container from '../../common/ContainerComponent';
 import H from '../../common/HAntD';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import Notification from '../../common/Notification';
+import NotificationError from '../../common/notifications/notification-error';
 import { ADMIN } from '../../common/roles';
 import { forbidden } from '../../../Routes/RoutersDirections';
 
@@ -20,7 +20,7 @@ const url = "Students/post/searchAndSort";
 const AdminTable = ({ userRole, history, ...props }) => {
 
     const setCatch = (error) => {
-        Notification(error);
+        NotificationError(error);
     };
 
     const setFinally = () => {

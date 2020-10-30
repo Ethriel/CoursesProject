@@ -4,7 +4,8 @@ import '../../index.css';
 import { Form, Input, Button } from 'antd';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import axios from 'axios';
-import Notification from '../common/Notification';
+import NotificationError from '../common/notifications/notification-error';
+import NotificationOk from '../common/notifications/notification-ok';
 
 const ForgotPassword = () => {
     const handleSubmit = async (values) => {
@@ -19,10 +20,10 @@ const ForgotPassword = () => {
             const data = response.data;
             const message = data.message;
 
-            Notification(undefined, undefined, message, true);
+            NotificationOk(message);
 
         } catch (error) {
-            Notification(error);
+            NotificationError(error);
         }
     };
 
