@@ -1,5 +1,6 @@
-﻿using ServicesAPI.Responses;
+﻿using Microsoft.AspNetCore.Http;
 using ServicesAPI.DataPresentation;
+using ServicesAPI.Responses;
 using System.Threading.Tasks;
 
 namespace ServicesAPI.Services.Abstractions
@@ -9,5 +10,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> GetAllStudentsAsync();
         Task<ApiResult> GetUserByIdAsync(int id);
         Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort);
+        Task<ApiResult> UploadImageAsync(IFormFile image, int id, HttpContext httpContext);
     }
 }

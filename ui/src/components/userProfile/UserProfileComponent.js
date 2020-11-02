@@ -24,6 +24,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     const [user, setUser] = useState({});
     const [showDrawer, setShowDrawer] = useState(false);
     const [fieldChanged, setFieldChanged] = useState(false);
+    const [selectedFile, setSelectedFile] = useState({});
 
     const [emailState, setEmailState] = useState({
         valid: false,
@@ -34,9 +35,9 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
         const signal = axios.CancelToken.source();
 
         async function fetchUser() {
-            
+
             try {
-                const response = await MakeRequestAsync(`Courses/get/user/${id}`, { msg: "hello" }, "get", signal.token);
+                const response = await MakeRequestAsync(`students/get/user/${id}`, { msg: "hello" }, "get", signal.token);
                 const userData = response.data.data;
 
                 setUser(userData);
@@ -90,29 +91,28 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
             isEmailChanged: emailState.changed,
             anyFieldChanged: fieldChanged
         };
-        
+
         try {
             // if email was changed - make a request to verify new email
             if (emailState.changed === true) {
                 const email = localStorage.getItem("new_email");
                 await MakeRequestAsync(`account/verifyEmail/${email}`, { msg: "Hello" }, "get", signal.token);
-                
+
                 NotificationOk("A confirm message was sent to your email. Follow the instructions");
-                
+
                 setEmailState(old => ({ ...old, ...{ valid: true } }));
-                
+
                 props.onEmailConfirmedChanged(false);
             }
-            
+
             // if user data was changed - send an update request
             if (fieldChanged === true || emailState.changed === true) {
                 const response = await MakeRequestAsync("account/update", data, "post", signal.token);
                 const respData = response.data.data;
                 const userData = respData.user;
-                console.log(respData);
                 const token = respData.token.key;
                 const role = data.user.roleName;
-                
+
                 setUser(userData);
 
                 const newUser = GetUserData(userData);
@@ -143,6 +143,31 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
         setShowDrawer(true);
     }
 
+    const onFileChange = event => {
+        const file = event.target.files[0];
+        console.log(file);
+        setSelectedFile(file);
+    }
+
+    const onFileUpload = async () => {
+
+        const formData = new FormData();
+
+        formData.set(
+            "image",
+            selectedFile,
+            selectedFile.name
+        );
+
+        console.log(formData);
+
+        console.log(selectedFile);
+
+        var cancel = axios.CancelToken.source().token;
+        const response = await MakeRequestAsync(`students/user/uploadImage/${id}`, formData, "post", cancel);
+        console.log(response);
+    };
+
     const openProfile =
         <Button
             icon={<ProfileOutlined />}
@@ -162,6 +187,12 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
                 onClose={closeDrawer}
                 visible={showDrawer}>
                 <UserInfoContainer user={user} onValueChange={changeField} submitClick={submitClick} />
+                <div>
+                    <input type="file" onChange={onFileChange} />
+                    <button onClick={onFileUpload}>
+                        Upload!
+                </button>
+                </div>
             </Drawer>
             <UserCoursesContainer userId={id} />
         </>;

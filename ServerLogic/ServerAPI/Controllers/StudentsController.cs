@@ -5,10 +5,11 @@ using ServerAPI.Extensions;
 using ServicesAPI.Services.Abstractions;
 using ServicesAPI.DataPresentation;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace ServerAPI.Controllers
 {
-    [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class StudentsController : Controller
@@ -22,6 +23,7 @@ namespace ServerAPI.Controllers
             this.logger = logger;
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllStudents()
         {
@@ -30,10 +32,27 @@ namespace ServerAPI.Controllers
             return this.GetActionResult(result, logger);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("post/searchAndSort")]
         public async Task<IActionResult> SearchStudents([FromBody] SearchAndSort searchAndSort)
         {
             var result = await studentsService.SearchAndSortStudentsAsync(searchAndSort);
+
+            return this.GetActionResult(result, logger);
+        }
+
+        [HttpGet("get/user/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var result = await studentsService.GetUserByIdAsync(id);
+
+            return this.GetActionResult(result, logger);
+        }
+
+        [HttpPost("user/uploadImage/{id}")]
+        public async Task<IActionResult> UploadImage([FromForm(Name = "image")] IFormFile image, int id)
+        {
+            var result = await studentsService.UploadImageAsync(image, id, HttpContext);
 
             return this.GetActionResult(result, logger);
         }

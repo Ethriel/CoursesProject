@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ServicesAPI.BackgroundJobs;
-using ServicesAPI.DTO;
 using ServicesAPI.Helpers;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Services.Abstractions;
@@ -96,6 +95,8 @@ namespace ServerAPI.Extensions
             //services.AddScoped(typeof(IDataService<>), typeof(DataService<>));
 
             services.AddScoped(typeof(IExtendedDataService<>), typeof(ExtendedDataService<>));
+
+            services.AddScoped<IImageUploader, ImageUploader>();
 
             services.AddScoped<ICourseJobUserHandler, CourseJobUserHandler>();
 

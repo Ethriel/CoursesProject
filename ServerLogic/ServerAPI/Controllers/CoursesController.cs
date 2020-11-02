@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ServerAPI.Extensions;
@@ -17,12 +19,17 @@ namespace ServerAPI.Controllers
         private readonly ICoursesService coursesService;
         private readonly ILogger<CoursesController> logger;
         private readonly IStudentsService studentsService;
+        private readonly IWebHostEnvironment webHost;
 
-        public CoursesController(ICoursesService coursesService, ILogger<CoursesController> logger, IStudentsService studentsService)
+        public CoursesController(ICoursesService coursesService,
+                                 ILogger<CoursesController> logger,
+                                 IStudentsService studentsService,
+                                 IWebHostEnvironment webHost)
         {
             this.coursesService = coursesService;
             this.logger = logger;
             this.studentsService = studentsService;
+            this.webHost = webHost;
         }
 
         [HttpGet("get/all")]
@@ -64,6 +71,14 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
+        //[HttpPost("imageUpload")]
+        //public IActionResult UploadImage([FromForm(Name = "image")]IFormFile image)
+        //{
+        //    var result = studentsService.UploadImageTest(image, webHost);
+
+        //    return this.GetActionResult(result, logger);
+        //}
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost("add")]
