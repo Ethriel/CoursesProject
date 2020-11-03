@@ -7,12 +7,13 @@ import Container from '../../common/ContainerComponent';
 import ClearLocalStorage from '../../../helpers/ClearLocalStorage';
 import MakeRequestAsync from '../../../helpers/MakeRequestAsync';
 import { main, courses, aboutUs, admin, userProfile } from '../../../Routes/RoutersDirections';
-import { SET_ROLE } from '../../../reducers/reducersActions';
+import { SET_AVATAR, SET_ROLE } from '../../../reducers/reducersActions';
 import { ADMIN, UNDEFINED, NULL } from '../../common/roles';
 import Notification from '../../common/Notification';
 
 const AppHeaderComponent = ({ currentUser, history, ...props }) => {
     const isUser = currentUser.role !== UNDEFINED && currentUser.role !== NULL;
+    const userAvatar = currentUser.userAvatar;
 
     const subItems = [];
 
@@ -26,7 +27,7 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
             subItems.push({ key: admin, text: "Admin", to: admin });
         }
     }
-    
+
     const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
     const menuContainer = ["display-flex", "justify-center", "align-center", "width-90"];
 
@@ -47,6 +48,7 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
                 await MakeRequestAsync("account/signout", requestData, "post", signal.token);
                 // set user role to undefined in redux store
                 props.onRoleChange(UNDEFINED);
+                props.onAvatarChange(NULL);
                 // clear local storage
                 ClearLocalStorage();
                 // redirect to main page
@@ -69,7 +71,8 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
                         myMenuItems={subItems}
                         isUser={isUser}
                         menuClick={profileClick}
-                        className="header-menu-width" />
+                        className="header-menu-width"
+                        userAvatar={userAvatar} />
                 </Container>
             </Container>
         </>
@@ -82,6 +85,9 @@ export default withRouter(connect(
     dispatch => ({
         onRoleChange: (role) => {
             dispatch({ type: SET_ROLE, payload: role })
+        },
+        onAvatarChange: (avatar) => {
+            dispatch({ type: SET_AVATAR, payload: avatar })
         }
     })
 )(AppHeaderComponent));

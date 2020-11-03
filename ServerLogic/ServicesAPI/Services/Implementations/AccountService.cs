@@ -1,5 +1,6 @@
 ﻿using Infrastructure.DbContext;
 using Infrastructure.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +34,7 @@ namespace ServicesAPI.Services.Implementations
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IEmailService emailService;
         private readonly IExtendedDataService<SystemUser> users;
+        private readonly IImageWorker imageWorker;
 
         public AccountService(SignInManager<SystemUser> signInManager,
             RoleManager<SystemRole> roleManager,
@@ -42,7 +44,8 @@ namespace ServicesAPI.Services.Implementations
             IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper,
             IHttpClientFactory httpClientFactory,
             IEmailService emailService,
-            IExtendedDataService<SystemUser> users)
+            IExtendedDataService<SystemUser> users,
+            IImageWorker imageWorker)
         {
             this.signInManager = signInManager;
             this.roleManager = roleManager;
@@ -53,6 +56,7 @@ namespace ServicesAPI.Services.Implementations
             this.httpClientFactory = httpClientFactory;
             this.emailService = emailService;
             this.users = users;
+            this.imageWorker = imageWorker;
         }
 
         public async Task<ApiResult> ConfirmEmailAsync(ConfirmEmailData confirmEmailData)
@@ -142,7 +146,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> SignInAsync(SystemUserDTO userData)
+        public async Task<ApiResult> SignInAsync(SystemUserDTO userData, HttpContext httpContext)
         {
             var result = default(ApiResult);
             // find user
@@ -163,7 +167,7 @@ namespace ServicesAPI.Services.Implementations
                 if (signInResult.Succeeded)
                 {
                     // if OK - get user data and return OK
-                    var data = await GetAccountData(user);
+                    var data = await GetAccountData(user, httpContext);
                     result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
                 }
@@ -182,7 +186,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData)
+        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext)
         {
             var result = default(ApiResult);
             var findUser = await userManager.FindByEmailAsync(userData.Email);
@@ -199,7 +203,7 @@ namespace ServicesAPI.Services.Implementations
                 var user = await MapNewUserFromDTO(userData);
 
                 // try to create user
-                result = await TryCreateUser(user, userData.Password);
+                result = await TryCreateUser(user, userData.Password, httpContext);
             }
 
             return result;
@@ -239,7 +243,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser)
+        public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser, HttpContext httpContext)
         {
             var result = default(ApiResult);
             var isTokenValid = await CheckFacebookAccessToken(facebookUser);
@@ -260,19 +264,19 @@ namespace ServicesAPI.Services.Implementations
                 if (user == null)
                 {
                     // if not - try create one
-                    result = await TryCreateSystemUserFromFacebook(facebookUser);
+                    result = await TryCreateSystemUserFromFacebook(facebookUser, httpContext);
                 }
                 else
                 {
                     // if user with such email exists in database - gather account data and return OK
-                    var data = await GetAccountData(user);
+                    var data = await GetAccountData(user, httpContext);
                     result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
                 }
             }
 
             return result;
         }
-        public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData)
+        public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData, HttpContext httpContext)
         {
             var result = default(ApiResult);
             var id = accountUpdateData.User.Id;
@@ -303,7 +307,7 @@ namespace ServicesAPI.Services.Implementations
                     //await context.SaveChangesAsync();
                 }
 
-                var data = await GetAccountData(user);
+                var data = await GetAccountData(user, httpContext);
 
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
@@ -416,7 +420,7 @@ namespace ServicesAPI.Services.Implementations
 
             return user;
         }
-        private async Task<ApiResult> TryCreateUser(SystemUser user, string password)
+        private async Task<ApiResult> TryCreateUser(SystemUser user, string password, HttpContext httpContext)
         {
             var result = default(ApiResult);
             var creationResult = await userManager.CreateAsync(user, password);
@@ -429,7 +433,7 @@ namespace ServicesAPI.Services.Implementations
                 // send confirm request on user's email
                 await SendEmailConfirmAsync(user);
 
-                var data = await GetAccountData(user);
+                var data = await GetAccountData(user, httpContext);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
             else
@@ -509,7 +513,7 @@ namespace ServicesAPI.Services.Implementations
 
             return isTokenValid;
         }
-        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser)
+        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser, HttpContext httpContext)
         {
             var result = default(ApiResult);
             var systemUser = await GetSystemUserFromFacebook(facebookUser);
@@ -521,7 +525,7 @@ namespace ServicesAPI.Services.Implementations
                 systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
 
                 // if creation was successful - set data and OK
-                var data = await GetAccountData(systemUser);
+                var data = await GetAccountData(systemUser, httpContext);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
             else
@@ -555,13 +559,15 @@ namespace ServicesAPI.Services.Implementations
 
             return systemUser;
         }
-        private async Task<AccountData> GetAccountData(SystemUser user)
+        private async Task<AccountData> GetAccountData(SystemUser user, HttpContext httpContext)
         {
             var code = Encoding.UTF8.GetBytes(configuration["JwtKey"]);
             var roles = await userManager.GetRolesAsync(user);
             var token = JWTHelper.GenerateJwtToken(user, configuration, tokenHandler, code, roles);
             var expire = Convert.ToDouble(configuration["JwtExpireDays"]);
             var userDTO = mapperWrapper.MapModel(user);
+            var avatarURL = imageWorker.GetImageURL("users", user.AvatarPath, httpContext);
+            userDTO.AvatarPath = avatarURL;
             var data = new AccountData(userDTO, new TokenData(token, expire));
             return data;
         }

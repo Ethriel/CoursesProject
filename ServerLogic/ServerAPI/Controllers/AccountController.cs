@@ -26,7 +26,7 @@ namespace ServerAPI.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SystemUserDTO userData)
         {
-            var result = await accountService.SignUpAsync(userData);
+            var result = await accountService.SignUpAsync(userData, HttpContext);
 
             return this.GetActionResult(result, logger);
         }
@@ -34,7 +34,7 @@ namespace ServerAPI.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn(SystemUserDTO userData)
         {
-            var result = await accountService.SignInAsync(userData);
+            var result = await accountService.SignInAsync(userData, HttpContext);
 
             return this.GetActionResult(result, logger);
         }
@@ -50,7 +50,7 @@ namespace ServerAPI.Controllers
         [HttpPost("signin-facebook")]
         public async Task<IActionResult> SignInFaceBook([FromBody] FacebookUser facebookUser)
         {
-            var result = await accountService.UseFacebookAsync(facebookUser);
+            var result = await accountService.UseFacebookAsync(facebookUser, HttpContext);
 
             return this.GetActionResult(result, logger);
         }
@@ -58,7 +58,7 @@ namespace ServerAPI.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> UpdateAccount([FromBody] AccountUpdateData accountUpdateData)
         {
-            var result = await accountService.UpdateAccountAsync(accountUpdateData);
+            var result = await accountService.UpdateAccountAsync(accountUpdateData, HttpContext);
 
             return this.GetActionResult(result, logger);
         }

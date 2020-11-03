@@ -7,6 +7,7 @@ namespace ServicesAPI.Services.Abstractions
     {
         string GetHangfireHref(HttpContext httpContext);
         string GetServerURL(HttpContext httpContext);
+        string GetRootPath(string folder);
         void LogJavascriptError(JavascriptError javascriptError);
     }
 }

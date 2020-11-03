@@ -4,33 +4,34 @@ using ServicesAPI.Helpers;
 using ServicesAPI.Services.Abstractions;
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 namespace ServicesAPI.Services.Implementations
 {
     public class ImageUploader : IImageUploader
     {
-        private readonly IWebHostEnvironment webHost;
+        private readonly IServerService serverService;
 
-        public ImageUploader(IWebHostEnvironment webHost)
+        public ImageUploader(IServerService serverService)
         {
-            this.webHost = webHost;
+            this.serverService = serverService;
         }
 
-        public string UploadImage(IFormFile image, string folder)
+        public string UploadImage(IFormFile image, string folder, int maxWidth = 400, int maxHeight = 400)
         {
-            var imagePath = SaveImage(image, folder);
+            var imagePath = SaveImage(image, folder, maxWidth, maxHeight);
 
             return imagePath;
         }
 
-        private string SaveImage(IFormFile image, string folder)
+        private string SaveImage(IFormFile image, string folder, int maxWidth = 400, int maxHeight = 400)
         {
             var filename = Guid.NewGuid().ToString();
 
             var ext = Path.GetExtension(image.FileName);
 
-            var root = Path.Combine(webHost.WebRootPath, "share", "img", folder);
+            var root = serverService.GetRootPath(folder);
 
             if (!Directory.Exists(root))
             {
@@ -45,7 +46,7 @@ namespace ServicesAPI.Services.Implementations
             {
                 using (var bmp = new Bitmap(stream))
                 {
-                    var savedImage = ImageHelper.CreateImage(bmp, 400, 400);
+                    var savedImage = CreateImage(bmp, maxWidth, maxHeight);
                     savedImage.Save(fullPath);
                 }
             }
@@ -57,6 +58,55 @@ namespace ServicesAPI.Services.Implementations
         {
             var path = string.Concat("share/", "img/", folder, "/", image);
             return path;
+        }
+
+        private Bitmap CreateImage(Bitmap originalPic, int maxWidth, int maxHeight)
+        {
+            try
+            {
+                int width = originalPic.Width;
+                int height = originalPic.Height;
+                int widthDiff = width - maxWidth;
+                int heightDiff = height - maxHeight;
+                bool doWidthResize = (maxWidth > 0 && width > maxWidth && widthDiff > heightDiff);
+                bool doHeightResize = (maxHeight > 0 && height > maxHeight && heightDiff > widthDiff);
+
+                if (doWidthResize || doHeightResize || (width.Equals(height) && widthDiff.Equals(heightDiff)))
+                {
+                    int iStart;
+                    Decimal divider;
+                    if (doWidthResize)
+                    {
+                        iStart = width;
+                        divider = Math.Abs((Decimal)iStart / maxWidth);
+                        width = maxWidth;
+                        height = (int)Math.Round((height / divider));
+                    }
+                    else
+                    {
+                        iStart = height;
+                        divider = Math.Abs((Decimal)iStart / maxHeight);
+                        height = maxHeight;
+                        width = (int)Math.Round(width / divider);
+                    }
+                }
+                using (Bitmap outBmp = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                {
+                    using (Graphics oGraphics = Graphics.FromImage(outBmp))
+                    {
+                        oGraphics.DrawImage(originalPic, 0, 0, width, height);
+                        //Водяний знак
+                        //Font font = new Font("Arial", 20);
+                        //Brush brash = new SolidBrush(Color.Blue);
+                        //oGraphics.DrawString("Hello Vova", font, brash, new Point(25, 25));
+                        return new Bitmap(outBmp);
+                    }
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

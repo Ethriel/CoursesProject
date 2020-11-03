@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Divider } from 'antd';
 import Container from '../common/ContainerComponent';
 import EditableInfo from './EditableUserInfoComponent';
 import StaticInfo from './StaticUserInfoComponent';
 import H from '../common/HAntD';
 
-const UserInfoContainer = props => {
+const UserInfoContainer = ({ imageUploader, ...props }) => {
     const user = props.user;
     const classes = ["display-flex", "col-flex", "width-90", "min-width-150", "max-width-300", "align-center", "center-a-div"];
     const onValueChange = props.onValueChange;
@@ -25,6 +25,8 @@ const UserInfoContainer = props => {
                 style={{ width: 150 }}>
                 Submit
                 </Button>
+            <Divider />
+            {imageUploader && imageUploader}
         </Container>
     )
 }

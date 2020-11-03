@@ -4,7 +4,7 @@ namespace ServicesAPI.Services.Abstractions
 {
     public interface IImageUploader
     {
-        string UploadImage(IFormFile image, string folder);
+        string UploadImage(IFormFile image, string folder, int maxWidth = 400, int maxHeight = 400);
         string GetPathForURL(string image, string folder);
     }
 }

@@ -3,7 +3,7 @@ const setDataToLocalStorage = (id, token, role, userPicture, email, emailConfirm
     localStorage.setItem("access_token", token);
     localStorage.setItem("current_user_role", role);
     localStorage.setItem("current_user_id", id);
-    localStorage.setItem("user_picture", userPicture);
+    localStorage.setItem("user_avatar", userPicture);
     localStorage.setItem("current_user_email", email);
     localStorage.setItem("current_user_email_confirmed", emailConfirmed);
 }

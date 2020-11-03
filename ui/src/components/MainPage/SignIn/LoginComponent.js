@@ -12,7 +12,7 @@ import GetFacebookData from '../Facebook/GetFacebookData';
 import NotificationError from '../../common/notifications/notification-error';
 import NotificationOk from '../../common/notifications/notification-ok';
 import NotificationWarning from '../../common/notifications/notification-warning';
-import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID } from '../../../reducers/reducersActions';
+import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID, SET_AVATAR } from '../../../reducers/reducersActions';
 import { ADMIN } from '../../common/roles';
 import { courses, admin } from '../../../Routes/RoutersDirections';
 
@@ -69,7 +69,8 @@ class LoginComponent extends Component {
             this.props.onRoleChange(role);
             this.props.onSetEmail(user.email);
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, false);
-
+            this.props.onAvatarChange(user.avatarPath);
+            
             await MakeRequestAsync("account/checkEmailConfirmed", { email: user.email }, "post", cancelToken);
 
             this.setEmailConfirmed(true);
@@ -116,6 +117,7 @@ class LoginComponent extends Component {
             this.props.onSetEmail(user.email);
 
             setDataToLocalStorage(user.id, token, role, user.avatarPath, user.email, true);
+            this.props.onAvatarChange(user.avatarPath);
 
             this.setState({ redirect: true });
         } catch (error) {
@@ -162,6 +164,9 @@ export default connect(
         },
         onsetId: (id) => {
             dispatch({ type: SET_ID, payload: id })
+        },
+        onAvatarChange: (avatar) => {
+            dispatch({ type: SET_AVATAR, payload: avatar })
         }
     })
 )(LoginComponent);

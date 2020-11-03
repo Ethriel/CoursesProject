@@ -1,17 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ServicesAPI.DataPresentation.ErrorHandling;
 using ServicesAPI.Services.Abstractions;
+using System.IO;
 
 namespace ServicesAPI.Services.Implementations
 {
     public class ServerService : IServerService
     {
         private readonly ILogger<ServerService> logger;
+        private readonly IWebHostEnvironment webHost;
 
-        public ServerService(ILogger<ServerService> logger)
+        public ServerService(ILogger<ServerService> logger, IWebHostEnvironment webHost)
         {
             this.logger = logger;
+            this.webHost = webHost;
         }
 
         public string GetHangfireHref(HttpContext httpContext)
@@ -23,6 +27,12 @@ namespace ServicesAPI.Services.Implementations
             var hangfire = string.Concat(url, "hangfire");
 
             return hangfire;
+        }
+
+        public string GetRootPath(string folder)
+        {
+            var root = Path.Combine(webHost.WebRootPath, "share", "img", folder);
+            return root;
         }
 
         public string GetServerURL(HttpContext httpContext)

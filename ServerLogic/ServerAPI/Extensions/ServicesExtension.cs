@@ -98,6 +98,8 @@ namespace ServerAPI.Extensions
 
             services.AddScoped<IImageUploader, ImageUploader>();
 
+            services.AddScoped<IImageWorker, ImageWorker>();
+
             services.AddScoped<ICourseJobUserHandler, CourseJobUserHandler>();
 
             services.AddScoped<IServerService, ServerService>();

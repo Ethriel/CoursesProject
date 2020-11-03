@@ -15,7 +15,8 @@ import NotificationError from '../common/notifications/notification-error';
 import NotificationOk from '../common/notifications/notification-ok';
 import GetUserData from '../../helpers/GetUserData';
 import SetLocalStorage from '../../helpers/setDataToLocalStorage';
-import { SET_ROLE, SET_EMAIL_CONFIRMED } from '../../reducers/reducersActions';
+import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_AVATAR } from '../../reducers/reducersActions';
+import ImageUploader from '../common/image-uploader';
 
 const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     const id = (userId === undefined || userId < 0) ? currentUser.id : userId;
@@ -145,8 +146,8 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
 
     const onFileChange = event => {
         const file = event.target.files[0];
-        console.log(file);
         setSelectedFile(file);
+        console.log(file);
     }
 
     const onFileUpload = async () => {
@@ -159,13 +160,12 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
             selectedFile.name
         );
 
-        console.log(formData);
-
-        console.log(selectedFile);
-
-        var cancel = axios.CancelToken.source().token;
-        const response = await MakeRequestAsync(`students/user/uploadImage/${id}`, formData, "post", cancel);
-        console.log(response);
+        var cancelToken = axios.CancelToken.source().token;
+        const response = await MakeRequestAsync(`students/user/uploadImage/${id}`, formData, "post", cancelToken);
+        const responseData = response.data.data;
+        const userAvatar = responseData.avatarPath;
+        localStorage.setItem("user_avatar", userAvatar);
+        props.onAvatarChange(userAvatar);
     };
 
     const openProfile =
@@ -177,6 +177,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
             type="primary"
         />
 
+    const imageUploader = <ImageUploader onFileChange={onFileChange} onFileUpload={onFileUpload} />;
     const content =
         <>
             {openProfile}
@@ -186,13 +187,8 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
                 closable={true}
                 onClose={closeDrawer}
                 visible={showDrawer}>
-                <UserInfoContainer user={user} onValueChange={changeField} submitClick={submitClick} />
-                <div>
-                    <input type="file" onChange={onFileChange} />
-                    <button onClick={onFileUpload}>
-                        Upload!
-                </button>
-                </div>
+                <UserInfoContainer user={user} onValueChange={changeField} submitClick={submitClick} imageUploader={imageUploader} />
+
             </Drawer>
             <UserCoursesContainer userId={id} />
         </>;
@@ -219,6 +215,9 @@ export default withRouter(connect(
         },
         onEmailConfirmedChanged: (emailConfirmed) => {
             dispatch({ type: SET_EMAIL_CONFIRMED, payload: emailConfirmed })
+        },
+        onAvatarChange: (avatar) => {
+            dispatch({ type: SET_AVATAR, payload: avatar })
         }
     })
 )(UserProfileComponent));

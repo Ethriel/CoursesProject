@@ -1,17 +1,13 @@
 ﻿using Infrastructure.DbContext;
 using Infrastructure.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ServicesAPI.DataPresentation;
 using ServicesAPI.DTO;
 using ServicesAPI.Extensions;
-using ServicesAPI.Helpers;
 using ServicesAPI.MapperWrappers;
 using ServicesAPI.Responses;
 using ServicesAPI.Services.Abstractions;
-using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,21 +19,18 @@ namespace ServicesAPI.Services.Implementations
         private readonly CoursesSystemDbContext context;
         private readonly IMapperWrapper<SystemUser, SystemUserDTO> mapperWrapper;
         private readonly IExtendedDataService<SystemUser> users;
-        private readonly IImageUploader imageUploader;
-        private readonly IServerService serverService;
+        private readonly IImageWorker imageWorker;
 
         public StudentsService(CoursesSystemDbContext context,
                               IMapperWrapper<SystemUser,
                               SystemUserDTO> mapperWrapper,
                               IExtendedDataService<SystemUser> users,
-                              IImageUploader imageUploader,
-                              IServerService serverService)
+                              IImageWorker imageWorker)
         {
             this.context = context;
             this.mapperWrapper = mapperWrapper;
             this.users = users;
-            this.imageUploader = imageUploader;
-            this.serverService = serverService;
+            this.imageWorker = imageWorker;
         }
 
         public async Task<ApiResult> GetAllStudentsAsync()
@@ -120,7 +113,7 @@ namespace ServicesAPI.Services.Implementations
         {
             var result = default(ApiResult);
 
-            var fileName = imageUploader.UploadImage(image, "users");
+            var fileName = imageWorker.ImageUploader.UploadImage(image, "users");
 
             if (string.IsNullOrWhiteSpace(fileName))
             {
@@ -138,17 +131,21 @@ namespace ServicesAPI.Services.Implementations
                 }
                 else
                 {
-                    if (File.Exists(user.AvatarPath))
+                    if (!string.IsNullOrWhiteSpace(user.AvatarPath))
                     {
-                        File.Delete(user.AvatarPath);
+                        var imagePath = imageWorker.GetImageRootPath("users", user.AvatarPath);
+
+                        if (File.Exists(imagePath))
+                        {
+                            File.Delete(imagePath);
+                        }
                     }
 
                     user.AvatarPath = fileName;
                     await context.SaveChangesAsync();
                     var model = mapperWrapper.MapModel(user);
 
-                    var avatarPath = serverService.GetServerURL(httpContext);
-                    avatarPath += imageUploader.GetPathForURL(fileName, "users");
+                    var avatarPath = imageWorker.GetImageURL("users", fileName, httpContext);
                     model.AvatarPath = avatarPath;
 
                     result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Image was uploaded", model);
