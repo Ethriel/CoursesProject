@@ -16,7 +16,7 @@ class CourseDetailsComponent extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            course: {
+            courseData: {
                 id: props.match.params.id,
                 course: null,
                 isPresent: false
@@ -30,11 +30,11 @@ class CourseDetailsComponent extends Component {
 
     getCourse = async (token) => {
         try {
-            const response = await MakeRequestAsync(`courses/get/${this.state.course.id}`, { msg: "hello" }, "get", token);
+            const response = await MakeRequestAsync(`courses/get/${this.state.courseData.id}`, { msg: "hello" }, "get", token);
             const course = response.data.data;
             this.setState(old => ({
-                course: {
-                    ...old.course,
+                courseData: {
+                    ...old.courseData,
                     course: course
                 }
             }));
@@ -47,15 +47,15 @@ class CourseDetailsComponent extends Component {
 
     checkCourse = async (token) => {
         const userId = this.props.currentUser.id;
-        const courseId = this.state.course.id;
+        const courseId = this.state.courseData.id;
         try {
             const response = await MakeRequestAsync(`courses/check/${userId}/${courseId}`, { msg: "hello" }, "get", token);
             const data = response.data.data;
             const isPresent = data.isPresent;
             const studyDate = data.studyDate;
             this.setState(old => ({
-                course: {
-                    ...old.course,
+                courseData: {
+                    ...old.courseData,
                     isPresent: isPresent,
                     studyDate: data.studyDate
                 }
@@ -112,7 +112,7 @@ class CourseDetailsComponent extends Component {
     handleConfirm = async () => {
         this.setState({ isLoading: true });
         const userId = this.props.currentUser.id;
-        const courseId = this.state.course.id;
+        const courseId = this.state.courseData.id;
         const date = this.state.selectedDate;
         const data = {
             systemUserId: userId,
@@ -129,20 +129,16 @@ class CourseDetailsComponent extends Component {
     }
 
     handleDateChange = (value, dateString) => {
-        this.setState({
-            selectedDate: dateString
-        });
+        this.setState({ selectedDate: dateString });
     };
 
     updateClick = () => {
-        this.setState({
-            redirect: true
-        })
+        this.setState({ redirect: true });
     }
 
     updateRedirect = () => {
         return (
-            <Redirect to={`/update-course/${this.state.course.id}`} push={true} />
+            <Redirect to={`/update-course/${this.state.courseData.id}`} push={true} />
         )
     }
 
@@ -160,11 +156,11 @@ class CourseDetailsComponent extends Component {
     };
 
     render() {
-        const { isLoading, course, selectedDate, plug, redirect } = this.state;
+        const { isLoading, courseData, selectedDate, plug, redirect } = this.state;
         const role = this.props.currentUser.role;
         const isAdmin = role === ADMIN;
         const isDateSelected = selectedDate !== "" && selectedDate !== null;
-        const courseData = course.course === null ? plug : course.course;
+        const course = courseData.course === null ? plug : courseData.course;
         const isPresent = course.isPresent;
         const spinner = <Space size="middle"> <Spin tip="Getting course data..." size="large" /></Space>;
         const updateBtn =
@@ -172,7 +168,7 @@ class CourseDetailsComponent extends Component {
                 type="primary"
                 size="medium"
                 danger={true}
-                onClick={this.updateClick}>Update</Button>
+                onClick={this.updateClick}>Edit course</Button>
         return (
             <>
                 {isLoading === true && spinner}
@@ -180,7 +176,7 @@ class CourseDetailsComponent extends Component {
                     isLoading === false &&
                     <CourseContainer
                         isPresent={isPresent}
-                        course={courseData}
+                        course={course}
                         isDateSelected={isDateSelected}
                         handleDateChange={this.handleDateChange}
                         disabledDate={this.disabledDate}

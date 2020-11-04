@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, DatePicker, Input, Form, Spin, Space } from 'antd';
+import { Button, Input, Form, Spin, Space } from 'antd';
 import 'antd/dist/antd.css';
 import ContainerComponent from '../common/ContainerComponent';
+import ImageUploader from '../common/image-uploader';
 
-const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
+const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, onFinish, loading, reset, ...props }) => {
     const layout = {
         labelCol: {
             span: 8,
@@ -73,21 +74,7 @@ const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
                             },
                         ]}
                     >
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="startDate"
-                        label="Start date"
-                        rules={
-                            [
-                                {
-                                    type: 'object',
-                                    required: true,
-                                    message: "Select date, please"
-                                }
-                            ]
-                        }>
+                        <Input defaultValue={imagePath && imagePath} />
                     </Form.Item>
                     <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="submit">
@@ -96,7 +83,7 @@ const AddCourseForm = ({ onFinish, loading, reset, ...props }) => {
                     </Form.Item>
                 </Form>
             }
-
+            <ImageUploader onFileChange={onFileChange} onFileUpload={onFileUpload} fileSelected={fileSelected} />
         </ContainerComponent>
     )
 };

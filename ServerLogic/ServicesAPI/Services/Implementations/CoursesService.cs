@@ -102,6 +102,11 @@ namespace ServicesAPI.Services.Implementations
             }
             else
             {
+                var image = courseDTO.Cover;
+                if (image.Contains("share/img/courses"))
+                {
+                    courseDTO.Cover = imageWorker.CutImageToName(image);
+                }
                 course = mapperWrapper.MapEntity(courseDTO);
                 await courses.CreateAsync(course);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Course created");
@@ -176,6 +181,25 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
+        public ApiResult SaveImage(IFormFile image)
+        {
+            var result = default(ApiResult);
+            var filename = imageWorker.ImageUploader.SaveImage(image, "courses", 1200, 1200);
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                var message = "An error occured while saving file";
+                var errors = new string[] { message };
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, message, message, errors);
+            }
+            else
+            {
+                var fileURL = imageWorker.GetImageURL("courses", filename);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: fileURL);
+            }
+
+            return result;
+        }
+
         public async Task<ApiResult> UpdateCourseAsync(TrainingCourseDTO courseDTO)
         {
             var result = default(ApiResult);
@@ -193,7 +217,6 @@ namespace ServicesAPI.Services.Implementations
                 var newCourse = mapperWrapper.MapEntity(courseDTO);
                 newCourse.Cover = imageWorker.CutImageToName(newCourse.Cover);
                 course = await courses.UpdateAsync(course, newCourse);
-                await context.SaveChangesAsync();
 
                 var model = mapperWrapper.MapModel(course);
                 model.Cover = imageWorker.GetImageURL("courses", model.Cover);

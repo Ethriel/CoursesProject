@@ -93,5 +93,14 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
+        [Authorize(Roles ="ADMIN")]
+        [HttpPost("saveImage")]
+        public IActionResult SaveImage([FromForm(Name = "image")] IFormFile image)
+        {
+            var result = coursesService.SaveImage(image);
+
+            return this.GetActionResult(result, logger);
+        }
     }
 }

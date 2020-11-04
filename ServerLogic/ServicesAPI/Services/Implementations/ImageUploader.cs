@@ -25,7 +25,7 @@ namespace ServicesAPI.Services.Implementations
             return imagePath;
         }
 
-        private string SaveImage(IFormFile image, string folder, int maxWidth = 400, int maxHeight = 400)
+        public string SaveImage(IFormFile image, string folder, int maxWidth = 400, int maxHeight = 400)
         {
             var filename = Guid.NewGuid().ToString();
 
