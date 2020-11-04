@@ -6,6 +6,7 @@ import { Typography, DatePicker, Button } from 'antd';
 import { connect } from 'react-redux';
 import MakeRequestAsync from '../../helpers/MakeRequestAsync';
 import NotificationError from '../common/notifications/notification-error';
+import './course.css';
 
 const { Paragraph } = Typography;
 
@@ -26,7 +27,8 @@ const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDat
             "width-75", "center-a-div"
         ];
     const classNameConfirm = ["display-flex", "width-50", "space-between-flex", "center-a-div"];
-    const src = course.cover.includes('http') ? course.cover : `https://localhost:44382/${course.cover}`;
+    // const src = course.cover.includes('http') ? course.cover : `https://localhost:44382/${course.cover}`;
+    const src = course.cover;
 
     const setCatch = (error) => {
         NotificationError(error);
@@ -52,6 +54,7 @@ const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDat
             <img
                 style={{ margin: "0 auto" }}
                 alt="No"
+                className="course-details-img"
                 src={src} />
             <Paragraph className="course-details-margin">
                 {course.description}

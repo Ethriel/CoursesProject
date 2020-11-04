@@ -11,16 +11,18 @@ namespace ServicesAPI.Services.Implementations
     {
         private readonly ILogger<ServerService> logger;
         private readonly IWebHostEnvironment webHost;
+        private readonly HttpContext httpContext;
 
-        public ServerService(ILogger<ServerService> logger, IWebHostEnvironment webHost)
+        public ServerService(ILogger<ServerService> logger, IWebHostEnvironment webHost, IHttpContextAccessor httpContextAccessor)
         {
             this.logger = logger;
             this.webHost = webHost;
+            httpContext = httpContextAccessor.HttpContext;
         }
 
-        public string GetHangfireHref(HttpContext httpContext)
+        public string GetHangfireHref()
         {
-            var authority = GetAuthority(httpContext);
+            var authority = GetAuthority();
 
             var url = GetURL(authority);
 
@@ -35,9 +37,9 @@ namespace ServicesAPI.Services.Implementations
             return root;
         }
 
-        public string GetServerURL(HttpContext httpContext)
+        public string GetServerURL()
         {
-            var authority = GetAuthority(httpContext);
+            var authority = GetAuthority();
 
             var url = GetURL(authority);
 
@@ -50,7 +52,7 @@ namespace ServicesAPI.Services.Implementations
             logger.LogError(javascriptException, "Javascript error");
         }
 
-        private string GetAuthority(HttpContext httpContext)
+        private string GetAuthority()
         {
             return httpContext.Request.Host.Value;
         }

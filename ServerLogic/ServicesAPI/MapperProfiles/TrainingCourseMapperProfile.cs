@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using ServicesAPI.DTO;
 using Infrastructure.Models;
+using ServicesAPI.DTO;
 
 namespace ServicesAPI.MapperProfiles
 {

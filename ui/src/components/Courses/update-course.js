@@ -9,6 +9,8 @@ const UpdateCourse = (props) => {
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const [course, setCourse] = useState({});
+    const [selectedFile, setSelectedFile] = useState({});
+    const [fileSelected, setFileSelected] = useState(false);
     const courseId = props.match.params.id;
 
     const setCatch = error => {
@@ -38,7 +40,8 @@ const UpdateCourse = (props) => {
         return function cleanUp() {
             signal.cancel("UPDATE COURSE: CANCEL IN FETCH COURSE");
         }
-    }, [courseId])
+    }, [courseId]);
+
     const submit = async values => {
         setLoaded(false);
         const { title, description, cover } = values;
@@ -51,13 +54,13 @@ const UpdateCourse = (props) => {
 
         try {
             setLoading(true);
-            
+
             const signal = axios.CancelToken.source();
             await MakeRequestAsync("Courses/update", courseData, "post", signal.token);
 
             setCourse(courseData);
             setLoaded(true);
-            
+
             NotificationOk("Course was updated!");
         } catch (error) {
             setCatch(error);
@@ -66,9 +69,48 @@ const UpdateCourse = (props) => {
             setLoading(false);
         }
     }
+
+    const onFileChange = event => {
+        const file = event.target.files[0];
+        setSelectedFile(file);
+        setFileSelected(true);
+    }
+
+    const onFileUpload = async () => {
+        const signal = axios.CancelToken.source();
+        try {
+            setLoading(true);
+            setLoaded(false);
+
+            const formData = new FormData();
+
+            formData.set(
+                "image",
+                selectedFile,
+                selectedFile.name
+            );
+
+            const response = await MakeRequestAsync(`courses/uploadImage/${courseId}`, formData, "post", signal.token);
+            const courseData = response.data.data;
+
+            setCourse(courseData);
+            setLoaded(true);
+        } catch (error) {
+            setCatch(error);
+        } finally {
+            setLoading(false);
+        }
+    }
     return (
         <>
-            { loaded === true && <UpdateCourseForm onFinish={submit} loading={loading} course={course} />}
+            { loaded && <UpdateCourseForm
+                onFinish={submit}
+                loading={loading}
+                course={course}
+                onFileChange={onFileChange}
+                onFileUpload={onFileUpload}
+                fileSelected={fileSelected}/>}
+
         </>
 
     )

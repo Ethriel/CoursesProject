@@ -52,7 +52,7 @@ namespace ServerAPI.Controllers
         [HttpPost("user/uploadImage/{id}")]
         public async Task<IActionResult> UploadImage([FromForm(Name = "image")] IFormFile image, int id)
         {
-            var result = await studentsService.UploadImageAsync(image, id, HttpContext);
+            var result = await studentsService.UploadImageAsync(image, id);
 
             return this.GetActionResult(result, logger);
         }

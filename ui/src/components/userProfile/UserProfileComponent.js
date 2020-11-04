@@ -26,6 +26,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     const [showDrawer, setShowDrawer] = useState(false);
     const [fieldChanged, setFieldChanged] = useState(false);
     const [selectedFile, setSelectedFile] = useState({});
+    const [fileSelected, setfileSelected] = useState(false);
 
     const [emailState, setEmailState] = useState({
         valid: false,
@@ -147,11 +148,10 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
     const onFileChange = event => {
         const file = event.target.files[0];
         setSelectedFile(file);
-        console.log(file);
+        setfileSelected(true);
     }
 
     const onFileUpload = async () => {
-
         const formData = new FormData();
 
         formData.set(
@@ -177,7 +177,7 @@ const UserProfileComponent = ({ userId, history, currentUser, ...props }) => {
             type="primary"
         />
 
-    const imageUploader = <ImageUploader onFileChange={onFileChange} onFileUpload={onFileUpload} />;
+    const imageUploader = <ImageUploader onFileChange={onFileChange} onFileUpload={onFileUpload} fileSelected={fileSelected} />;
     const content =
         <>
             {openProfile}

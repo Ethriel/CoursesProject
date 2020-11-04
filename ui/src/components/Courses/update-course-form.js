@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, DatePicker, Input, Form, Spin, Space } from 'antd';
+import { Button, Input, Form, Spin, Space } from 'antd';
 import 'antd/dist/antd.css';
 import ContainerComponent from '../common/ContainerComponent';
+import ImageUploader from '../common/image-uploader';
 
-const UpdateCourseForm = ({ onFinish, loading, course, ...props }) => {
+const UpdateCourseForm = ({ onFileChange, onFileUpload, fileSelected, onFinish, loading, course, ...props }) => {
     const layout = {
         labelCol: {
             span: 8,
@@ -34,7 +35,7 @@ const UpdateCourseForm = ({ onFinish, loading, course, ...props }) => {
             {loading && spinner}
             {!loading &&
                 <Form
-                initialValues={initialValues}
+                    initialValues={initialValues}
                     size="middle"
                     {...layout}
                     form={form}
@@ -76,7 +77,7 @@ const UpdateCourseForm = ({ onFinish, loading, course, ...props }) => {
                             },
                         ]}
                     >
-                        <Input/>
+                        <Input />
                     </Form.Item>
 
                     <Form.Item {...tailLayout}>
@@ -86,7 +87,7 @@ const UpdateCourseForm = ({ onFinish, loading, course, ...props }) => {
                     </Form.Item>
                 </Form>
             }
-
+            <ImageUploader onFileChange={onFileChange} onFileUpload={onFileUpload} fileSelected={fileSelected} />
         </ContainerComponent>
     )
 };

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,17 +18,14 @@ namespace ServerAPI.Controllers
         private readonly ICoursesService coursesService;
         private readonly ILogger<CoursesController> logger;
         private readonly IStudentsService studentsService;
-        private readonly IWebHostEnvironment webHost;
 
         public CoursesController(ICoursesService coursesService,
                                  ILogger<CoursesController> logger,
-                                 IStudentsService studentsService,
-                                 IWebHostEnvironment webHost)
+                                 IStudentsService studentsService)
         {
             this.coursesService = coursesService;
             this.logger = logger;
             this.studentsService = studentsService;
-            this.webHost = webHost;
         }
 
         [HttpGet("get/all")]
@@ -51,7 +47,7 @@ namespace ServerAPI.Controllers
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await coursesService.GetById(id);
+            var result = await coursesService.GetByIdAsync(id);
 
             return this.GetActionResult(result, logger);
         }
@@ -72,13 +68,13 @@ namespace ServerAPI.Controllers
             return this.GetActionResult(result, logger);
         }
 
-        //[HttpPost("imageUpload")]
-        //public IActionResult UploadImage([FromForm(Name = "image")]IFormFile image)
-        //{
-        //    var result = studentsService.UploadImageTest(image, webHost);
+        [HttpPost("uploadImage/{id}")]
+        public async Task<IActionResult> UploadImage([FromForm(Name = "image")] IFormFile image, int id)
+        {
+            var result = await coursesService.UploadImageAsync(image, id);
 
-        //    return this.GetActionResult(result, logger);
-        //}
+            return this.GetActionResult(result, logger);
+        }
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost("add")]

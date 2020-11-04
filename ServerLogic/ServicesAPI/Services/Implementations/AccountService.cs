@@ -146,7 +146,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> SignInAsync(SystemUserDTO userData, HttpContext httpContext)
+        public async Task<ApiResult> SignInAsync(SystemUserDTO userData)
         {
             var result = default(ApiResult);
             // find user
@@ -167,7 +167,7 @@ namespace ServicesAPI.Services.Implementations
                 if (signInResult.Succeeded)
                 {
                     // if OK - get user data and return OK
-                    var data = await GetAccountData(user, httpContext);
+                    var data = await GetAccountData(user);
                     result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
                 }
@@ -186,7 +186,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData, HttpContext httpContext)
+        public async Task<ApiResult> SignUpAsync(SystemUserDTO userData)
         {
             var result = default(ApiResult);
             var findUser = await userManager.FindByEmailAsync(userData.Email);
@@ -203,7 +203,7 @@ namespace ServicesAPI.Services.Implementations
                 var user = await MapNewUserFromDTO(userData);
 
                 // try to create user
-                result = await TryCreateUser(user, userData.Password, httpContext);
+                result = await TryCreateUser(user, userData.Password);
             }
 
             return result;
@@ -243,7 +243,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser, HttpContext httpContext)
+        public async Task<ApiResult> UseFacebookAsync(FacebookUser facebookUser)
         {
             var result = default(ApiResult);
             var isTokenValid = await CheckFacebookAccessToken(facebookUser);
@@ -264,19 +264,19 @@ namespace ServicesAPI.Services.Implementations
                 if (user == null)
                 {
                     // if not - try create one
-                    result = await TryCreateSystemUserFromFacebook(facebookUser, httpContext);
+                    result = await TryCreateSystemUserFromFacebook(facebookUser);
                 }
                 else
                 {
                     // if user with such email exists in database - gather account data and return OK
-                    var data = await GetAccountData(user, httpContext);
+                    var data = await GetAccountData(user);
                     result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
                 }
             }
 
             return result;
         }
-        public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData, HttpContext httpContext)
+        public async Task<ApiResult> UpdateAccountAsync(AccountUpdateData accountUpdateData)
         {
             var result = default(ApiResult);
             var id = accountUpdateData.User.Id;
@@ -307,7 +307,7 @@ namespace ServicesAPI.Services.Implementations
                     //await context.SaveChangesAsync();
                 }
 
-                var data = await GetAccountData(user, httpContext);
+                var data = await GetAccountData(user);
 
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
@@ -420,7 +420,7 @@ namespace ServicesAPI.Services.Implementations
 
             return user;
         }
-        private async Task<ApiResult> TryCreateUser(SystemUser user, string password, HttpContext httpContext)
+        private async Task<ApiResult> TryCreateUser(SystemUser user, string password)
         {
             var result = default(ApiResult);
             var creationResult = await userManager.CreateAsync(user, password);
@@ -433,7 +433,7 @@ namespace ServicesAPI.Services.Implementations
                 // send confirm request on user's email
                 await SendEmailConfirmAsync(user);
 
-                var data = await GetAccountData(user, httpContext);
+                var data = await GetAccountData(user);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
             else
@@ -513,7 +513,7 @@ namespace ServicesAPI.Services.Implementations
 
             return isTokenValid;
         }
-        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser, HttpContext httpContext)
+        private async Task<ApiResult> TryCreateSystemUserFromFacebook(FacebookUser facebookUser)
         {
             var result = default(ApiResult);
             var systemUser = await GetSystemUserFromFacebook(facebookUser);
@@ -525,7 +525,7 @@ namespace ServicesAPI.Services.Implementations
                 systemUser = await userManager.Users.FirstOrDefaultAsync(x => x.Email.Equals(facebookUser.Email));
 
                 // if creation was successful - set data and OK
-                var data = await GetAccountData(systemUser, httpContext);
+                var data = await GetAccountData(systemUser);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
             else
@@ -559,14 +559,14 @@ namespace ServicesAPI.Services.Implementations
 
             return systemUser;
         }
-        private async Task<AccountData> GetAccountData(SystemUser user, HttpContext httpContext)
+        private async Task<AccountData> GetAccountData(SystemUser user)
         {
             var code = Encoding.UTF8.GetBytes(configuration["JwtKey"]);
             var roles = await userManager.GetRolesAsync(user);
             var token = JWTHelper.GenerateJwtToken(user, configuration, tokenHandler, code, roles);
             var expire = Convert.ToDouble(configuration["JwtExpireDays"]);
             var userDTO = mapperWrapper.MapModel(user);
-            var avatarURL = imageWorker.GetImageURL("users", user.AvatarPath, httpContext);
+            var avatarURL = imageWorker.GetImageURL("users", user.AvatarPath);
             userDTO.AvatarPath = avatarURL;
             var data = new AccountData(userDTO, new TokenData(token, expire));
             return data;

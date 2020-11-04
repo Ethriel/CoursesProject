@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using ServicesAPI.DataPresentation.ErrorHandling;
+﻿using ServicesAPI.DataPresentation.ErrorHandling;
 
 namespace ServicesAPI.Services.Abstractions
 {
     public interface IServerService
     {
-        string GetHangfireHref(HttpContext httpContext);
-        string GetServerURL(HttpContext httpContext);
+        string GetHangfireHref();
+        string GetServerURL();
         string GetRootPath(string folder);
         void LogJavascriptError(JavascriptError javascriptError);
     }

@@ -109,7 +109,7 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
-        public async Task<ApiResult> UploadImageAsync(IFormFile image, int id, HttpContext httpContext)
+        public async Task<ApiResult> UploadImageAsync(IFormFile image, int id)
         {
             var result = default(ApiResult);
 
@@ -134,18 +134,14 @@ namespace ServicesAPI.Services.Implementations
                     if (!string.IsNullOrWhiteSpace(user.AvatarPath))
                     {
                         var imagePath = imageWorker.GetImageRootPath("users", user.AvatarPath);
-
-                        if (File.Exists(imagePath))
-                        {
-                            File.Delete(imagePath);
-                        }
+                        imageWorker.DeleteImage(imagePath);
                     }
 
                     user.AvatarPath = fileName;
                     await context.SaveChangesAsync();
                     var model = mapperWrapper.MapModel(user);
 
-                    var avatarPath = imageWorker.GetImageURL("users", fileName, httpContext);
+                    var avatarPath = imageWorker.GetImageURL("users", fileName);
                     model.AvatarPath = avatarPath;
 
                     result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Image was uploaded", model);

@@ -19,7 +19,7 @@ namespace ServerAPI.Controllers
         public async Task<IActionResult> Start()
         {
             ViewBag.Text = "Server is running";
-            ViewBag.Href = serverService.GetHangfireHref(HttpContext);
+            ViewBag.Href = serverService.GetHangfireHref();
             return View();
         }
     }

@@ -1,4 +1,6 @@
-﻿using Infrastructure.Models;
+﻿using Infrastructure.DbContext;
+using Infrastructure.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ServicesAPI.DataPresentation;
 using ServicesAPI.DTO;
@@ -15,15 +17,21 @@ namespace ServicesAPI.Services.Implementations
         private readonly IMapperWrapper<TrainingCourse, TrainingCourseDTO> mapperWrapper;
         private readonly IExtendedDataService<TrainingCourse> courses;
         private readonly IExtendedDataService<SystemUser> users;
+        private readonly IImageWorker imageWorker;
+        private readonly CoursesSystemDbContext context;
 
         public CoursesService(IMapperWrapper<TrainingCourse,
                               TrainingCourseDTO> mapperWrapper,
                               IExtendedDataService<TrainingCourse> courses,
-                              IExtendedDataService<SystemUser> users)
+                              IExtendedDataService<SystemUser> users,
+                              IImageWorker imageWorker,
+                              CoursesSystemDbContext context)
         {
             this.mapperWrapper = mapperWrapper;
             this.courses = courses;
             this.users = users;
+            this.imageWorker = imageWorker;
+            this.context = context;
         }
 
         public async Task<ApiResult> CheckCourseAsync(int userId, int courseId)
@@ -110,12 +118,14 @@ namespace ServicesAPI.Services.Implementations
 
             var data = mapperWrapper.MapModels(coursesData);
 
+            imageWorker.SetCoursesImages(data);
+
             result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
 
             return result;
         }
 
-        public async Task<ApiResult> GetById(int id)
+        public async Task<ApiResult> GetByIdAsync(int id)
         {
             var result = default(ApiResult);
 
@@ -130,6 +140,7 @@ namespace ServicesAPI.Services.Implementations
             else
             {
                 var data = mapperWrapper.MapModel(course);
+                data.Cover = imageWorker.GetImageURL("courses", data.Cover);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: data);
             }
 
@@ -138,7 +149,7 @@ namespace ServicesAPI.Services.Implementations
 
         public async Task<ApiResult> GetPagedAsync(CoursesPagination coursesPagination)
         {
-            var amount = await this.courses.GetCountAsync();
+            var amount = await courses.GetCountAsync();
 
             var pagination = new Pagination();
             pagination.SetDefaults(amount, pageSize: 3);
@@ -155,6 +166,8 @@ namespace ServicesAPI.Services.Implementations
                                            .ToArrayAsync();
 
             var models = mapperWrapper.MapModels(coursesData);
+
+            imageWorker.SetCoursesImages(models);
 
             var data = new { pagination = coursesPagination.Pagination, courses = models };
 
@@ -178,9 +191,55 @@ namespace ServicesAPI.Services.Implementations
             else
             {
                 var newCourse = mapperWrapper.MapEntity(courseDTO);
+                newCourse.Cover = imageWorker.CutImageToName(newCourse.Cover);
                 course = await courses.UpdateAsync(course, newCourse);
+                await context.SaveChangesAsync();
+
                 var model = mapperWrapper.MapModel(course);
+                model.Cover = imageWorker.GetImageURL("courses", model.Cover);
                 result = ApiResult.GetOkResult(ApiResultStatus.Ok, data: model);
+            }
+
+            return result;
+        }
+
+        public async Task<ApiResult> UploadImageAsync(IFormFile image, int id)
+        {
+            var result = default(ApiResult);
+
+            var fileName = imageWorker.ImageUploader.UploadImage(image, "courses", 1200, 1200);
+
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                var message = "An error occured during file upload";
+                result = ApiResult.GetErrorResult(ApiResultStatus.BadRequest, "Error in upload file for USER", message, new string[] { message });
+            }
+            else
+            {
+                var course = await courses.GetByIdAsync(id);
+
+                if (course == null)
+                {
+                    var message = "Course was not found";
+                    result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, $"Error: course id={id} was not found in UPLOAD FILE", message, new string[] { message });
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(course.Cover))
+                    {
+                        var imagePath = imageWorker.GetImageRootPath("courses", course.Cover);
+                        imageWorker.DeleteImage(imagePath);
+                    }
+
+                    course.Cover = fileName;
+                    await context.SaveChangesAsync();
+                    var model = mapperWrapper.MapModel(course);
+
+                    var cover = imageWorker.GetImageURL("courses", fileName);
+                    model.Cover = cover;
+
+                    result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Image was uploaded", model);
+                }
             }
 
             return result;

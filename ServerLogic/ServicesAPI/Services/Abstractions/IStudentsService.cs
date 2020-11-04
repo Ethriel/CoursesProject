@@ -10,6 +10,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> GetAllStudentsAsync();
         Task<ApiResult> GetUserByIdAsync(int id);
         Task<ApiResult> SearchAndSortStudentsAsync(SearchAndSort searchAndSort);
-        Task<ApiResult> UploadImageAsync(IFormFile image, int id, HttpContext httpContext);
+        Task<ApiResult> UploadImageAsync(IFormFile image, int id);
     }
 }
