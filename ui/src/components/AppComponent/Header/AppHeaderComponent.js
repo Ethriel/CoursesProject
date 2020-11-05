@@ -19,14 +19,16 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
 
     subItems.push({ key: main, text: "Home", to: main });
 
-    subItems.push({ key: aboutUs, text: "About us", to: aboutUs });
-
     if (isUser) {
         subItems.push({ key: courses, text: "Courses", to: courses });
         if (currentUser.role === ADMIN) {
-            subItems.push({ key: admin, text: "Admin", to: admin });
+            subItems.push({ key: admin, text: "Students", to: admin });
         }
     }
+
+    subItems.push({ key: aboutUs, text: "About us", to: aboutUs });
+
+    
 
     const headerContainer = ["display-flex", "align-center", "col-flex", "width-95", "center-a-div"];
     const menuContainer = ["display-flex", "justify-center", "align-center", "width-90"];

@@ -189,7 +189,7 @@ const AdminTable = ({ userRole, history, ...props }) => {
     return (
         <>
             <Container classes={outerContainerClasses}>
-                <H level={4} myText="Admin table" />
+                <H level={4} myText="Students table" />
                 <Container classes={innerContainerClasses}>
                     <Search
                         className="ant-input-search-my"

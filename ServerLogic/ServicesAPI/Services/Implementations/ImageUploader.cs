@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using ServicesAPI.Helpers;
+﻿using Microsoft.AspNetCore.Http;
 using ServicesAPI.Services.Abstractions;
 using System;
 using System.Drawing;
@@ -92,7 +90,7 @@ namespace ServicesAPI.Services.Implementations
                 }
                 using (var outBmp = new Bitmap(width, height, PixelFormat.Format24bppRgb))
                 {
-                    using (Graphics oGraphics = Graphics.FromImage(outBmp))
+                    using (var oGraphics = Graphics.FromImage(outBmp))
                     {
                         oGraphics.DrawImage(originalPic, 0, 0, width, height);
                         //Водяний знак
