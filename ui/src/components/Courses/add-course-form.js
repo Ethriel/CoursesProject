@@ -4,7 +4,7 @@ import 'antd/dist/antd.css';
 import ContainerComponent from '../common/ContainerComponent';
 import ImageUploader from '../common/image-uploader';
 
-const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, onFinish, loading, reset, ...props }) => {
+const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, onFinish, loading, ...props }) => {
     const layout = {
         labelCol: {
             span: 8,
@@ -22,12 +22,8 @@ const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, on
 
     const [form] = Form.useForm();
 
-    const initialValues = {
-        cover: imagePath
-    }
-
-    if (reset) {
-        form.resetFields();
+    const sumbit = values => {
+        onFinish(values, form);
     }
 
     const spinner = <Space size="middle"> <Spin tip="Processing..." size="large" /></Space>;
@@ -37,12 +33,11 @@ const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, on
             {loading && spinner}
             {!loading &&
                 <Form
-                    initialValues={initialValues}
                     size="middle"
                     {...layout}
                     form={form}
                     name="add-course-form"
-                    onFinish={onFinish}>
+                    onFinish={sumbit}>
                     <Form.Item
                         name="title"
                         label="Title"
@@ -72,6 +67,7 @@ const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, on
                     <Form.Item
                         name="cover"
                         label="Cover"
+                        initialValue={imagePath}
                         rules={[
                             {
                                 required: true,

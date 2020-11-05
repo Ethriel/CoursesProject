@@ -6,7 +6,7 @@ import PaginationComponent from '../common/PaginationComponent';
 const CoursesContent = ({ pagination, handleChange, items, ...props }) => {
     const classes = ["display-flex", "col-flex", "center-flex", "width-100", "height-100"];
 
-    const grid = <GridComponent colNum={12} elementsToDisplay={items} />;
+    const grid = <GridComponent colNum={10} elementsToDisplay={items} />;
     const paginationComponent = <PaginationComponent
         pagination={pagination}
         onChange={handleChange} />

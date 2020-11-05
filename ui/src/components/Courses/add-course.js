@@ -7,7 +7,6 @@ import axios from 'axios';
 
 const AddCourseComponent = ({ ...props }) => {
     const [loading, setLoading] = useState(false);
-    const [reset, setReset] = useState(false);
 
     const [selectedFile, setSelectedFile] = useState({});
     const [fileSelected, setFileSelected] = useState(false);
@@ -34,7 +33,6 @@ const AddCourseComponent = ({ ...props }) => {
 
             const response = await MakeRequestAsync(`courses/saveImage`, formData, "post", signal.token);
             const imagePath = response.data.data;
-            console.log(imagePath);
 
             setImagePath(imagePath);
         } catch (error) {
@@ -43,7 +41,9 @@ const AddCourseComponent = ({ ...props }) => {
             setLoading(false);
         }
     }
-    const submit = async values => {
+    const submit = async (values, form) => {
+        // console.log("VALUES IN PARENT", values);
+        // console.log("FORM IN PARENT", form);
         const { title, description, cover } = values;
         const course = {
             title: title,
@@ -57,7 +57,10 @@ const AddCourseComponent = ({ ...props }) => {
             const signal = axios.CancelToken.source();
             await MakeRequestAsync("Courses/add", course, "post", signal.token);
 
-            setReset(true);
+            form.resetFields();
+            setImagePath(undefined);
+            setFileSelected(false);
+            setSelectedFile({});
 
             NotificationOk("Course was added!");
         } catch (error) {
@@ -72,7 +75,6 @@ const AddCourseComponent = ({ ...props }) => {
         <AddCourseForm
             onFinish={submit}
             loading={loading}
-            reset={reset}
             onFileChange={onFileChange}
             onFileUpload={onFileUpload}
             imagePath={imagePath}

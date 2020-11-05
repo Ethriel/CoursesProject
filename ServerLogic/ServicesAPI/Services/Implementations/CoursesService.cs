@@ -157,7 +157,7 @@ namespace ServicesAPI.Services.Implementations
             var amount = await courses.GetCountAsync();
 
             var pagination = new Pagination();
-            pagination.SetDefaults(amount, pageSize: 3);
+            pagination.SetDefaults(amount, pageSize: 8);
 
             coursesPagination.Pagination ??= pagination;
 

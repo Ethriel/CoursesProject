@@ -8,9 +8,9 @@ const GetRowsWithCols = (elements) => {
 
 const getRow = (items) => {
     let columns = items.map((item) => {
-        return <Col key={item.key}>{item}</Col>;
+        return <Col span={6} key={item.key}>{item}</Col>;
     });
-    return <Row key={updateIndex(1)}>{columns}</Row>;
+    return <Row gutter={[24, 24]} key={updateIndex(1)}>{columns}</Row>;
 };
 
 let index = 0;
