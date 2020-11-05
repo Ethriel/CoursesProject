@@ -10,8 +10,6 @@ import GetUserData from '../../../helpers/GetUserData';
 import setDataToLocalStorage from '../../../helpers/setDataToLocalStorage';
 import GetFacebookData from '../Facebook/GetFacebookData';
 import NotificationError from '../../common/notifications/notification-error';
-import NotificationOk from '../../common/notifications/notification-ok';
-import NotificationWarning from '../../common/notifications/notification-warning';
 import { SET_ROLE, SET_EMAIL_CONFIRMED, SET_EMAIL, SET_ID, SET_AVATAR } from '../../../reducers/reducersActions';
 import { ADMIN } from '../../common/roles';
 import { courses, admin } from '../../../Routes/RoutersDirections';
