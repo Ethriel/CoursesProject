@@ -22,6 +22,10 @@ const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, on
 
     const [form] = Form.useForm();
 
+    const initialValues = {
+        cover: imagePath
+    }
+
     if (reset) {
         form.resetFields();
     }
@@ -33,6 +37,7 @@ const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, on
             {loading && spinner}
             {!loading &&
                 <Form
+                    initialValues={initialValues}
                     size="middle"
                     {...layout}
                     form={form}
@@ -74,7 +79,7 @@ const AddCourseForm = ({ onFileChange, onFileUpload, fileSelected, imagePath, on
                             },
                         ]}
                     >
-                        <Input defaultValue={imagePath && imagePath} />
+                        <Input />
                     </Form.Item>
                     <Form.Item {...tailLayout}>
                         <Button type="primary" htmlType="submit">

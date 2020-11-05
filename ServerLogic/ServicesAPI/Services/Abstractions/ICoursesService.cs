@@ -16,5 +16,6 @@ namespace ServicesAPI.Services.Abstractions
         Task<ApiResult> UpdateCourseAsync(TrainingCourseDTO courseDTO);
         Task<ApiResult> UploadImageAsync(IFormFile image, int id);
         ApiResult SaveImage(IFormFile image);
+        Task<ApiResult> RemoveCourseAsync(int id);
     }
 }

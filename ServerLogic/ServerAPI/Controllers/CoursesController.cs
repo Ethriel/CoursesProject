@@ -102,5 +102,14 @@ namespace ServerAPI.Controllers
 
             return this.GetActionResult(result, logger);
         }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost("delete/{id}")]
+        public async Task<IActionResult> RemoveCourse([FromRoute] int id)
+        {
+            var result = await coursesService.RemoveCourseAsync(id);
+
+            return this.GetActionResult(result, logger);
+        }
     }
 }

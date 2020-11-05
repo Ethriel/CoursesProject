@@ -64,33 +64,33 @@ namespace ServicesAPI.Services.Implementations
         {
             try
             {
-                int width = originalPic.Width;
-                int height = originalPic.Height;
-                int widthDiff = width - maxWidth;
-                int heightDiff = height - maxHeight;
-                bool doWidthResize = (maxWidth > 0 && width > maxWidth && widthDiff > heightDiff);
-                bool doHeightResize = (maxHeight > 0 && height > maxHeight && heightDiff > widthDiff);
+                var width = originalPic.Width;
+                var height = originalPic.Height;
+                var widthDiff = width - maxWidth;
+                var heightDiff = height - maxHeight;
+                var doWidthResize = (maxWidth > 0 && width > maxWidth && widthDiff > heightDiff);
+                var doHeightResize = (maxHeight > 0 && height > maxHeight && heightDiff > widthDiff);
 
                 if (doWidthResize || doHeightResize || (width.Equals(height) && widthDiff.Equals(heightDiff)))
                 {
-                    int iStart;
-                    Decimal divider;
+                    var iStart = default(int);
+                    var divider = default(decimal);
                     if (doWidthResize)
                     {
                         iStart = width;
-                        divider = Math.Abs((Decimal)iStart / maxWidth);
+                        divider = Math.Abs((decimal)iStart / maxWidth);
                         width = maxWidth;
                         height = (int)Math.Round((height / divider));
                     }
                     else
                     {
                         iStart = height;
-                        divider = Math.Abs((Decimal)iStart / maxHeight);
+                        divider = Math.Abs((decimal)iStart / maxHeight);
                         height = maxHeight;
                         width = (int)Math.Round(width / divider);
                     }
                 }
-                using (Bitmap outBmp = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                using (var outBmp = new Bitmap(width, height, PixelFormat.Format24bppRgb))
                 {
                     using (Graphics oGraphics = Graphics.FromImage(outBmp))
                     {

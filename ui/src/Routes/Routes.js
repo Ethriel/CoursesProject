@@ -5,14 +5,14 @@ import {
     main, courses, coursesDetails, aboutUs, admin,
     editStudent, forbidden, userProfile, forgotPassword,
     confirmEmail, confirmChangeEmail, resetPassword,
-    confirmEmailForm, addCourse, updateCourse
+    confirmEmailForm, addCourse, updateCourse, notFound
 } from './RoutersDirections';
 
 import {
     MainPage, Courses, AboutUs, Admin, CourseDetails,
     UserProfile, ConfirmEmail, ConfirmEmailForm, ConfirmChangeEmail,
     ForgotPassword, ResetPassword, EditStudent,
-    NoAccessPage, AddCourse
+    NoAccessPage, AddCourse, NotFound
 } from './RouteComponents';
 import UpdateCourse from '../components/Courses/update-course';
 
@@ -33,6 +33,7 @@ const Routes = () => (
         <Route path={confirmEmailForm} component={ConfirmEmailForm} />
         <Route path={confirmChangeEmail} component={ConfirmChangeEmail} />
         <Route path={resetPassword} component={ResetPassword} />
+        <Route path={notFound} component={NotFound} />
     </Switch>
 );
 export default Routes;

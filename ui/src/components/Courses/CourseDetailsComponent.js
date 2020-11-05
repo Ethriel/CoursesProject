@@ -7,10 +7,11 @@ import moment from 'moment';
 import CourseContainer from './CourseContainer';
 import axios from 'axios';
 import { USER, ADMIN } from '../common/roles';
-import { forbidden } from '../../Routes/RoutersDirections';
+import { forbidden, courses } from '../../Routes/RoutersDirections';
 import NotificationError from '../common/notifications/notification-error';
 import NotificationWarning from '../common/notifications/notification-warning';
 import { SET_EMAIL_CONFIRMED } from '../../reducers/reducersActions';
+import NotificationOk from '../common/notifications/notification-ok';
 
 class CourseDetailsComponent extends Component {
     constructor(props) {
@@ -24,7 +25,8 @@ class CourseDetailsComponent extends Component {
             isLoading: true,
             plug: { title: "", cover: "", description: "" },
             selectedDate: "",
-            redirect: false
+            redirect: false,
+            redirectDelete: false
         }
     }
 
@@ -139,7 +141,27 @@ class CourseDetailsComponent extends Component {
     updateRedirect = () => {
         return (
             <Redirect to={`/update-course/${this.state.courseData.id}`} push={true} />
-        )
+        );
+    }
+
+    deleteClick = async () => {
+        const id = this.state.courseData.id;
+        const cancel = axios.CancelToken.source();
+        try {
+            const response = await MakeRequestAsync(`Courses/delete/${id}`, "hello", "post", cancel.token);
+            const message = response.data.message;
+            NotificationOk(message);
+            this.setState({ redirectDelete: true });
+        } catch (error) {
+            cancel.cancel("CANCEL BECAUSE OF ERROR");
+            this.setCatch(error);
+        }
+    }
+
+    deleteRedirect = () => {
+        return (
+            <Redirect to={courses} push={true} />
+        );
     }
 
     disabledDate = current => {
@@ -156,19 +178,28 @@ class CourseDetailsComponent extends Component {
     };
 
     render() {
-        const { isLoading, courseData, selectedDate, plug, redirect } = this.state;
+        const { isLoading, courseData, selectedDate, plug, redirect, redirectDelete } = this.state;
         const role = this.props.currentUser.role;
         const isAdmin = role === ADMIN;
         const isDateSelected = selectedDate !== "" && selectedDate !== null;
         const course = courseData.course === null ? plug : courseData.course;
         const isPresent = course.isPresent;
         const spinner = <Space size="middle"> <Spin tip="Getting course data..." size="large" /></Space>;
+
         const updateBtn =
             <Button
+                className="course-btn"
+                type="primary"
+                size="medium"
+                onClick={this.updateClick}>Edit course</Button>;
+
+        const deleteBtn =
+            <Button
+                className="course-btn"
                 type="primary"
                 size="medium"
                 danger={true}
-                onClick={this.updateClick}>Edit course</Button>
+                onClick={this.deleteClick}>Delete course</Button>;
         return (
             <>
                 {isLoading === true && spinner}
@@ -185,7 +216,9 @@ class CourseDetailsComponent extends Component {
 
                 }
                 {isAdmin && updateBtn}
+                {isAdmin && deleteBtn}
                 {redirect && this.updateRedirect()}
+                {redirectDelete && this.deleteRedirect()}
             </>
         )
     };

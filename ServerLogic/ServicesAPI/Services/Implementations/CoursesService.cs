@@ -181,6 +181,28 @@ namespace ServicesAPI.Services.Implementations
             return result;
         }
 
+        public async Task<ApiResult> RemoveCourseAsync(int id)
+        {
+            var result = default(ApiResult);
+
+            var course = await courses.GetByIdAsync(id);
+
+            if (course == null)
+            {
+                var message = "Remove course error";
+                var loggerMessage = $"Course id = {id} was not found in DELETE";
+                var errors = new string[] { "Course was not found" };
+                result = ApiResult.GetErrorResult(ApiResultStatus.NotFound, loggerMessage, message, errors);
+            }
+            else
+            {
+                await courses.DeleteAsync(course);
+                result = ApiResult.GetOkResult(ApiResultStatus.Ok, "Course was deleted!");
+            }
+
+            return result;
+        }
+
         public ApiResult SaveImage(IFormFile image)
         {
             var result = default(ApiResult);
