@@ -10,8 +10,7 @@ import './course.css';
 
 const { Paragraph } = Typography;
 
-const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDate, course, ...props }) => {
-    const handleConfirm = props.handleConfirm;
+const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDate, handleConfirm, course, ...props }) => {
     let disableButton = !isDateSelected;
     const isEmailConfirmed = props.currentUser.emailConfirmed;
 
@@ -19,7 +18,7 @@ const CourseContainer = ({ userId, isDateSelected, handleDateChange, disabledDat
         disableButton = true;
     }
 
-    const [disableUnsub, setDisableUnsub] = useState(!(props.isPresent === true && isEmailConfirmed === true));
+    const [disableUnsub, setDisableUnsub] = useState(!(props.isPresent === true && isEmailConfirmed));
 
     const classNameContainer =
         [

@@ -183,7 +183,7 @@ class CourseDetailsComponent extends Component {
         const isAdmin = role === ADMIN;
         const isDateSelected = selectedDate !== "" && selectedDate !== null;
         const course = courseData.course === null ? plug : courseData.course;
-        const isPresent = course.isPresent;
+        const isPresent = courseData.isPresent;
         const spinner = <Space size="middle"> <Spin tip="Getting course data..." size="large" /></Space>;
 
         const updateBtn =
@@ -207,8 +207,10 @@ class CourseDetailsComponent extends Component {
                     isLoading === false &&
                     <CourseContainer
                         isPresent={isPresent}
+                        currentUser={this.props.currentUser}
                         course={course}
                         isDateSelected={isDateSelected}
+                        handleConfirm={this.handleConfirm}
                         handleDateChange={this.handleDateChange}
                         disabledDate={this.disabledDate}
                         userId={this.props.currentUser.id}

@@ -18,7 +18,7 @@ const AppHeaderComponent = ({ currentUser, history, ...props }) => {
     const subItems = [];
 
     subItems.push({ key: main, text: "Home", to: main });
-
+    
     if (isUser) {
         subItems.push({ key: courses, text: "Courses", to: courses });
         if (currentUser.role === ADMIN) {
